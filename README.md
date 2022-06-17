@@ -1,6 +1,6 @@
 # VueTube Vue Frontend - YouTube Clone
 
-> This is the frontend (VueJS) of the VueTube clone
+> This is the frontend (VueJS) of the favortube
 
 ## API
 
