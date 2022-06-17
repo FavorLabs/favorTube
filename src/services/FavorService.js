@@ -11,7 +11,7 @@ export default {
                 "cc30f0393cfaf2b6b2bea82ea4400fe8e9ff6d94b858beaf36d41fb9f040963e",
                 "01ce40352b9635cbfab17f22d6d1e4436a21324cc1b1ef97eac2b20928b03244",
             ],
-            "keep-connected-peers": 2
+            "keep-connected-peers": 1
         })
     },
     observeStorage(api) {
@@ -20,7 +20,7 @@ export default {
                 "9ca6d63b192afd92c54b14a50ce21783092be29b67c959022bd600d5691cb497",
                 "d95d0cf90e651b840ab3d888981d0653620aa042189e8d1a0f6a7cdc9bb572af",
             ],
-            "keep-connected-peers": 2
+            "keep-connected-peers": 1
         })
     },
     uploadFile(url, file) {
