@@ -8,9 +8,9 @@
       <v-tab>
         Uploads
       </v-tab>
-      <v-tab>
-        Live
-      </v-tab>
+      <!--      <v-tab>-->
+      <!--        Live-->
+      <!--      </v-tab>-->
     </v-tabs>
 
     <v-tabs-items v-model="tab">
@@ -19,29 +19,29 @@
           <v-card flat>
             <v-card-title>
               <v-text-field
-                v-model="search"
-                append-icon="mdi-magnify"
-                label="Filter"
-                single-line
-                hide-details
+                  v-model="search"
+                  append-icon="mdi-magnify"
+                  label="Filter"
+                  single-line
+                  hide-details
               ></v-text-field>
             </v-card-title>
             <v-data-table
-              no-data-text="No videos available, please upload video."
-              :headers="headers"
-              :items="videos"
-              :search="search"
-              :loading="loading"
-              loading-text="Loading... Please wait"
+                no-data-text="No videos available, please upload video."
+                :headers="headers"
+                :items="videos"
+                :search="search"
+                :loading="loading"
+                loading-text="Loading... Please wait"
             >
               <template v-slot:item.feelings="{ item }">
                 <span class="mr-3"
-                  ><v-icon small class="pr-1">mdi-thumb-up</v-icon
-                  >{{ item.likes }}</span
+                ><v-icon small class="pr-1">mdi-thumb-up</v-icon
+                >{{ item.likes }}</span
                 >
                 <span
-                  ><v-icon small class="pr-1">mdi-thumb-down</v-icon
-                  >{{ item.dislikes }}</span
+                ><v-icon small class="pr-1">mdi-thumb-down</v-icon
+                >{{ item.dislikes }}</span
                 >
               </template>
               <template v-slot:top>
@@ -49,7 +49,7 @@
                   <v-card>
                     <v-card-title>
                       <span class="headline"
-                        >Permanently delete this video?</span
+                      >Permanently delete this video?</span
                       >
                     </v-card-title>
 
@@ -59,23 +59,23 @@
                           <v-row no-gutters>
                             <v-col cols="3" sm="2" md="5" lg="5">
                               <v-img
-                                class="align-center"
-                                :src="`${url}/uploads/thumbnails/${itemToDelete.thumbnailUrl}`"
+                                  class="align-center"
+                                  :src="`${url}/uploads/thumbnails/${itemToDelete.thumbnailUrl}`"
                               >
                               </v-img>
                             </v-col>
                             <v-col>
                               <div class="ml-2">
                                 <v-card-title
-                                  class="pl-2 subtitle-1 font-weight-bold"
-                                  style="line-height: 1"
+                                    class="pl-2 subtitle-1 font-weight-bold"
+                                    style="line-height: 1"
                                 >
                                   {{ itemToDelete.title }}
                                 </v-card-title>
 
                                 <v-card-subtitle
-                                  class="pl-2 pt-2 pb-0"
-                                  style="line-height: 1"
+                                    class="pl-2 pt-2 pb-0"
+                                    style="line-height: 1"
                                 >
 
                                   Published
@@ -93,18 +93,18 @@
                     <v-card-actions>
                       <v-spacer></v-spacer>
                       <v-btn
-                        color="blue darken-1"
-                        text
-                        @click="dialogDelete = !dialogDelete"
-                        >Cancel</v-btn
+                          color="blue darken-1"
+                          text
+                          @click="dialogDelete = !dialogDelete"
+                      >Cancel</v-btn
                       >
 
                       <v-btn
-                        :loading="deleteBtnLoading"
-                        color="blue darken-1"
-                        text
-                        @click="deleteItem"
-                        >Delete Forever</v-btn
+                          :loading="deleteBtnLoading"
+                          color="blue darken-1"
+                          text
+                          @click="deleteItem"
+                      >Delete Forever</v-btn
                       >
                     </v-card-actions>
                   </v-card>
@@ -117,12 +117,12 @@
                   </v-icon>
                 </v-btn>
                 <v-btn
-                  icon
-                  href
-                  text
-                  class="mr-2"
-                  router
-                  :to="`/watch/${item._id}`"
+                    icon
+                    href
+                    text
+                    class="mr-2"
+                    router
+                    :to="`/watch/${item._id}`"
                 >
                   <v-icon>
                     mdi-youtube
@@ -138,9 +138,9 @@
           </v-card>
         </template>
       </v-tab-item>
-      <v-tab-item>
-        live
-      </v-tab-item>
+      <!--      <v-tab-item>-->
+      <!--        live-->
+      <!--      </v-tab-item>-->
     </v-tabs-items>
     <!-- </v-row> -->
     <!-- </v-container> -->
@@ -156,6 +156,8 @@
 <script>
 import VideoService from "@/services/VideoService";
 import moment from "moment";
+import {mapGetters} from "vuex";
+
 export default {
   data: () => ({
     loading: false,
@@ -164,7 +166,7 @@ export default {
     dialogDelete: false,
     tab: null,
     search: "",
-    url: process.env.VUE_APP_URL,
+    // url: process.env.VUE_APP_URL,
     headers: [
       {
         text: "Video",
@@ -180,15 +182,21 @@ export default {
     videos: [],
     itemToDelete: {},
   }),
+  computed:{
+    ...mapGetters(["getImgUrl"]),
+    url(){
+      return this.getImgUrl
+    }
+  },
   methods: {
     async getVideos() {
       this.loading = true;
 
       const videos = await VideoService.getAll("private", { limit: 0 })
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => (this.loading = false));
+          .catch((err) => {
+            console.log(err);
+          })
+          .finally(() => (this.loading = false));
 
       if (!videos) return;
       // console.log(videos)
@@ -203,17 +211,18 @@ export default {
     },
     async deleteItem() {
       this.deleteBtnLoading = true;
+      console.log(this.itemToDelete._id)
       await VideoService.deleteById(this.itemToDelete._id)
-        .catch((err) => console.log(err))
-        .finally(() => {
-          this.videos = this.videos.filter(
-            (video) => this.itemToDelete.id !== video.id
-          );
-          this.deleteBtnLoading = false;
-          this.dialogDelete = false;
-          this.itemToDelete = {};
-          this.snackbar = true;
-        });
+          .catch((err) => console.log(err))
+          .finally(() => {
+            this.videos = this.videos.filter(
+                (video) => this.itemToDelete.id !== video.id
+            );
+            this.deleteBtnLoading = false;
+            this.dialogDelete = false;
+            this.itemToDelete = {};
+            this.snackbar = true;
+          });
     },
     dateFormatter(date) {
       return moment(date).fromNow();

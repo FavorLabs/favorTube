@@ -3,29 +3,29 @@
     <v-container fluid>
       <v-row>
         <v-col
-          cols="8"
-          sm="7"
-          md="10"
-          lg="10"
-          v-for="(video, i) in loading ? 12 : videos"
-          :key="i"
-          class="mx-lg-0 mx-md-0 mx-sm-auto mx-auto"
+            cols="8"
+            sm="7"
+            md="10"
+            lg="10"
+            v-for="(video, i) in loading ? 12 : videos"
+            :key="i"
+            class="mx-lg-0 mx-md-0 mx-sm-auto mx-auto"
         >
           <v-skeleton-loader
-            class="mx-auto"
-            type="list-item-avatar-three-line"
-            :loading="loading"
-            tile
-            large
+              class="mx-auto"
+              type="list-item-avatar-three-line"
+              :loading="loading"
+              tile
+              large
           >
             <v-card class="card" tile flat :to="`/watch/${video._id}`">
               <v-row no-gutters>
                 <v-col class="mx-auto" cols="12" sm="8" md="5" lg="4">
                   <!-- <v-responsive max-height="100%"> -->
                   <v-img
-                    max-height="200"
-                    class="align-center"
-                    :src="`${getUrl}/uploads/thumbnails/${video.thumbnailUrl}`"
+                      max-height="200"
+                      class="align-center"
+                      :src="`${getImgUrl}/uploads/thumbnails/${video.thumbnailUrl}`"
                   >
                   </v-img>
                   <!-- </v-responsive> -->
@@ -40,7 +40,7 @@
                       {{ video.userId.channelName }}
                       <v-icon>mdi-circle-small</v-icon
                       >{{ video.views }} views<v-icon>mdi-circle-small</v-icon
-                      >{{ dateFormatter(video.createdAt) }}
+                    >{{ dateFormatter(video.createdAt) }}
                     </v-card-subtitle>
                     <v-card-subtitle class="pl-2 pt-0">
                       {{ truncateText(video.description, 200) }}
@@ -58,8 +58,8 @@
           <infinite-loading @infinite="getVideos">
             <div slot="spinner">
               <v-progress-circular
-                indeterminate
-                color="red"
+                  indeterminate
+                  color="red"
               ></v-progress-circular>
             </div>
             <div slot="no-results"></div>
@@ -105,7 +105,7 @@ export default {
     page: 1
   }),
   computed: {
-    ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated'])
+    ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated',"getImgUrl"])
   },
   methods: {
     async getVideos($state) {
@@ -117,13 +117,13 @@ export default {
         page: this.page,
         sort: '-views'
       })
-        .catch((err) => {
-          console.log(err)
-          this.errored = true
-        })
-        .finally(() => {
-          this.loading = false
-        })
+          .catch((err) => {
+            console.log(err)
+            this.errored = true
+          })
+          .finally(() => {
+            this.loading = false
+          })
 
       if (typeof videos === 'undefined') return
 

@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
-import { required, email, max, min, size, oneOf } from 'vee-validate/dist/rules'
+import {required, email, max, min, size, oneOf} from 'vee-validate/dist/rules'
 import {
   extend,
   ValidationObserver,
@@ -13,7 +13,27 @@ import {
 import Vuebar from 'vuebar'
 // import InfiniteLoading from 'vue-infinite-loading'
 
+import '@mdi/font/css/materialdesignicons.min.css';
+
+import VueClipboard from 'vue-clipboard2'
+
+Vue.use(VueClipboard)
+
 setInteractionMode('eager')
+
+extend('api', {
+  message: "Api invalid",
+  validate: value => {
+    let pattern = new RegExp('^(http(s?)?:\\/\\/)' + // protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' + // domain name
+        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+        '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+    return pattern.test(value);
+  }
+});
+
 
 extend('required', {
   ...required,
@@ -41,7 +61,7 @@ extend('email', {
 
 extend('password', {
   params: ['target'],
-  validate(value, { target }) {
+  validate(value, {target}) {
     return value === target
   },
   message: 'Password does not match'
@@ -49,7 +69,7 @@ extend('password', {
 
 extend('size', {
   ...size,
-  message: 'video size should be less than 5 MB!'
+  message: 'video size should be less than 1 GB!'
 })
 
 Vue.config.productionTip = false
@@ -67,9 +87,12 @@ Vue.component('ValidationObserver', ValidationObserver)
 
 Vue.use(Vuebar)
 
+
 new Vue({
   router,
   store,
   vuetify,
   render: (h) => h(App)
 }).$mount('#app')
+
+

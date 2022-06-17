@@ -19,19 +19,20 @@
         <h3 class="headline font-weight-medium">Recommended</h3>
         <v-row>
           <v-col
-            cols="12"
-            sm="6"
-            md="4"
-            lg="3"
-            v-for="(video, i) in loading ? 12 : videos"
-            :key="i"
-            class="mx-xs-auto"
+              cols="12"
+              sm="6"
+              md="4"
+              lg="3"
+              v-for="(video, i) in loading ? pageSize : videos"
+              :key="i"
+              class="mx-xs-auto"
           >
             <v-skeleton-loader type="card-avatar" :loading="loading">
               <video-card
-                :card="{ maxWidth: 350 }"
-                :video="video"
-                :channel="video.userId"
+                  :card="{ maxWidth: 350 }"
+                  :video="video"
+                  :index="0"
+                  :channel="video.userId"
               ></video-card>
             </v-skeleton-loader>
           </v-col>
@@ -42,8 +43,8 @@
             <infinite-loading @infinite="getVideos">
               <div slot="spinner">
                 <v-progress-circular
-                  indeterminate
-                  color="red"
+                    indeterminate
+                    color="red"
                 ></v-progress-circular>
               </div>
               <div slot="no-results"></div>
@@ -79,6 +80,7 @@ import moment from 'moment'
 import VideoCard from '@/components/VideoCard'
 import VideoService from '@/services/VideoService'
 
+
 export default {
   name: 'Home',
   data: () => ({
@@ -86,7 +88,8 @@ export default {
     loaded: false,
     errored: false,
     videos: [],
-    page: 1
+    page: 1,
+    pageSize: 12,
   }),
   methods: {
     async getVideos($state) {
@@ -94,14 +97,14 @@ export default {
         this.loading = true
       }
 
-      const videos = await VideoService.getAll('public', { page: this.page })
-        .catch((err) => {
-          console.log(err)
-          this.errored = true
-        })
-        .finally(() => {
-          this.loading = false
-        })
+      const videos = await VideoService.getAll('public', {page: this.page})
+          .catch((err) => {
+            console.log(err)
+            this.errored = true
+          })
+          .finally(() => {
+            this.loading = false
+          })
 
       if (typeof videos === 'undefined') return
 

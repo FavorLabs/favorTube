@@ -1,13 +1,13 @@
 <template>
   <v-card class="transparent" flat>
     <v-list-item three-line class="pl-0">
-      <v-list-item-avatar size="50">
+      <v-list-item-avatar size="50" style="cursor: pointer;" @click.stop="$router.push(`/channels/${currentUser._id}`)">
         <v-avatar v-if="!isAuthenticated" color="primary">
           <v-icon class="white--text">mdi-account</v-icon>
         </v-avatar>
         <v-img
-          v-else-if="currentUser.photoUrl !== 'no-photo.jpg'"
-          :src="`${getUrl}/uploads/avatars/${currentUser.photoUrl}`"
+            v-else-if="currentUser.photoUrl !== 'no-photo.jpg'"
+            :src="`${getImgUrl}/uploads/avatars/${currentUser.photoUrl}`"
         ></v-img>
 
         <v-avatar v-else color="red">
@@ -18,21 +18,21 @@
       </v-list-item-avatar>
       <v-list-item-content class="align-self-auto">
         <v-text-field
-          v-model="comment"
-          placeholder="Add a public comment..."
-          @click="clickTextField"
+            v-model="comment"
+            placeholder="Add a public comment..."
+            @click="clickTextField"
         >
         </v-text-field>
         <div v-if="showCommentBtns" class="d-inline-block text-right">
           <v-btn text @click="showCommentBtns = !showCommentBtns">Cancel</v-btn>
           <v-btn
-            class="blue darken-3 white--text"
-            depressed
-            tile
-            :loading="loading"
-            :disabled="comment === ''"
-            @click="createComment"
-            >Comment</v-btn
+              class="blue darken-3 white--text"
+              depressed
+              tile
+              :loading="loading"
+              :disabled="comment === ''"
+              @click="createComment"
+          >Comment</v-btn
           >
         </div>
       </v-list-item-content>
@@ -58,7 +58,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated'])
+    ...mapGetters(['currentUser', 'isAuthenticated',"getImgUrl"]),
   },
   methods: {
     async createComment() {
@@ -69,12 +69,12 @@ export default {
         text: this.comment,
         videoId: this.videoId
       })
-        .catch((err) => {
-          console.log(err)
-        })
-        .finally(() => {
-          this.loading = false
-        })
+          .catch((err) => {
+            console.log(err)
+          })
+          .finally(() => {
+            this.loading = false
+          })
 
       if (!comment) return
       this.comment = ''

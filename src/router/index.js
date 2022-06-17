@@ -20,9 +20,9 @@ const routes = [
     components: {
       NavBar,
       default: () =>
-        import(/* webpackChunkName: "about" */ '../views/Subscription.vue')
+          import(/* webpackChunkName: "about" */ '../views/Subscription.vue')
     },
-    meta: { requiresAuth: true }
+    meta: {requiresAuth: true}
   },
   {
     path: '/liked-videos',
@@ -30,23 +30,23 @@ const routes = [
     components: {
       NavBar,
       default: () =>
-        import(/* webpackChunkName: "about" */ '../views/LikedVideo.vue')
+          import(/* webpackChunkName: "about" */ '../views/LikedVideo.vue')
     },
-    meta: { requiresAuth: true }
+    meta: {requiresAuth: true}
   },
   {
     path: '/signin',
     name: 'SignIn',
     component: () =>
-      import(/* webpackChunkName: "signin" */ '../views/Auth/SignIn.vue'),
-    meta: { requiresVisitor: true }
+        import(/* webpackChunkName: "signin" */ '../views/Auth/SignIn.vue'),
+    meta: {requiresVisitor: true}
   },
   {
     path: '/signup',
     name: 'SignUp',
     component: () =>
-      import(/* webpackChunkName: "signup" */ '../views/Auth/SignUp.vue'),
-    meta: { requiresVisitor: true }
+        import(/* webpackChunkName: "signup" */ '../views/Auth/SignUp.vue'),
+    meta: {requiresVisitor: true}
   },
   {
     path: '/trending',
@@ -54,7 +54,7 @@ const routes = [
     components: {
       NavBar,
       default: () =>
-        import(/* webpackChunkName: "trending" */ '../views/Trending.vue')
+          import(/* webpackChunkName: "trending" */ '../views/Trending.vue')
     }
   },
   {
@@ -62,47 +62,47 @@ const routes = [
     components: {
       StudioNavBar,
       default: () =>
-        import(/* webpackChunkName: "dashboard" */ '../views/Studio/Index.vue')
+          import(/* webpackChunkName: "dashboard" */ '../views/Studio/Index.vue')
     },
     children: [
       {
         path: '/',
         name: 'Dashboard',
         component: () =>
-          import(
-            /* webpackChunkName: "dashboard" */ '../views/Studio/Dashboard.vue'
-          )
+            import(
+                /* webpackChunkName: "dashboard" */ '../views/Studio/Dashboard.vue'
+                )
       },
       {
         path: 'videos',
         name: 'Video',
         component: () =>
-          import(/* webpackChunkName: "video" */ '../views/Studio/Video.vue')
+            import(/* webpackChunkName: "video" */ '../views/Studio/Video.vue')
       },
       {
         path: 'details/:id',
         name: 'Detail',
         component: () =>
-          import(/* webpackChunkName: "video" */ '../views/Studio/Details.vue')
+            import(/* webpackChunkName: "video" */ '../views/Studio/Details.vue')
       }
     ],
-    meta: { requiresAuth: true }
+    meta: {requiresAuth: true}
   },
   {
     path: '/channels/:id',
     components: {
       NavBar,
       default: () =>
-        import(/* webpackChunkName: "dashboard" */ '../views/Channel/Index.vue')
+          import(/* webpackChunkName: "dashboard" */ '../views/Channel/Index.vue')
     },
     children: [
       {
         path: '/',
         name: 'ChannelHome',
         component: () =>
-          import(
-            /* webpackChunkName: "dashboard" */ '../views/Channel/Home.vue'
-          )
+            import(
+                /* webpackChunkName: "dashboard" */ '../views/Channel/Home.vue'
+                )
       }
     ]
   },
@@ -112,7 +112,7 @@ const routes = [
     components: {
       NavBar,
       default: () =>
-        import(/* webpackChunkName: "video" */ '../views/Watch.vue')
+          import(/* webpackChunkName: "video" */ '../views/Watch.vue')
     }
   },
   {
@@ -121,9 +121,9 @@ const routes = [
     components: {
       NavBar,
       default: () =>
-        import(/* webpackChunkName: "video" */ '../views/History.vue')
+          import(/* webpackChunkName: "video" */ '../views/History.vue')
     },
-    meta: { requiresAuth: true }
+    meta: {requiresAuth: true}
   },
   {
     path: '/search',
@@ -131,26 +131,50 @@ const routes = [
     components: {
       NavBar,
       default: () =>
-        import(/* webpackChunkName: "video" */ '../views/Search.vue')
+          import(/* webpackChunkName: "video" */ '../views/Search.vue')
     }
-  }
+  },
+  {
+    path: '/Config',
+    name: 'Config',
+    components: {
+      default: () =>
+          import(/* webpackChunkName: "video" */ '../views/ApiConfig')
+    }
+  },
 ]
 
 const router = new VueRouter({
-  mode: 'history',
-  base: process.env.BASE_URL,
+  mode: 'hash',
   routes
 })
 
+function SignInTips() {
+  // router.app.$options.router.push('/signin');
+  router.app.$options.store.dispatch("showTips", {
+    type: "info", text: "Please sign in"
+  })
+}
+
 router.beforeEach((to, from, next) => {
   const loggedIn = localStorage.getItem('user')
+  const api = sessionStorage.getItem("api");
+  const ws = sessionStorage.getItem("ws");
+  if (to.path !== "/Config" && !api && !ws) {
+    return next('/Config')
+  }
 
   if (to.matched.some((record) => record.meta.requiresAuth) && !loggedIn) {
+    console.log('1-------', to, from);
+    if (to.path === '/studio') {
+      SignInTips();
+    }
     next('/')
   } else if (
-    to.matched.some((record) => record.meta.requiresVisitor) &&
-    loggedIn
+      to.matched.some((record) => record.meta.requiresVisitor) &&
+      loggedIn
   ) {
+    console.log('2------');
     next('/')
   } else {
     next()

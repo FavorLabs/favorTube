@@ -7,14 +7,14 @@
       <v-skeleton-loader type="list-item-avatar-two-line" :loading="loading">
         <v-card class="transparent" flat>
           <v-list-item three-line class="pl-0 mt-2">
-            <v-list-item-avatar
-              v-if="typeof comment.userId !== 'undefined'"
-              size="50"
+            <v-list-item-avatar style="cursor: pointer;" @click.stop="$router.push(`/channels/${comment.userId._id}`)"
+                                v-if="typeof comment.userId !== 'undefined'"
+                                size="50"
             >
               <v-img
-                v-if="comment.userId.photoUrl !== 'no-photo.jpg'"
-                class="elevation-6"
-                :src="`${url}/uploads/avatars/${comment.userId.photoUrl}`"
+                  v-if="comment.userId.photoUrl !== 'no-photo.jpg'"
+                  class="elevation-6"
+                  :src="`${url}/uploads/avatars/${comment.userId.photoUrl}`"
               ></v-img>
               <v-avatar v-else color="red">
                 <span class="white--text headline ">
@@ -27,9 +27,9 @@
             <v-list-item-content>
               <div class="d-flex mb-0">
                 <v-list-item-title
-                  v-if="comment.userId"
-                  class="font-weight-medium caption mb-0 d-flex"
-                  >{{ comment.userId.channelName }}
+                    v-if="comment.userId"
+                    class="font-weight-medium caption mb-0 d-flex"
+                >{{ comment.userId.channelName }}
                   <span class="pl-2 font-weight-light grey--text">
                     {{ dateFormatter(comment.createdAt) }}</span
                   >
@@ -44,41 +44,41 @@
                   <v-list v-if="isAuthenticated">
                     <v-list-item @click="deleteComment(comment._id)">
                       <v-list-item-title
-                        ><v-icon>mdi-trash</v-icon>Delete</v-list-item-title
+                      ><v-icon>mdi-trash</v-icon>Delete</v-list-item-title
                       >
                     </v-list-item>
                   </v-list>
                 </v-menu>
               </div>
               <v-list-item-subtitle
-                class="mt-n2 black--text text--darken-4 caption"
-                >{{ comment.text }}</v-list-item-subtitle
+                  class="mt-n2 black--text text--darken-4 caption"
+              >{{ comment.text }}</v-list-item-subtitle
               >
 
               <div>
                 <v-btn
-                  text
-                  small
-                  :ripple="false"
-                  @click.stop="showReply(`${'reply' + comment._id}`)"
-                  >Reply</v-btn
+                    text
+                    small
+                    :ripple="false"
+                    @click.stop="showReply(`${'reply' + comment._id}`)"
+                >Reply</v-btn
                 >
               </div>
               <div class="d-none" :ref="`${'reply' + comment._id}`">
                 <v-list-item three-line class="pl-0">
                   <v-list-item-avatar
-                    v-if="typeof comment.userId !== 'undefined'"
-                    class="mt-2"
-                    size="40"
+                      v-if="typeof comment.userId !== 'undefined'"
+                      class="mt-2"
+                      size="40"
                   >
                     <v-avatar v-if="!isAuthenticated" color="primary">
                       <v-icon class="white--text">mdi-account</v-icon>
                     </v-avatar>
                     <template v-else>
                       <v-img
-                        v-if="currentUser.photoUrl !== 'no-photo.jpg'"
-                        class="elevation-6"
-                        :src="`${url}/uploads/avatars/${currentUser.photoUrl}`"
+                          v-if="currentUser.photoUrl !== 'no-photo.jpg'"
+                          class="elevation-6"
+                          :src="`${url}/uploads/avatars/${currentUser.photoUrl}`"
                       ></v-img>
                       <v-avatar v-else color="red">
                         <span class="white--text headline ">
@@ -92,33 +92,33 @@
                   <v-list-item-content class="align-self-auto mt-0 pt-0">
                     <v-form :ref="`form${comment._id}`">
                       <v-text-field
-                        :ref="`${'input' + comment._id}`"
-                        class="pt-0 mt-0 body-2"
-                        placeholder="Add a public comment..."
-                        @click="clickTextField"
-                        :value="repliesInput[`input${comment._id}`]"
+                          :ref="`${'input' + comment._id}`"
+                          class="pt-0 mt-0 body-2"
+                          placeholder="Add a public comment..."
+                          @click="clickTextField"
+                          :value="repliesInput[`input${comment._id}`]"
                       >
                       </v-text-field>
                     </v-form>
                     <div
-                      :ref="comment._id + 'btns'"
-                      class="d-inline-block text-right"
-                      v-if="isAuthenticated"
+                        :ref="comment._id + 'btns'"
+                        class="d-inline-block text-right"
+                        v-if="isAuthenticated"
                     >
                       <v-btn text @click="hideReply(comment._id)" small
-                        >Cancel</v-btn
+                      >Cancel</v-btn
                       >
                       <v-btn
-                        class="blue darken-3 white--text"
-                        depressed
-                        tile
-                        small
-                        :loading="btnLoading && i == index"
-                        @click="
+                          class="blue darken-3 white--text"
+                          depressed
+                          tile
+                          small
+                          :loading="btnLoading && i == index"
+                          @click="
                           index = i
                           addReply($event, comment._id)
                         "
-                        >Reply</v-btn
+                      >Reply</v-btn
                       >
                     </div>
                   </v-list-item-content>
@@ -128,28 +128,28 @@
               <v-expansion-panels>
                 <v-expansion-panel class="transparent elevation-0">
                   <v-expansion-panel-header
-                    v-if="comment.replies && comment.replies.length > 0"
-                    class="blue--text text--darken-4 py-0"
-                    >{{
+                      v-if="comment.replies && comment.replies.length > 0"
+                      class="blue--text text--darken-4 py-0"
+                  >{{
                       comment.replies.length
                     }}
                     replies</v-expansion-panel-header
                   >
                   <v-expansion-panel-content>
                     <v-list-item
-                      three-line
-                      class="pl-0 mt-2"
-                      v-for="reply in comment.replies"
-                      :key="reply._id"
+                        three-line
+                        class="pl-0 mt-2"
+                        v-for="reply in comment.replies"
+                        :key="reply._id"
                     >
                       <v-list-item-avatar
-                        v-if="typeof reply !== 'undefined'"
-                        size="50"
+                          v-if="typeof reply !== 'undefined'"
+                          size="50"
                       >
                         <v-img
-                          v-if="reply.userId.photoUrl !== 'no-photo.jpg'"
-                          class="elevation-6"
-                          :src="
+                            v-if="reply.userId.photoUrl !== 'no-photo.jpg'"
+                            class="elevation-6"
+                            :src="
                             `${url}/uploads/avatars/${reply.userId.photoUrl}`
                           "
                         ></v-img>
@@ -157,8 +157,8 @@
                           <span class="white--text headline ">
                             {{
                               reply.userId.channelName
-                                .split('')[0]
-                                .toUpperCase()
+                                  .split('')[0]
+                                  .toUpperCase()
                             }}</span
                           >
                         </v-avatar>
@@ -166,9 +166,9 @@
                       <v-list-item-content>
                         <div class="d-flex mb-0">
                           <v-list-item-title
-                            v-if="reply.userId"
-                            class="font-weight-medium caption mb-0 d-flex"
-                            >{{ reply.userId.channelName }}
+                              v-if="reply.userId"
+                              class="font-weight-medium caption mb-0 d-flex"
+                          >{{ reply.userId.channelName }}
                             <span class="pl-2 font-weight-light grey--text">
                               {{ dateFormatter(reply.createdAt) }}</span
                             >
@@ -182,19 +182,19 @@
 
                             <v-list>
                               <v-list-item
-                                @click="deleteReply(comment._id, reply._id)"
+                                  @click="deleteReply(comment._id, reply._id)"
                               >
                                 <v-list-item-title
-                                  ><v-icon>mdi-trash</v-icon
-                                  >Delete</v-list-item-title
+                                ><v-icon>mdi-trash</v-icon
+                                >Delete</v-list-item-title
                                 >
                               </v-list-item>
                             </v-list>
                           </v-menu>
                         </div>
                         <v-list-item-subtitle
-                          class="mt-n2 black--text text--darken-4 caption"
-                          >{{ reply.text }}</v-list-item-subtitle
+                            class="mt-n2 black--text text--darken-4 caption"
+                        >{{ reply.text }}</v-list-item-subtitle
                         >
                       </v-list-item-content>
                     </v-list-item>
@@ -235,21 +235,24 @@ export default {
       commentsLength: false,
       index: -1,
       btnLoading: false,
-      url: process.env.VUE_APP_URL,
+      // url: process.env.VUE_APP_URL,
       snackbar: false,
       loading: false
     }
   },
   computed: {
-    ...mapGetters(['isAuthenticated', 'currentUser'])
+    ...mapGetters(['isAuthenticated', 'currentUser',"getImgUrl"]),
+    url(){
+      return this.getImgUrl
+    }
   },
   methods: {
     async getComments() {
       this.loading = true
       const comments = await this.$store
-        .dispatch('setComments', this.videoId)
-        .catch((err) => console.log(err))
-        .finally(() => (this.loading = false))
+          .dispatch('setComments', this.videoId)
+          .catch((err) => console.log(err))
+          .finally(() => (this.loading = false))
       // console.log(this.loading)
       if (!comments) return
 
@@ -262,7 +265,7 @@ export default {
       if (!this.isAuthenticated) return
       // this.$store.dispatch('deleteComment', id)
       this.comments = this.comments.filter(
-        (comment) => comment._id.toString() !== id.toString()
+          (comment) => comment._id.toString() !== id.toString()
       )
 
       this.snackbar = true
@@ -271,8 +274,8 @@ export default {
       })
 
       await this.$store
-        .dispatch('setComments', this.videoId)
-        .catch((err) => console.log(err))
+          .dispatch('setComments', this.videoId)
+          .catch((err) => console.log(err))
       this.comments = this.$store.getters.getComments.data
       this.$emit('videoCommentLength')
     },
@@ -289,18 +292,18 @@ export default {
         commentId: id,
         text: this.$refs[`input${id}`][0].$refs.input.value
       })
-        .catch((err) => {
-          console.log(err)
-        })
-        .finally(() => {
-          this.btnLoading = false
-          // this.$store.dispatch('setComments', this.videoId)
-        })
+          .catch((err) => {
+            console.log(err)
+          })
+          .finally(() => {
+            this.btnLoading = false
+            // this.$store.dispatch('setComments', this.videoId)
+          })
       reply.data.data.userId = this.$store.getters.currentUser
       // this.$store.dispatch('addComment', reply.data.data)
       // console.log(this.$store.getters.getComments.data)
       let comment = this.comments.find(
-        (comment) => comment._id.toString() === id.toString()
+          (comment) => comment._id.toString() === id.toString()
       )
       // console.log(comment)
       if (!comment.replies) {
