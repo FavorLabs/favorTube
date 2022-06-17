@@ -3,7 +3,6 @@ node_modules
 /dist
 /favor
 /build
-package-lock.json
 
 # local env files
 .env.local
