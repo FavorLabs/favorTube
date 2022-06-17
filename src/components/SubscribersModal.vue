@@ -1,9 +1,9 @@
 <template>
   <v-dialog
-    v-model="dialog"
-    persistent
-    transition="fab-transition"
-    max-width="800"
+      v-model="dialog"
+      persistent
+      transition="fab-transition"
+      max-width="800"
   >
     <v-card tile>
       <div class="d-flex justify-space-between mb-5">
@@ -18,21 +18,21 @@
         <v-row>
           <v-col cols="12" sm="12" md="12" lg="12" class="pt-0 px-0">
             <v-data-table
-              :headers="headers"
-              :items="subscribers"
-              :loading="loading"
-              sort-by="calories"
+                :headers="headers"
+                :items="subscribers"
+                :loading="loading"
+                sort-by="calories"
             >
               <template v-slot:item.channel="{ item }">
                 <v-avatar size="35" color="red" class="white--text">
                   <template
-                    v-if="item.subscriberId.photoUrl !== 'no-photo.jpg'"
+                      v-if="item.subscriberId.photoUrl !== 'no-photo.jpg'"
                   >
                     <img
-                      :src="
+                        :src="
                         `${getUrl}/uploads/avatars/${item.subscriberId.photoUrl}`
                       "
-                      :alt="`${item.subscriberId.photoUrl} avatar`"
+                        :alt="`${item.subscriberId.photoUrl} avatar`"
                     />
                   </template>
                   <span v-else class="headline">
@@ -97,10 +97,10 @@ export default {
     async getSubscribers() {
       this.loading = true
       const subscribers = await SubscriptionService.getSubscribers(0)
-        .catch((err) => console.log(err))
-        .finally(() => {
-          this.loading = false
-        })
+          .catch((err) => console.log(err))
+          .finally(() => {
+            this.loading = false
+          })
 
       if (!subscribers) return
       this.subscribers = subscribers.data.data
