@@ -219,11 +219,11 @@
         :temporary="$route.name === 'Watch'"
         id="nav"
     >
-      <div tag="div" class="v-navigation-drawer__content" v-bar>
+      <div class="v-navigation-drawer__content" v-bar>
         <v-list dense nav class="py-0" tag="div" style="position: relative">
           <v-list-item
               :class="{
-              'hidden-lg-and-up': $route.name === 'Watch' ? false : true
+              'hidden-lg-and-up': $route.name!=='Watch'
             }"
           >
             <v-app-bar-nav-icon
@@ -232,37 +232,48 @@
             ></v-app-bar-nav-icon>
             <v-toolbar-title class="font-weight-bold">FavorTube</v-toolbar-title>
           </v-list-item>
+
           <v-divider class="hidden-lg-and-up"></v-divider>
           <div v-for="parentItem in items" :key="parentItem.header">
-            <v-subheader
-                v-if="parentItem.header"
-                class="pl-3 py-4 subtitle-1 font-weight-bold text-uppercase"
-            >{{ parentItem.header }}
-            </v-subheader
-            >
-
             <div
-                :class="parentItem.header === 'Subscriptions' ? 'Subscriptions-box' : ''"
-                :ref="parentItem.header === 'Subscriptions' ? 'Subscriptions_box' : ''"
             >
               <v-list-item
-                  v-for="(item) in parentItem.header === 'Subscriptions'
-                ? items[items.length - 1].pages.slice(0, channelLength)
-                : parentItem.pages"
+                  v-for="(item) in parentItem.pages"
                   :key="item.title"
                   class="mb-0"
-                  :to="
-                parentItem.header === 'Subscriptions'
-                  ? '/channels/' + item.channelId._id
-                  : item.link
-              "
+                  :to="item.link"
                   exact
                   active-class="active-item"
               >
                 <v-list-item-icon v-if="parentItem.header !== 'Subscriptions'">
                   <v-icon>{{ item.icon }}</v-icon>
                 </v-list-item-icon>
-                <v-list-item-avatar v-else class="mr-5">
+                <v-list-item-title class=" font-weight-medium subtitle-2">
+                  {{ item.title }}
+                </v-list-item-title>
+              </v-list-item>
+            </div>
+
+            <v-divider
+                class="mt-2 mb-2"
+            ></v-divider>
+          </div>
+          <div v-if="isAuthenticated">
+            <v-subheader
+                class="pl-3 py-4 subtitle-1 font-weight-bold text-uppercase"
+            >
+              Subscriptions
+            </v-subheader>
+            <div class="Subscriptions-box">
+              <v-list-item
+                  v-for="(item) in channelList"
+                  :key="item.title"
+                  class="mb-0"
+                  :to="'/channels/' + item.channelId._id"
+                  exact
+                  active-class="active-item"
+              >
+                <v-list-item-avatar class="mr-5">
                   <v-avatar
                       v-if="
                     item.channelId.photoUrl !== 'no-photo.jpg' && item.channelId
@@ -286,39 +297,29 @@
                   </template>
                 </v-list-item-avatar>
                 <v-list-item-content>
-                  <v-list-item-title class=" font-weight-medium subtitle-2">{{
-                      parentItem.header === 'Subscriptions'
-                          ? item.channelId.channelName
-                          : item.title
+                  <v-list-item-title class=" font-weight-medium subtitle-2">
+                    {{
+                      item.channelId.channelName
                     }}
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
             </div>
-
             <v-btn
                 id="showBtn"
                 @click="moreChannels"
-                v-if="
-                parentItem.header === 'Subscriptions' &&
-                  isAuthenticated &&
-                  items[items.length - 1].pages.length >3
-              "
                 block
                 text
                 class="text-none"
             >
-              <v-icon>{{isLoadingChannel ? 'mdi-loading' : 'mdi-chevron-down'}}</v-icon>
-              {{ loadedAllChannel ? 'Loaded all' : `Show more` }}
+              <v-icon>{{ isLoadingChannel ? 'mdi-loading' : 'mdi-chevron-down' }}</v-icon>
+              {{ loadedAllChannel ? 'All(reload)' : `Show more` }}
             </v-btn
             >
-
-            <v-divider
-                v-if="parentItem.header !== false"
-                class="mt-2 mb-2"
-            ></v-divider>
           </div>
-
+          <v-divider
+              class="mt-2 mb-2"
+          ></v-divider>
           <span v-for="link in links" :key="link.text">
             <span v-if="link.text === 'Terms'" class="mb-2 d-block"> </span>
             <v-btn
@@ -375,31 +376,31 @@ export default {
           }
         ]
       },
-      {
-        header: 'Subscriptions',
-        pages: [
-          // {
-          //   title: 'Traversy Media',
-          //   link: '#tm',
-          //   icon: 'mdi-badge-account'
-          // },
-          // {
-          //   title: 'The New Boston',
-          //   link: '#tn',
-          //   icon: 'mdi-badge-account'
-          // },
-          // {
-          //   title: 'Net Ninija',
-          //   link: '#nn',
-          //   icon: 'mdi-badge-account'
-          // },
-          // {
-          //   title: 'Chris Hawks',
-          //   link: '#ch',
-          //   icon: 'mdi-badge-account'
-          // }
-        ]
-      },
+      // {
+      //   header: 'Subscriptions',
+      //   pages: [
+      //     // {
+      //     //   title: 'Traversy Media',
+      //     //   link: '#tm',
+      //     //   icon: 'mdi-badge-account'
+      //     // },
+      //     // {
+      //     //   title: 'The New Boston',
+      //     //   link: '#tn',
+      //     //   icon: 'mdi-badge-account'
+      //     // },
+      //     // {
+      //     //   title: 'Net Ninija',
+      //     //   link: '#nn',
+      //     //   icon: 'mdi-badge-account'
+      //     // },
+      //     // {
+      //     //   title: 'Chris Hawks',
+      //     //   link: '#ch',
+      //     //   icon: 'mdi-badge-account'
+      //     // }
+      //   ]
+      // },
       // {
       //   header: 'MORE FROM VUETUBE',
       //   pages: [
@@ -461,6 +462,7 @@ export default {
     ],
     channelLength: 0,
     channelPage: 1,
+    channelList: [],
     loadedAllChannel: false,
     isLoadingChannel: false,
     searchText: '',
@@ -504,22 +506,20 @@ export default {
             this.isLoadingChannel = false;
           })
       if (channels.data.count > 0) {
-        this.items[this.items.length - 1].pages = this.items[this.items.length - 1].pages.length === 0 ? channels.data.data : this.items[this.items.length - 1].pages.concat(channels.data.data);
-        // scrollIntoView
-        this.$nextTick(() => {
-          // console.log('ref', this.$refs.Subscriptions_box[0]);
-          if (this.$refs.Subscriptions_box[0]) {
-            this.$refs.Subscriptions_box[0].scrollTop = this.$refs.Subscriptions_box[0].scrollHeight;
-          }
-        })
-        this.channelLength = this.items[this.items.length - 1].pages.length;
+        let data = channels.data.data;
+        this.channelList = this.channelList.concat(data);
         this.channelPage++;
-      } else {
+      }
+      if (channels.data.count < 12) {
         this.loadedAllChannel = true;
       }
     },
     moreChannels() {
-      if (this.loadedAllChannel) return;
+      if (this.loadedAllChannel) {
+        this.loadedAllChannel = false;
+        this.channelList = [];
+        this.channelPage = 1;
+      }
       this.getSubscribedChannels();
     },
     signOut() {
@@ -563,7 +563,7 @@ export default {
   },
   async mounted() {
     if (this.isAuthenticated && !this.web3) {
-      const {err,res:{web3}} = await getWeb3(()=>{
+      const {err, res: {web3}} = await getWeb3(() => {
         this.signOut();
       });
       if (!err) {
@@ -583,14 +583,14 @@ export default {
 
     if (!this.isAuthenticated) {
       this.items[0].pages.pop();
-      this.items.splice(1, 2)
+      this.items.splice(1, 1)
     }
   },
   watch: {
     isAuthenticated(newV) {
       if (!newV) {
         this.items[0].pages.pop();
-        this.items.splice(1, 2);
+        this.items.splice(1, 1);
       }
     },
     $route: {
@@ -686,7 +686,6 @@ export default {
 }
 
 
-
 .qrCodeBox {
   display: flex;
   justify-content: center;
@@ -705,7 +704,7 @@ export default {
 
 .Subscriptions-box {
   max-height: 336px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .Subscriptions-box::-webkit-scrollbar {
@@ -720,7 +719,7 @@ export default {
   border-radius: 3px;
 }
 
-@media screen and (max-width: 800px){
+@media screen and (max-width: 800px) {
   #previous-page-btn {
     display: none;
   }
@@ -728,13 +727,13 @@ export default {
 
 @media screen and (max-width: 725px) {
   .website-name {
-    display: none!important;
+    display: none !important;
   }
 }
 
 @media screen and (max-width: 600px) {
   .website-name {
-    display: none!important;
+    display: none !important;
   }
 }
 

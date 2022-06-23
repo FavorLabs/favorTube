@@ -135,7 +135,7 @@ const routes = [
     }
   },
   {
-    path: '/Config',
+    path: '/config',
     name: 'Config',
     components: {
       default: () =>
@@ -158,11 +158,6 @@ function SignInTips() {
 
 router.beforeEach((to, from, next) => {
   const loggedIn = localStorage.getItem('user')
-  const api = sessionStorage.getItem("api");
-  const ws = sessionStorage.getItem("ws");
-  if (to.path !== "/Config" && !api && !ws) {
-    return next('/Config')
-  }
 
   if (to.matched.some((record) => record.meta.requiresAuth) && !loggedIn) {
     console.log('1-------', to, from);

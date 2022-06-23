@@ -106,7 +106,9 @@ export default {
             this.loading = false
           })
 
-      if (typeof videos === 'undefined') return
+      if (typeof videos === 'undefined') return;
+
+      this.errored = false;
 
       if (videos.data.data.length) {
         this.page += 1
