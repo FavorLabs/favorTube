@@ -99,13 +99,12 @@
               @crop-success="cropSuccess"
               method="PUT"
               v-model="show"
-              :width="1280"
-              :height="720"
-              :url="url"
+              :width="960"
+              :height="480"
               :headers="headers"
               img-format="jpg"
               langType="en"
-              :maxSize="1024"
+              :maxSize="1024 *5"
           ></my-upload>
           <v-responsive style="max-width: 100%">
             <div v-if="!imgDataUrl" class="px-12" id="image-placeholder">
@@ -123,6 +122,8 @@
 import myUpload from 'vue-image-crop-upload'
 import VideoService from '@/services/VideoService'
 import CategoryService from '@/services/CategoryService'
+import {mapGetters} from "vuex";
+import data2blob from "vue-image-crop-upload/utils/data2blob";
 
 export default {
   name: 'Details',
@@ -156,6 +157,9 @@ export default {
       headers: {Authorization: `Bearer ${this.$store.getters.getToken}`}
     }
   },
+  computed: {
+    ...mapGetters(["getImgUrl"])
+  },
   methods: {
     async getVideo() {
       this.inputLoading = true
@@ -175,7 +179,7 @@ export default {
       this.formData.description = video.description
       this.formData.visibility = video.status == 'draft' ? '' : video.status
       this.formData.category = video.categoryId.title
-      this.imgDataUrl = `${process.env.VUE_APP_URL}/uploads/thumbnails/${video.thumbnailUrl}`
+      this.imgDataUrl = `${this.getImgUrl}/uploads/thumbnails/${video.thumbnailUrl}`
     },
     async submit() {
       // if (this.$route.name === 'Dashboard')
@@ -194,10 +198,21 @@ export default {
           })
           .finally(() => (this.submitLoading = false))
 
-      if (!video) return
+      if (!video) return;
+
+      await this.updateImg(video.data.data.id).catch((err) => {
+        console.log(err);
+      });
 
       this.$router.push('/studio/videos')
       // console.log('submittied')
+    },
+    async updateImg(id) {
+      if (this.imgDataUrl === "") return;
+      let fmData = new FormData();
+      fmData.append("thumbnail", data2blob(this.imgDataUrl, ["image/jpeg"]), "thumbnail.jpg");
+      let img = await VideoService.uploadThumbnail(id, fmData);
+      console.log(img);
     },
     async getCategories() {
       this.categoryLoading = true
