@@ -77,6 +77,33 @@ export default {
   },
 
   created() {
+    if (process.env.VUE_APP_MOBILE) {
+      this.app = true;
+      // eslint-disable-next-line no-inner-declarations
+      const startNode = () => {
+        // eslint-disable-next-line no-undef
+        cordova.plugins.node.start(
+            (apiPort) => {
+              let timer = setInterval(() => {
+                this.set("http://localhost:" + apiPort).then(() => {
+                  clearInterval(timer);
+                }).catch((e) => {
+                  console.log(e.message);
+                });
+              }, 3000)
+            },
+            (e) => {
+              this.$store.dispatch('showTips', {
+                type: "error",
+                text: e.message || e
+              });
+            }
+        );
+      }
+      startNode();
+      return;
+    }
+
     if (isElectron) {
       ipcRenderer.removeAllListeners("getLogInfo")
       ipcRenderer.on('getLogInfo', (event, msg) => {
@@ -134,26 +161,10 @@ export default {
       this.$store.commit("SET_URL", api);
       let ws = websocket(host);
       this.$store.commit("SET_WS", ws);
-      ws.on('close', this.wsCloseHandle);
       await this.$router.push({name: 'Home'});
     },
-    wsCloseHandle() {
-      this.$store.dispatch('showTips', {
-        type: "error",
-        text: "Failed to connect to the P2P network"
-      })
-      this.$children[0].loading = false;
-      let api = sessionStorage.getItem('api');
-      sessionStorage.clear();
-      this.$router.push({
-        name: 'Config', params: {
-          api
-        }
-      });
-    },
     fillInApi() {
-      let wsApi = this.$route.params.api;
-      this.api = wsApi ? wsApi : '';
+      this.api = this.$route.params.api || "";
     }
   },
 }
