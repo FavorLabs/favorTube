@@ -161,7 +161,7 @@ export default {
       this.$store.commit("SET_URL", api);
       let ws = websocket(host);
       this.$store.commit("SET_WS", ws);
-      await this.$router.push({name: 'Home'});
+      await this.$router.replace({name: 'Home'});
     },
     fillInApi() {
       this.api = this.$route.params.api || "";
