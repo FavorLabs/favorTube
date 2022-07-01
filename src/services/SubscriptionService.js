@@ -1,11 +1,13 @@
 import Api from '@/services/Api'
 
 export default {
-  getSubscribedChannels(subscriberId) {
+  getSubscribedChannels(subscriberId,page) {
     return Api().get('subscriptions/channels', {
       params: {
         subscriberId,
-        select: 'channelId'
+        select: 'channelId',
+        page,
+        limit:12
       }
     })
   },

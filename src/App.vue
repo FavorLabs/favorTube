@@ -1,12 +1,5 @@
 <template>
   <v-app>
-    <v-overlay :value="loading" style="z-index: 999" class="text-center">
-      <v-progress-circular
-          indeterminate
-          size="64"
-      ></v-progress-circular>
-      <div style="margin-top: 20px;font-size: 20px">Connecting to a p2p network</div>
-    </v-overlay>
     <div class="tips">
       <transition-group name="tip">
         <template v-for="(item,index) of getList">
@@ -16,6 +9,13 @@
         </template>
       </transition-group>
     </div>
+    <v-overlay :value="loading" style="z-index: 999" class="text-center">
+      <v-progress-circular
+          indeterminate
+          size="64"
+      ></v-progress-circular>
+      <div style="margin-top: 20px;font-size: 20px">Connecting to a p2p network</div>
+    </v-overlay>
     <div v-if="!loading" class="fill-height">
       <router-view name="NavBar"></router-view>
       <router-view name="StudioNavBar"></router-view>
@@ -49,42 +49,54 @@ export default {
       loading: false,
     }
   },
-  async created() {
-    let wsHost = sessionStorage.getItem("ws");
-    let api = sessionStorage.getItem("api");
-    if (wsHost && api) {
-      try {
-        await FavorService.observe(api);
-        let ws = websocket(wsHost);
-        ws.on('close', this.wsCloseHandle);
-        this.$store.commit("SET_WS", ws);
-      } catch (e) {
-        this.$store.dispatch("showTips", {
-          type: "error",
-          text: "Failed to connect to the P2P network"
-        })
-      }
-    }
-  },
-  components: {},
-  mounted() {
-
-  },
   computed: {
     ...mapGetters(['getList', "getUrl"]),
-    getWs() {
-      return this.$store.state.auth.ws;
+  },
+  beforeCreate() {
+    if (process.env.VUE_APP_MOBILE) {
+      document.addEventListener('deviceready', () => {
+        setTimeout(function () {
+          navigator.splashscreen.hide();
+        }, 500);
+      });
+      document.addEventListener('resume', () => {
+        console.log('resume');
+        if (sessionStorage.getItem("api")) {
+          FavorService.restore(sessionStorage.getItem("api"));
+          if (!this.$store.state.auth.ws.connected) {
+            this.getWs();
+          }
+        }
+      });
     }
   },
-  destroyed() {
-
+  mounted() {
+    this.getWs();
   },
   methods: {
+    async getWs() {
+      let wsHost = sessionStorage.getItem("ws");
+      let api = sessionStorage.getItem("api");
+      if (wsHost && api) {
+        try {
+          await FavorService.observe(api);
+          let ws = websocket(wsHost);
+          this.$store.commit("SET_WS", ws);
+        } catch (e) {
+          await this.$store.dispatch("showTips", {
+            type: "error",
+            text: "Failed to connect to the P2P network"
+          })
+        }
+      } else {
+        await this.$router.push("/config");
+      }
+    },
     wsCloseHandle() {
       this.$store.dispatch('showTips', {
         type: "error",
         text: "Failed to connect to the P2P network"
-      })
+      });
       let api = sessionStorage.getItem('api');
       sessionStorage.clear();
       this.loading = false;
@@ -100,7 +112,7 @@ export default {
       handler: function (ws) {
         let _this = this;
         if (!ws) return;
-        this.loading = true;
+        this.loading = false;
         ws.send({
           "id": 1,
           "jsonrpc": "2.0",
@@ -112,6 +124,7 @@ export default {
             _this.loading = !res.connected?.length;
           })
         })
+        ws.on('close', this.wsCloseHandle);
       }
     }
   }

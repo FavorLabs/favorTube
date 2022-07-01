@@ -134,7 +134,7 @@
               </v-list-item-icon>
               <v-list-item-title>FavorTube Studio</v-list-item-title>
             </v-list-item>
-            <v-list-item router to="/signin">
+            <v-list-item @click="signOut">
               <v-list-item-icon>
                 <v-icon>mdi-login-variant</v-icon>
               </v-list-item-icon>
@@ -353,7 +353,14 @@ export default {
     settingsMoal(title) {
       if (title !== 'Settings') return
       this.settingsDialog = true
-    }
+    },
+    signOut() {
+      this.$store.dispatch('signOut');
+      if (this.$route.name !== "Home") {
+        this.$router.push("/");
+      }
+      this.web3?.currentProvider?.disconnect?.();
+    },
   },
   components: {
     UploadVideoModal,

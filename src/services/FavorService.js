@@ -58,7 +58,7 @@ export default {
     },
     getTopology() {
         const debugApi = sessionStorage.getItem("debugApi");
-        return  axios.get(debugApi + '/topology');
+        return axios.get(debugApi + '/topology');
     },
     getChunkSource(hash) {
         const debugApi = sessionStorage.getItem("debugApi");
@@ -67,6 +67,9 @@ export default {
     getPyramidSize(data) {
         const Api = sessionStorage.getItem("api");
         return axios.get(Api + '/file?' + data);
+    },
+    restore(api) {
+        return axios.get(api + "/restore");
     }
 }
 
