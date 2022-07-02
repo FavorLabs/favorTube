@@ -9,14 +9,16 @@
         </template>
       </transition-group>
     </div>
-    <v-overlay :value="loading" style="z-index: 999" class="text-center">
+    <v-overlay :value="loading" style="z-index: 999" class="text-center" opacity="1">
       <v-progress-circular
           indeterminate
           size="64"
       ></v-progress-circular>
       <div style="margin-top: 20px;font-size: 20px">Connecting to a p2p network</div>
     </v-overlay>
-    <div v-if="!loading" class="fill-height">
+    <div class="fill-height"
+         v-if="!loading ||['SignIn','SignUp','Watch'].includes(this.$route.name)"
+    >
       <router-view name="NavBar"></router-view>
       <router-view name="StudioNavBar"></router-view>
       <v-content class="fill-height"
@@ -50,7 +52,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['getList', "getUrl"]),
+    ...mapGetters(['getList', "getUrl","ws"]),
   },
   beforeCreate() {
     if (process.env.VUE_APP_MOBILE) {
@@ -63,7 +65,7 @@ export default {
         console.log('resume');
         if (sessionStorage.getItem("api")) {
           FavorService.restore(sessionStorage.getItem("api"));
-          if (!this.$store.state.auth.ws.connected) {
+          if (!this.ws.connected) {
             this.getWs();
           }
         }
@@ -108,11 +110,11 @@ export default {
     },
   },
   watch: {
-    "$store.state.auth.ws": {
+    "ws": {
       handler: function (ws) {
         let _this = this;
         if (!ws) return;
-        this.loading = false;
+        this.loading = true;
         ws.send({
           "id": 1,
           "jsonrpc": "2.0",
@@ -122,11 +124,18 @@ export default {
           ws.on(result, (res) => {
             console.log(res)
             _this.loading = !res.connected?.length;
-          })
+          });
         })
         ws.on('close', this.wsCloseHandle);
       }
-    }
+    },
+    "loading": (v) => {
+      if (v) {
+        document.documentElement.style.overflow = "hidden";
+      } else {
+        document.documentElement.style.overflow = "scroll";
+      }
+    },
   }
 }
 </script>

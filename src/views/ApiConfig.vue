@@ -131,10 +131,15 @@ export default {
         })
       }
     } else {
-      const {origin} = window.location;
-      this.set(origin).finally(() => {
+      if (this.$route.params.api) {
         this.loading = false;
-      })
+      } else {
+        const {origin} = window.location;
+        this.set(origin).finally(() => {
+          this.loading = false;
+        })
+      }
+
     }
   },
   mounted() {

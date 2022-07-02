@@ -76,10 +76,10 @@
                         {{ dateFormatter(video.createdAt) }}
                       </v-card-subtitle>
                       <v-card-actions class="pt-0 pl-0">
-                        <v-icon v-if="videoHash && subscribed"
-                                style="margin-left: 10px;cursor: pointer;margin:4px 24px 0 0;font-size:1.6rem;"
-                                @click="sourceInfo">mdi-information
-                        </v-icon>
+<!--                        <v-icon v-if="videoHash && subscribed"-->
+<!--                                style="margin-left: 10px;cursor: pointer;margin:4px 24px 0 0;font-size:1.6rem;"-->
+<!--                                @click="sourceInfo">mdi-information-->
+<!--                        </v-icon>-->
                         <v-btn text @click="createFeeling('like')"
                         >
                           <v-icon
@@ -609,7 +609,7 @@ export default {
       this.video.views++
     },
     actions() {
-      this.getVideo()
+      this.getVideo(this.$route.params.id)
     },
     show(event) {
       if (event.target.innerText === 'SHOW MORE') {
