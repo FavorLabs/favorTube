@@ -38,7 +38,8 @@ const getters = {
     },
     currentUser: (state) => {
         return state.user
-    }
+    },
+    ws: state => state.ws
 }
 
 const mutations = {

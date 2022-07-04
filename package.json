@@ -26,6 +26,7 @@
     "@walletconnect/web3-provider": "^1.7.8",
     "axios": "^0.19.2",
     "core-js": "^3.6.4",
+    "eventemitter3": "^4.0.7",
     "moment": "^2.24.0",
     "qrcodejs2": "^0.0.2",
     "vee-validate": "^3.2.5",

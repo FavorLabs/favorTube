@@ -13,7 +13,7 @@
       <v-img
           v-if="video.thumbnailUrl !== 'no-photo.jpg'"
           :src="`${getImgUrl}/uploads/thumbnails/${video.thumbnailUrl}`"
-          height="100%"
+          height="200px"
       ></v-img>
     </div>
     <v-row style="flex: 0">

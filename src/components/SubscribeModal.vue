@@ -12,12 +12,15 @@
         <p>
           <span class="key">MATIC:</span>
           <span class="value">
-            <span class="price" v-if="this.amount">{{ amount }}</span><span v-else class="loading"></span>
-            <a href="https://faucet.polygon.technology" target="_blank" style="margin-left: 10px">Faucet</a>
+            <span class="price" v-if="!amountLoading">{{ amount }}</span><span v-else class="loading"></span>
+            <a href="https://faucet.polygon.technology" target="_blank" style="margin: 0 10px;">Faucet</a>
+            <v-icon v-if="!amountLoading" color="#f44336" @click="getAmount(chainWeb3)">
+              mdi-refresh
+            </v-icon>
           </span>
         </p>
         <p>
-          <span class="key">{{token.name}}:</span>
+          <span class="key">{{ token.name }}:</span>
           <span class="value">
             <span class="price" v-if="this.balance">{{ balance / Math.pow(10, token.decimal) }}</span>
             <span v-else class="loading"></span>
@@ -90,6 +93,7 @@ export default {
     return {
       balance: 0,
       amount: 0,
+      amountLoading:false,
       payLoading: false,
       subLoading: false,
       payDisabled: true,
@@ -123,8 +127,7 @@ export default {
         })
         this.closeModal();
       }, 1000 * 10)
-      const amount = await chainWeb3.eth.getBalance(this.currentUser.address);
-      this.amount = Number(chainWeb3.utils.fromWei(amount, "ether")).toFixed(5);
+      await this.getAmount(chainWeb3);
       const favorTubeContract = new chainWeb3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
       const tokenContract = new chainWeb3.eth.Contract(tokenAbi, this.token.address);
       this.token.decimal = await tokenContract.methods.decimals().call();
@@ -145,6 +148,12 @@ export default {
   methods: {
     closeModal() {
       this.$emit('closeSubModal');
+    },
+    async getAmount(chainWeb3) {
+      this.amountLoading = true;
+      const amount = await chainWeb3.eth.getBalance(this.currentUser.address);
+      this.amount = Number(chainWeb3.utils.fromWei(amount, "ether")).toFixed(5);
+      this.amountLoading = false;
     },
     pay() {
       this.subLoading = true;
