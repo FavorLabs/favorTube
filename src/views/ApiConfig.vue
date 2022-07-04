@@ -158,9 +158,10 @@ export default {
       let res = await FavorService.getPort(api);
       let wsPort = res.data.rpcWsPort;
       if (!wsPort) throw new Error("ws not enabled");
-      let host = `ws://${new URL(api).hostname}:${wsPort}`;
+      let isHttps = /^https/.test(api);
+      let host = (isHttps ? "wss" : "ws") + `://${new URL(api).hostname}:${wsPort}`;
       await FavorService.observe(api);
-      sessionStorage.setItem("debugApi", `http://${new URL(api).hostname}:${res.data.debugApiPort}`);
+      sessionStorage.setItem("debugApi", (isHttps ? "https" : "http") + `://${new URL(api).hostname}:${res.data.debugApiPort}`);
       sessionStorage.setItem("api", api);
       sessionStorage.setItem("ws", host);
       this.$store.commit("SET_URL", api);
