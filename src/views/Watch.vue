@@ -76,10 +76,10 @@
                         {{ dateFormatter(video.createdAt) }}
                       </v-card-subtitle>
                       <v-card-actions class="pt-0 pl-0">
-<!--                        <v-icon v-if="videoHash && subscribed"-->
-<!--                                style="margin-left: 10px;cursor: pointer;margin:4px 24px 0 0;font-size:1.6rem;"-->
-<!--                                @click="sourceInfo">mdi-information-->
-<!--                        </v-icon>-->
+                        <v-icon v-if="videoHash && subscribed"
+                                style="cursor: pointer;margin:4px 24px 0 0;font-size:1.6rem;"
+                                @click="sourceInfo">mdi-information
+                        </v-icon>
                         <v-btn text @click="createFeeling('like')"
                         >
                           <v-icon
@@ -351,6 +351,7 @@
         :account="video.userId.address"
         :channel-name="video.userId.channelName"
         @subscribed="subscribedFn"
+        :video_id = "video.userId._id"
     ></Subscribe-modal>
     <SourceInfoModal
         v-if="sourceInfoDialog"
@@ -515,7 +516,6 @@ export default {
           .finally(() => {
             // this.loading = false
           })
-
       this.videoLoading = false;
       if (!sub) return
 
