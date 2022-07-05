@@ -72,6 +72,7 @@ import {mapGetters} from "vuex";
 import {tokenAbi, favorTubeAbi, favorTubeAddress, tokenAddress} from "@/config/contract";
 // import {getWeb3} from "@/utils/web3Utils";
 import Web3 from "web3";
+import SubscriptionService from "@/services/SubscriptionService";
 
 export default {
   name: "SubscribeModal",
@@ -88,12 +89,15 @@ export default {
       type: String,
       required: true
     },
+    video_id: {
+      type: String
+    }
   },
   data() {
     return {
       balance: 0,
       amount: 0,
-      amountLoading:false,
+      amountLoading: false,
       payLoading: false,
       subLoading: false,
       payDisabled: true,
@@ -117,6 +121,7 @@ export default {
     ])
   },
   async created() {
+    console.log(this.video_id)
     try {
       if (!this.web3) return;
       const chainWeb3 = new Web3(this.getApi + "/chain");
@@ -165,7 +170,7 @@ export default {
             this.price,
             this.web3.eth.abi.encodeParameters(['address', "uint"], [this.account, 518400])
         ).encodeABI()
-      }, (err, hash) => {
+      }, (err) => {
         this.payLoading = true;
         if (err) {
           this.$store.dispatch("showTips", {
@@ -180,28 +185,18 @@ export default {
         let timer = setInterval(async () => {
           if (lock) return;
           lock = true;
-          const data = await this.chainWeb3.eth.getTransactionReceipt(hash);
-          if (data) {
+          const {data} = await SubscriptionService.checkSubscription({channelId: this.video_id});
+          if (data.data._id) {
             clearInterval(timer);
-            if (data.status) {
-              setTimeout(() => {
-                this.payLoading = false;
-                this.subLoading = false;
-                this.$store.dispatch("showTips", {
-                  type: "success",
-                  text: "Subscription Success"
-                });
-                this.$emit("subscribed");
-              }, 3000)
-            } else {
+            setTimeout(() => {
               this.payLoading = false;
               this.subLoading = false;
               this.$store.dispatch("showTips", {
-                type: "info",
-                text: "Subscription Failure"
+                type: "success",
+                text: "Subscription Success"
               });
-            }
-
+              this.$emit("subscribed");
+            }, 3000)
           }
           lock = false;
         }, 2000)

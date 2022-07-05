@@ -1,9 +1,9 @@
 <template>
   <div class="text-center">
     <v-dialog
-      v-model="openModal"
-      :persistent="true"
-      width="70vw"
+        v-model="openModal"
+        :persistent="true"
+        width="70vw"
     >
       <v-card :loading="loading">
         <v-card-title class="text-h5 grey lighten-2">
@@ -14,8 +14,8 @@
           <div style="overflow-y: scroll;max-height: 500px;padding-top: 10px">
             <div class="chunkInfo-item" v-for="(item, index) in chunkArr" :key="'chunkArr' + index">
               <span class="chunk-color" :style="`background-color: ${getRandomHex()}`"></span>
-              <span class="chunk-overlay">{{item.overlay}}</span>
-              <span class="chunk-percent">{{((item.downloadLen / item.chunkBit.len) * 100).toFixed(2)}}%</span>
+              <span class="chunk-overlay">{{ item.overlay }}</span>
+              <span class="chunk-percent">{{ ((item.downloadLen / len) * 100).toFixed(2) }}%</span>
             </div>
           </div>
         </v-card-text>
@@ -25,9 +25,9 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            color="primary"
-            text
-            @click="closeModal"
+              color="primary"
+              text
+              @click="closeModal"
           >
             close
           </v-btn>
@@ -39,7 +39,7 @@
 
 <script>
 import FavorService from '@/services/FavorService'
-import { stringToBinary, getDownloadNumber, query, randomHex } from '@/utils/util'
+import {stringToBinary, getDownloadNumber, query, randomHex} from '@/utils/util'
 
 export default {
   props: {
@@ -55,7 +55,8 @@ export default {
   data() {
     return {
       loading: false,
-      chunkArr: []
+      chunkArr: [],
+      len: 0
     }
   },
   created() {
@@ -68,29 +69,27 @@ export default {
     async getChunkSource() {
       this.loading = true;
       let queryData = {
-        page: {"pageNum":1,"pageSize":1},
+        page: {"pageNum": 1, "pageSize": 1},
         filter: [{
-          "key":"rootCid",
+          "key": "rootCid",
           "value": this.videoHash,
-          "term":"cn"
+          "term": "cn"
         }]
       }
       const re = await FavorService.getPyramidSize(query(queryData));
       if (re.status !== 200 || re.data.list.length === 0) return;
-      const len = re.data.list[0].size;
-      const res = await FavorService.getChunkSource(this.videoHash);
-      if (res.status !== 200) return;
-      const data = res.data;
+      const {data} = await FavorService.getChunkSource(this.videoHash);
+      if (!data) return;
       let arr = [];
-      let pyramidSource = false;
+      this.len = data.len;
       data.chunkSource?.forEach(item => {
         const binary = stringToBinary(item.chunkBit.b, item.chunkBit.len);
         let downloadLen = getDownloadNumber(binary);
-        if (item.overlay === data.pyramidSource) {
-          downloadLen += len;
-          pyramidSource = true;
-        }
-        item.chunkBit.len += len;
+        // if (item.overlay === data.pyramidSource) {
+        //   downloadLen += len;
+        //   pyramidSource = true;
+        // }
+        // item.chunkBit.len += len;
         // let preIndex = index - 1;
         let current = {
           ...item,
@@ -102,23 +101,11 @@ export default {
         };
         arr.push(current);
       });
-      if (!pyramidSource) {
-        let n = arr[0].chunkBit.len;
-        arr.push({
-          overlay: data.pyramidSource,
-          chunkBit: {
-            len: n,
-            b: '0'.repeat(n),
-          },
-          downloadLen: len,
-        });
-      }
       arr.sort((a, b) => {
         return b.downloadLen - a.downloadLen;
       });
       this.loading = false;
       this.chunkArr = arr;
-      // return arr;
     },
     getRandomHex() {
       return randomHex();
@@ -133,6 +120,7 @@ export default {
   background-color: #eee;
   padding: 10px;
 }
+
 .chunk-color {
   display: inline-block;
   width: 15px;
@@ -140,12 +128,14 @@ export default {
   margin-right: 10px;
   vertical-align: middle;
 }
+
 .chunk-overlay {
-  margin-bottom: 0!important;
-  word-wrap:  break-word;
-  word-break:  normal;
+  margin-bottom: 0 !important;
+  word-wrap: break-word;
+  word-break: normal;
   width: 100%;
 }
+
 .chunk-percent {
   margin-left: 20px;
   font-size: 1.2rem;
