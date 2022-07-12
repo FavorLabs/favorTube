@@ -1,16 +1,31 @@
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
-let netWorkID = 80001;
-export let rpc = "https://polygon-testnet.public.blastapi.io";
+export const chain = {
+    19: {
+        chainId: 80001,
+        rpc: "https://polygon-testnet.public.blastapi.io",
+        faucet: "https://faucet.polygon.technology/"
+    },
+    20: {
+        chainId: 588,
+        rpc: "https://stardust.metis.io/?owner=588",
+        faucet: "https://faucet.metissafe.tech/"
+    }
+}
 
-export const ConnectMetaMask = async () => {
+export const getChainInfo = () => {
+    let network_id = sessionStorage.getItem("network_id");
+    return chain[network_id] ?? chain[19]
+}
+
+export const ConnectMetaMask = async (chainInfo) => {
     if (window.ethereum) {
         try {
             const accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
             const web3 = new Web3(window.ethereum);
             const chainId = await web3.eth.getChainId();
-            if (chainId !== netWorkID) {
+            if (chainId !== chainInfo.chainId) {
                 return {err: "Please connect the correct chain", res: {}};
             }
             const address = accounts[0];
@@ -24,16 +39,16 @@ export const ConnectMetaMask = async () => {
     }
 }
 
-export const ConnectWalletConnect = async (cb) => {
+export const ConnectWalletConnect = async (chainInfo, cb) => {
     try {
         const provider = new WalletConnectProvider({
             rpc: {
-                [netWorkID]: rpc,
+                [chainInfo.chainId]: chainInfo.rpc,
             }
         });
         await provider.enable();
         const {chainId, accounts} = provider
-        if (chainId !== netWorkID) {
+        if (chainId !== chainInfo.chainId) {
             await provider.disconnect();
             return {err: "Please connect the correct chain", res: {}};
         }
@@ -47,11 +62,11 @@ export const ConnectWalletConnect = async (cb) => {
 }
 
 export const connect = (connectType, cb) => {
-
+    let chainInfo = getChainInfo();
     if (connectType === "metaMask") {
-        return ConnectMetaMask();
+        return ConnectMetaMask(chainInfo);
     }
-    return ConnectWalletConnect(cb);
+    return ConnectWalletConnect(chainInfo, cb);
 }
 
 export const getWeb3 = async (cb) => {
