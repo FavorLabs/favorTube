@@ -11,6 +11,11 @@ export const chain = {
         chainId: 588,
         rpc: "https://stardust.metis.io/?owner=588",
         faucet: "https://faucet.metissafe.tech/"
+    },
+    21: {
+        chainId: 65,
+        rpc: "https://exchaintestrpc.okex.org",
+        faucet: "https://www.okx.com/cn/okc/faucet"
     }
 }
 
