@@ -728,3 +728,23 @@ export const favorTubeAbi = [
         "constant": true
     }
 ];
+
+export const contracts = {
+    19: {
+        tokenAddress: "0xE532e8AC8dBA0Bf9045eC87057179ce8452e4eC0",
+        favorTubeAddress: "0x4DDBFFE095e1b7f5B92C50d5Da78Efd2546Df298",
+    },
+    20: {
+        tokenAddress: "0x32E6E17511A7AFdC16693c55846C8b1bC81c50ee",
+        favorTubeAddress: "0x350F7284cE03B1F417F4Cf6DaC7b6cffEEA3ca5d",
+    },
+    21:{
+        tokenAddress: "0x814233A507Beda55b54c50D98b2fb602D917ECc4",
+        favorTubeAddress: "0xB2701F67214004E82b3912feA6F37eE6a4044F25",
+    }
+}
+
+export const getContracts = () => {
+    let network_id = sessionStorage.getItem("network_id");
+    return contracts[network_id] ?? contracts[19]
+}

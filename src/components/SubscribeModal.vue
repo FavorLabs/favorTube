@@ -13,7 +13,7 @@
           <span class="key">MATIC:</span>
           <span class="value">
             <span class="price" v-if="!amountLoading">{{ amount }}</span><span v-else class="loading"></span>
-            <a href="https://faucet.polygon.technology" target="_blank" style="margin: 0 10px;">Faucet</a>
+            <a :href="chainInfo.faucet" target="_blank" style="margin: 0 10px;">Faucet</a>
             <v-icon v-if="!amountLoading" color="#f44336" @click="getAmount(chainWeb3)">
               mdi-refresh
             </v-icon>
@@ -69,10 +69,15 @@
 <script>
 import {mapGetters} from "vuex";
 // eslint-disable-next-line no-unused-vars
-import {tokenAbi, favorTubeAbi, favorTubeAddress, tokenAddress} from "@/config/contract";
+import {tokenAbi, favorTubeAbi, favorTubeAddress, tokenAddress, getContracts} from "@/config/contract";
 // import {getWeb3} from "@/utils/web3Utils";
 import Web3 from "web3";
 import SubscriptionService from "@/services/SubscriptionService";
+
+import {getChainInfo} from "@/utils/web3Utils";
+// import {getContracts} from "@/config/contract";
+
+
 
 export default {
   name: "SubscribeModal",
@@ -94,6 +99,7 @@ export default {
     }
   },
   data() {
+    let contractAddress = getContracts();
     return {
       balance: 0,
       amount: 0,
@@ -105,12 +111,13 @@ export default {
       token: {
         decimal: 2,
         name: "Favor Token",
-        address: tokenAddress
+        address: contractAddress.tokenAddress
       },
-      favorTubeCAddress: favorTubeAddress,
+      favorTubeCAddress: contractAddress.favorTubeAddress,
       favorTubeContract: null,
       tokenContract: null,
-      chainWeb3: null
+      chainWeb3: null,
+      chainInfo: getChainInfo()
     }
   },
   computed: {
@@ -121,7 +128,6 @@ export default {
     ])
   },
   async created() {
-    console.log(this.video_id)
     try {
       if (!this.web3) return;
       const chainWeb3 = new Web3(this.getApi + "/chain");

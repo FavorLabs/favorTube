@@ -165,6 +165,8 @@ export default {
       sessionStorage.setItem("api", api);
       sessionStorage.setItem("ws", host);
       this.$store.commit("SET_URL", api);
+      let addresses = await FavorService.getAddresses();
+      sessionStorage.setItem("network_id", addresses.data.network_id);
       let ws = websocket(host);
       this.$store.commit("SET_WS", ws);
       await this.$router.replace({name: 'Home'});
