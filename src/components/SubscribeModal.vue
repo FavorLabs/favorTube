@@ -10,7 +10,7 @@
           <span class="value">{{ currentUser.address }}</span>
         </p>
         <p>
-          <span class="key">MATIC:</span>
+          <span class="key">{{ chainInfo.tokenName }}:</span>
           <span class="value">
             <span class="price" v-if="!amountLoading">{{ amount }}</span><span v-else class="loading"></span>
             <a :href="chainInfo.faucet" target="_blank" style="margin: 0 10px;">Faucet</a>
@@ -76,7 +76,6 @@ import SubscriptionService from "@/services/SubscriptionService";
 
 import {getChainInfo} from "@/utils/web3Utils";
 // import {getContracts} from "@/config/contract";
-
 
 
 export default {
