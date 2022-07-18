@@ -5,17 +5,20 @@ export const chain = {
     19: {
         chainId: 80001,
         rpc: "https://polygon-testnet.public.blastapi.io",
-        faucet: "https://faucet.polygon.technology/"
+        faucet: "https://faucet.polygon.technology/",
+        tokenName: "MATIC",
     },
     20: {
         chainId: 588,
         rpc: "https://stardust.metis.io/?owner=588",
-        faucet: "https://faucet.metissafe.tech/"
+        faucet: "https://faucet.metissafe.tech/",
+        tokenName: "METIS",
     },
     21: {
         chainId: 65,
         rpc: "https://exchaintestrpc.okex.org",
-        faucet: "https://www.okx.com/cn/okc/faucet"
+        faucet: "https://www.okx.com/cn/okc/faucet",
+        tokenName: "OKT",
     }
 }
 
