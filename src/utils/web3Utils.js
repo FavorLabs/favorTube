@@ -9,9 +9,9 @@ export const chain = {
         tokenName: "MATIC",
     },
     20: {
-        chainId: 588,
-        rpc: "https://stardust.metis.io/?owner=588",
-        faucet: "https://faucet.metissafe.tech/",
+        chainId: 1088,
+        rpc: "https://andromeda.metis.io/?owner=1088",
+        faucet: "",
         tokenName: "METIS",
     },
     21: {

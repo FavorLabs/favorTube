@@ -13,8 +13,8 @@
           <span class="key">{{ chainInfo.tokenName }}:</span>
           <span class="value">
             <span class="price" v-if="!amountLoading">{{ amount }}</span><span v-else class="loading"></span>
-            <a :href="chainInfo.faucet" target="_blank" style="margin: 0 10px;">Faucet</a>
-            <v-icon v-if="!amountLoading" color="#f44336" @click="getAmount(chainWeb3)">
+            <a v-if="!!chainInfo.faucet" :href="chainInfo.faucet" target="_blank" style="margin: 0 10px;">Faucet</a>
+            <v-icon style="vertical-align: top" v-if="!amountLoading" color="#f44336" @click="getAmount(chainWeb3)">
               mdi-refresh
             </v-icon>
           </span>
@@ -69,7 +69,7 @@
 <script>
 import {mapGetters} from "vuex";
 // eslint-disable-next-line no-unused-vars
-import {tokenAbi, favorTubeAbi, favorTubeAddress, tokenAddress, getContracts} from "@/config/contract";
+import {tokenAbi, favorTubeAbi, getContracts} from "@/config/contract";
 // import {getWeb3} from "@/utils/web3Utils";
 import Web3 from "web3";
 import SubscriptionService from "@/services/SubscriptionService";
