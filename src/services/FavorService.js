@@ -2,6 +2,11 @@ import axios from 'axios';
 import {proxyGroup, storeGroup} from "@/store/modules/auth";
 
 const proxyNodes = {
+    18: [
+        "fafa08217c964ada4b10757176ccb708e7ab02534d54b429ab21b5021df50e0e",
+        "53af829ad8bf1117b4363eab6bb3aa3cc9a376b335555c043ccd08b8206d2d93",
+        "37c4bea59406fed518a1b44f0ba53f78503329ab429dc654e66afbea0a03748b",
+    ],
     19: [
         "cc30f0393cfaf2b6b2bea82ea4400fe8e9ff6d94b858beaf36d41fb9f040963e",
         "01ce40352b9635cbfab17f22d6d1e4436a21324cc1b1ef97eac2b20928b03244",
@@ -24,6 +29,10 @@ const proxyNodes = {
 }
 
 const storeNodes = {
+    18: [
+        "a99bd3530278f6047e1ad8c70b9e5ae6434c44d675a8fdd53280564440610d52",
+        "0a308ca674606e7384fea8ac10fb2866b7804c67ef8159d7944933f0f98652ed",
+    ],
     19: [
         "9ca6d63b192afd92c54b14a50ce21783092be29b67c959022bd600d5691cb497",
         "d95d0cf90e651b840ab3d888981d0653620aa042189e8d1a0f6a7cdc9bb572af",
@@ -77,7 +86,7 @@ export default {
             hash,
         }, {timeout: 30 * 1000})
     },
-    async sourceInfo(hash) {
+    sourceInfo(hash) {
         const debugApi = sessionStorage.getItem("debugApi");
         return axios.get(debugApi + "/chunk/server/" + hash);
     },
@@ -107,6 +116,15 @@ export default {
     getAddresses() {
         const debugApi = sessionStorage.getItem("debugApi");
         return axios.get(debugApi + '/addresses');
+    },
+    getFileInfo(hash) {
+        const api = sessionStorage.getItem("api");
+        return axios.get(api + '/file', {
+            params: {
+                page: {"pageNum": 1, "pageSize": 1},
+                sort: {"key": "rootCid", "order": "asc"},
+                filter: JSON.stringify([{"key": "rootCid", "value": hash, "term": "cn"}])
+            }
+        })
     }
 }
-

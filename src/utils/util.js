@@ -35,9 +35,9 @@ export const getDownloadNumber = (b) => {
   return b.match(/1/g)?.length || 0;
 };
 
-export const getProgress = (b) => {
+export const getProgress = (b,len) => {
     const oneLen = b.match(/1/g)?.length || 0;
-    return (oneLen / b.length) * 100;
+    return (oneLen / len) * 100;
 };
 
 
