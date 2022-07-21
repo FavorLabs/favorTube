@@ -43,60 +43,32 @@
                           dense
                       ></v-text-field>
                     </ValidationProvider>
-                    <!--password-->
-                    <v-row class="justify-space-between">
+
+                    <v-row>
                       <v-col cols="12" v-if="$store.state.tips.isMobile">
                         <v-btn @click="connectMetaMask">
                           MetaMask
                         </v-btn>
                       </v-col>
-                      <v-col cols="12">
-                        <v-row>
-                          <v-col offset="-1">
-                            <v-btn @click="connectWalletConnect">
-                              WalletConnect
-                            </v-btn>
-                          </v-col>
-                          <v-col v-if="connectType === 'walletConnect'">
-                            <v-btn @click="disconnectWalletConnect">
-                              Disconnect
-                            </v-btn>
-                          </v-col>
-                        </v-row>
+                      <v-col cols="12" v-if="$store.state.tips.isMobile">
+                        <v-btn @click="connectOkx">
+                          OKX Wallet
+                        </v-btn>
                       </v-col>
-                      <!--                      <v-col cols="6">-->
-                      <!--                        <ValidationProvider-->
-                      <!--                          v-slot="{ errors }"-->
-                      <!--                          name="Password"-->
-                      <!--                          rules="required|password:@confirm"-->
-                      <!--                        >-->
-                      <!--                          <v-text-field-->
-                      <!--                            v-model="password"-->
-                      <!--                            type="password"-->
-                      <!--                            :error-messages="errors"-->
-                      <!--                            label="Password"-->
-                      <!--                            outlined-->
-                      <!--                            dense-->
-                      <!--                          ></v-text-field>-->
-                      <!--                        </ValidationProvider>-->
-                      <!--                      </v-col>-->
-                      <!--                      <v-col cols="6">-->
-                      <!--                        <ValidationProvider-->
-                      <!--                          v-slot="{ errors }"-->
-                      <!--                          name="confirm"-->
-                      <!--                          rules="required"-->
-                      <!--                        >-->
-                      <!--                          <v-text-field-->
-                      <!--                            type="password"-->
-                      <!--                            v-model="confirmPassword"-->
-                      <!--                            :error-messages="errors"-->
-                      <!--                            label="Confirm"-->
-                      <!--                            outlined-->
-                      <!--                            dense-->
-                      <!--                          ></v-text-field>-->
-                      <!--                        </ValidationProvider>-->
-                      <!--                      </v-col>-->
                     </v-row>
+                    <v-row>
+                      <v-col>
+                        <v-btn @click="connectWalletConnect">
+                          WalletConnect
+                        </v-btn>
+                      </v-col>
+                      <v-col v-if="connectType === 'walletConnect'">
+                        <v-btn @click="disconnectWalletConnect">
+                          Disconnect
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+
                     <v-row v-if="address">
                       <v-col cols="12">
                         {{ address }}
@@ -267,6 +239,11 @@ export default {
     address: "",
     connectType: ""
   }),
+  computed: {
+    networkId() {
+      return sessionStorage.getItem("network_id");
+    }
+  },
   methods: {
     async signUp() {
       if (!this.address) {
@@ -332,20 +309,21 @@ export default {
       await this.$router.push({name: 'Home'})
     },
     async connectMetaMask() {
-      const {err, res: {address, web3}} = await connect("metaMask");
+      const {err, res} = await connect("metaMask");
       console.log(err)
       if (err) {
         this.$store.dispatch("showTips", {
           type: "info", text: err
         })
       } else {
+        const {address, web3} = res;
         this.address = address;
         this.web3 = web3;
         this.$store.commit("SET_WEB3", web3);
       }
     },
     async connectWalletConnect() {
-      const {err, res: {address, web3}} = await connect("walletConnect", ()=>{
+      const {err, res} = await connect("walletConnect", () => {
         this.disconnectWalletConnect();
       });
       if (err) {
@@ -353,7 +331,21 @@ export default {
           type: "info", text: err,
         })
       } else {
+        const {address, web3} = res;
         this.connectType = "walletConnect";
+        this.address = address;
+        this.web3 = web3;
+        this.$store.commit("SET_WEB3", web3);
+      }
+    },
+    async connectOkx() {
+      const {err, res} = await connect("okx");
+      if (err) {
+        this.$store.dispatch("showTips", {
+          type: "info", text: err
+        })
+      } else {
+        const {address, web3} = res;
         this.address = address;
         this.web3 = web3;
         this.$store.commit("SET_WEB3", web3);

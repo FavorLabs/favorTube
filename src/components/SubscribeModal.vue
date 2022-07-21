@@ -165,11 +165,13 @@ export default {
       this.amount = Number(chainWeb3.utils.fromWei(amount, "ether")).toFixed(5);
       this.amountLoading = false;
     },
-    pay() {
+    async pay() {
       this.subLoading = true;
+      const price = await this.web3.eth.getGasPrice();
       this.web3.eth.sendTransaction({
         from: this.currentUser.address,
         to: this.token.address,
+        gasPrice: this.web3.utils.toHex(price),
         data: this.tokenContract.methods.transfer(
             this.favorTubeCAddress,
             this.price,
