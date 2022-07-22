@@ -12,41 +12,33 @@
                     @submit.prevent="handleSubmit(signIn)"
                     @reset.prevent="reset"
                 >
-                  <!--                  <ValidationProvider-->
-                  <!--                      v-slot="{ errors }"-->
-                  <!--                      name="Email"-->
-                  <!--                      rules="required|email"-->
-                  <!--                  >-->
-                  <!--                    <v-text-field-->
-                  <!--                        v-model="email"-->
-                  <!--                        :error-messages="errors"-->
-                  <!--                        label="Email"-->
-                  <!--                        outlined-->
-                  <!--                    ></v-text-field>-->
-                  <!--                  </ValidationProvider>-->
                   <v-row>
                     <v-col cols="12" v-if="$store.state.tips.isMobile">
                       <v-btn @click="connectMetaMask">
                         MetaMask
                       </v-btn>
                     </v-col>
-                    <v-col cols="12">
-                      <v-row>
-                        <v-col offset="-1">
-                          <v-btn @click="connectWalletConnect">
-                            WalletConnect
-                          </v-btn>
-                        </v-col>
-                        <v-col v-if="connectType === 'walletConnect'">
-                          <v-btn @click="disconnectWalletConnect">
-                            Disconnect
-                          </v-btn>
-                        </v-col>
-                      </v-row>
+                    <v-col cols="12" v-if="$store.state.tips.isMobile">
+                      <v-btn @click="connectOkx">
+                        OKX Wallet
+                      </v-btn>
                     </v-col>
                   </v-row>
+                  <v-row>
+                    <v-col>
+                      <v-btn @click="connectWalletConnect">
+                        WalletConnect
+                      </v-btn>
+                    </v-col>
+                    <v-col v-if="connectType === 'walletConnect'">
+                      <v-btn @click="disconnectWalletConnect">
+                        Disconnect
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+
                   <v-row v-if="address">
-                    <v-col cols="12">
+                    <v-col>
                       {{ address }}
                     </v-col>
                   </v-row>
@@ -102,6 +94,11 @@ export default {
     address: "",
     connectType: "",
   }),
+  computed: {
+    networkId() {
+      return sessionStorage.getItem("network_id");
+    }
+  },
   methods: {
     async signIn() {
       if (!this.address) {
@@ -146,20 +143,21 @@ export default {
       this.$router.push({name: 'Home'})
     },
     async connectMetaMask() {
-      const {err, res: {address, web3}} = await connect("metaMask");
+      const {err, res} = await connect("metaMask");
       console.log(err)
       if (err) {
         this.$store.dispatch("showTips", {
           type: "info", text: err
         })
       } else {
+        const {address, web3} = res;
         this.address = address;
         this.web3 = web3;
         this.$store.commit("SET_WEB3", web3);
       }
     },
     async connectWalletConnect() {
-      const {err, res: {address, web3}} = await connect("walletConnect", ()=>{
+      const {err, res} = await connect("walletConnect", () => {
         this.disconnectWalletConnect();
       });
       if (err) {
@@ -167,7 +165,21 @@ export default {
           type: "info", text: err,
         })
       } else {
+        const {address, web3} = res;
         this.connectType = "walletConnect";
+        this.address = address;
+        this.web3 = web3;
+        this.$store.commit("SET_WEB3", web3);
+      }
+    },
+    async connectOkx() {
+      const {err, res} = await connect("okx");
+      if (err) {
+        this.$store.dispatch("showTips", {
+          type: "info", text: err
+        })
+      } else {
+        const {address, web3} = res;
         this.address = address;
         this.web3 = web3;
         this.$store.commit("SET_WEB3", web3);

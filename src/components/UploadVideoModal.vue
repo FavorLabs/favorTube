@@ -288,7 +288,7 @@ export default {
     },
   },
   methods: {
-    async test(hash) {
+    async test(hash, len) {
       let _this = this;
       let ws = this.$store.state.auth.ws;
       let state = "storage"; //storage,node,download
@@ -365,7 +365,7 @@ export default {
           let res = null;
           try {
             res = await FavorService.sendMessage(_this.getApi, overlay, hash);
-          } catch(e) {
+          } catch (e) {
             downloadFailed();
             return;
           }
@@ -375,6 +375,7 @@ export default {
           if (data.code) {
             if (data.code === 1001) {
               resolve(data.message);
+              return;
             }
             downloadFailed()
           }
@@ -397,15 +398,16 @@ export default {
           try {
             sourceInfo = await FavorService.sourceInfo(hash);
             // console.log(sourceInfo);
-          } catch(e) {
+          } catch (e) {
             reject(e);
           }
 
           sourceInfo = sourceInfo?.data.find(item => item.overlay === overlay);
           // console.log(`%c check sourceInfo`, 'background:#35495e ; padding: 2px 1px; border-radius: 3px 0 0 3px;  color: #fff');
           if (sourceInfo) {
-            let p = getProgress(stringToBinary(sourceInfo.bit.b, sourceInfo.bit.len))
-            // console.log(`%c storePeer source progress ${p}`, 'background:#34595e ; padding: 2px 1px; border-radius: 3px 0 0 3px;  color: #fff');
+            let p = getProgress(stringToBinary(sourceInfo.bit.b, sourceInfo.bit.len), len)
+            console.log(`%c storePeer source progress ${p}`, 'background:#34595e ; padding: 2px 1px; border-radius: 3px 0 0 3px;  color: #fff');
+
             _this.value = p;
             if (p === 100) {
               resolve("Video uploaded successfully");
@@ -432,9 +434,9 @@ export default {
                 downloadFailed()
               }, 1000 * 10)
               if (data.vector) {
-                p = getProgress(splicingBit(data.vector.b, downloadData.Bitvector.b, downloadData.Bitvector.len))
+                p = getProgress(splicingBit(data.vector.b, downloadData.Bitvector.b, downloadData.Bitvector.len), len)
               } else {
-                p = getProgress(stringToBinary(downloadData.Bitvector.b, downloadData.Bitvector.len))
+                p = getProgress(stringToBinary(downloadData.Bitvector.b, downloadData.Bitvector.len), len)
               }
               console.log(p);
               _this.value = p;
@@ -477,6 +479,9 @@ export default {
         let data = await FavorService.uploadFile(this.getApi, this.selectedFile);
         let hash = data.data.reference;
         console.log(hash);
+        let fileInfo = await FavorService.getFileInfo(hash);
+        let len = fileInfo.data.list[0].bitVector.len;
+
         let latestFiles = sessionStorage.getItem('latestFiles');
         if (latestFiles && JSON.parse(latestFiles).indexOf(hash) !== -1) {
           // console.log('Uploaded successfully---');
@@ -487,7 +492,7 @@ export default {
             text: 'Video uploaded successfully'
           })
         } else {
-          let message = await this.test(hash)
+          let message = await this.test(hash, len)
           await this.$store.dispatch("showTips", {
             type: "success",
             text: message
