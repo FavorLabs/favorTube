@@ -43,16 +43,18 @@ import {mapGetters} from "vuex";
 import {websocket} from "@/utils/util";
 import FavorService from "@/services/FavorService";
 import {proxyGroup} from "@/store/modules/auth";
+import {getWeb3} from "@/utils/web3Utils";
+
 
 export default {
   name: 'App',
   data() {
     return {
-      loading: false,
+      loading: true,
     }
   },
   computed: {
-    ...mapGetters(['getList', "getUrl","ws"]),
+    ...mapGetters(['getList', "getUrl", "ws", "web3", "isAuthenticated"]),
   },
   beforeCreate() {
     if (process.env.VUE_APP_MOBILE) {
@@ -91,7 +93,22 @@ export default {
           })
         }
       } else {
+        this.loading = false;
         await this.$router.push("/config");
+      }
+
+      if (this.isAuthenticated && !this.web3) {
+        const {err, res} = await getWeb3(() => {
+          this.signOut();
+        });
+        if (err) {
+          this.$store.dispatch("showTips", {
+            type: "info", text: err
+          })
+        } else {
+          const {web3} = res;
+          this.$store.commit("SET_WEB3", web3);
+        }
       }
     },
     wsCloseHandle() {
@@ -107,6 +124,13 @@ export default {
           api
         }
       });
+    },
+    signOut() {
+      this.$store.dispatch('signOut');
+      if (this.$route.name !== "Home") {
+        this.$router.push("/");
+      }
+      this.web3?.currentProvider?.disconnect?.();
     },
   },
   watch: {
@@ -132,8 +156,6 @@ export default {
     "loading": (v) => {
       if (v) {
         document.documentElement.style.overflow = "hidden";
-      } else {
-        document.documentElement.style.overflow = "scroll";
       }
     },
   }
@@ -169,6 +191,10 @@ export default {
 .tip-enter, .tip-leave-to {
   opacity: 0;
   transform: translateY(-50%);
+}
+
+html {
+  overflow: auto !important;
 }
 
 </style>

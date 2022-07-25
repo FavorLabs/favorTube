@@ -153,12 +153,12 @@ export default {
       // imgDataUrl: 'https://cdn.vuetifyjs.com/images/cards/docks.jpg',
 
       imgDataUrl: '',
-      url: '',
+      // url: '',
       headers: {Authorization: `Bearer ${this.$store.getters.getToken}`}
     }
   },
   computed: {
-    ...mapGetters(["getImgUrl"])
+    ...mapGetters(["getImgUrl","getUrl"])
   },
   methods: {
     async getVideo() {
@@ -173,7 +173,8 @@ export default {
 
       if (!video) return
       video = video.data.data
-      this.url = `${process.env.VUE_APP_URL}/api/v1/videos/${video._id}/thumbnails`
+
+      // this.url = `${process.env.VUE_APP_URL}/api/v1/videos/${video._id}/thumbnails`
 
       this.formData.title = video.title
       this.formData.description = video.description
@@ -240,6 +241,7 @@ export default {
     myUpload
   },
   mounted() {
+    console.log(11111111111)
     this.getVideo()
     this.getCategories()
   }
