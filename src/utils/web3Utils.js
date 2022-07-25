@@ -37,7 +37,7 @@ export const ConnectMetaMask = async (chainInfo) => {
             const web3 = new Web3(window.ethereum);
             const chainId = await web3.eth.getChainId();
             if (chainId !== chainInfo.chainId) {
-                return {err: "Please connect the correct chain", res: {}};
+                return {err: "Please connect the correct chain"};
             }
             const address = accounts[0];
             localStorage.setItem("connect_type", "metaMask");

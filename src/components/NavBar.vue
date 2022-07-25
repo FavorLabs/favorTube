@@ -342,7 +342,7 @@
 import {mapGetters} from 'vuex'
 import SubscriptionService from '@/services/SubscriptionService'
 import HistoryService from '@/services/HistoryService'
-import {getWeb3} from "@/utils/web3Utils";
+
 import {removeAllPendingRequestsRecord} from "@/services/Api";
 
 export default {
@@ -562,15 +562,6 @@ export default {
     }
   },
   async mounted() {
-    if (this.isAuthenticated && !this.web3) {
-      const {err, res: {web3}} = await getWeb3(() => {
-        this.signOut();
-      });
-      if (!err) {
-        this.$store.commit("SET_WEB3", web3);
-      }
-    }
-
     if (this.isAuthenticated) this.getSubscribedChannels(true)
 
     this.drawer = !this.$vuetify.breakpoint.mdAndDown

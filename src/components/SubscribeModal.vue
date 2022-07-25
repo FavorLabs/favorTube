@@ -142,7 +142,7 @@ export default {
       const tokenContract = new chainWeb3.eth.Contract(tokenAbi, this.token.address);
       this.token.decimal = await tokenContract.methods.decimals().call();
       this.balance = await tokenContract.methods.balanceOf(this.currentUser.address).call();
-      this.price = await favorTubeContract.methods.defaultPrice().call()
+      this.price = await favorTubeContract.methods.defaultPrice().call({from: this.account})
       clearTimeout(timer);
       this.favorTubeContract = favorTubeContract;
       this.tokenContract = tokenContract;
