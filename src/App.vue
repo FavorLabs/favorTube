@@ -45,7 +45,6 @@ import FavorService from "@/services/FavorService";
 import {proxyGroup} from "@/store/modules/auth";
 import {getWeb3} from "@/utils/web3Utils";
 
-
 export default {
   name: 'App',
   data() {
@@ -74,7 +73,7 @@ export default {
       });
     }
   },
-  mounted() {
+  async mounted() {
     this.getWs();
   },
   methods: {
@@ -95,20 +94,6 @@ export default {
       } else {
         this.loading = false;
         await this.$router.push("/config");
-      }
-
-      if (this.isAuthenticated && !this.web3) {
-        const {err, res} = await getWeb3(() => {
-          this.signOut();
-        });
-        if (err) {
-          this.$store.dispatch("showTips", {
-            type: "info", text: err
-          })
-        } else {
-          const {web3} = res;
-          this.$store.commit("SET_WEB3", web3);
-        }
       }
     },
     wsCloseHandle() {
@@ -153,9 +138,21 @@ export default {
         ws.on('close', this.wsCloseHandle);
       }
     },
-    "loading": (v) => {
+    "loading": async function (v) {
       if (v) {
         document.documentElement.style.overflow = "hidden";
+      } else if (this.ws) {
+        if (this.isAuthenticated && !this.web3) {
+          const {err, res} = await getWeb3(() => {
+            this.signOut();
+          });
+          if (err) {
+            this.signOut();
+          } else {
+            const {web3} = res;
+            this.$store.commit("SET_WEB3", web3);
+          }
+        }
       }
     },
   }
