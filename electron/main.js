@@ -46,6 +46,7 @@ async function createWindow() {
     });
 
     win.on('close', (e) => {
+        win.webContents.session.clearStorageData();
         if (menuExit) return;
         const choice = dialog.showMessageBoxSync(win, {
             message: 'Are you sure you want to quit?',
