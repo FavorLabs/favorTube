@@ -47,11 +47,23 @@
                     <v-row>
                       <v-col cols="12" v-if="$store.state.tips.isMobile">
                         <v-btn @click="connectMetaMask">
+                          <img
+                              height="30"
+                              :src="require('@/assets/metamask.png')"
+                              alt="matamask"
+                              class="pr-2"
+                          />
                           MetaMask
                         </v-btn>
                       </v-col>
                       <v-col cols="12" v-if="$store.state.tips.isMobile">
                         <v-btn @click="connectOkx">
+                          <img
+                              height="30"
+                              :src="require('@/assets/okx.png')"
+                              alt="okx"
+                              class="pr-2"
+                          />
                           OKX Wallet
                         </v-btn>
                       </v-col>
@@ -59,6 +71,12 @@
                     <v-row>
                       <v-col>
                         <v-btn @click="connectWalletConnect">
+                          <img
+                              height="30"
+                              :src="require('@/assets/walletconnect.png')"
+                              alt="walletconnect"
+                              class="pr-2"
+                          />
                           WalletConnect
                         </v-btn>
                       </v-col>
