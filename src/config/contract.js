@@ -732,7 +732,7 @@ export const contracts = {
     },
     19: {
         tokenAddress: "0xE532e8AC8dBA0Bf9045eC87057179ce8452e4eC0",
-        favorTubeAddress: "0x9AB470352C522bC129E4fC66797b6799AB1c7e86",
+        favorTubeAddress: "0xDe772853001a90D58fA9FD29D264cb84bc275ed9",
     },
     20: {
         tokenAddress: "0xeBa2d8B495864Fb12D9078f070AA99BEc248Beac",
