@@ -78,6 +78,7 @@
     "not dead"
   ],
   "build": {
+    "asar": true,
     "directories": {
       "output": "build"
     },
@@ -87,8 +88,12 @@
       "allowElevation": true,
       "allowToChangeInstallationDirectory": true
     },
+    "files": [
+      "dist",
+      "electron",
+      "public"
+    ],
     "extraFiles": [
-      "public/favicon.png",
       "favor"
     ],
     "productName": "FavorTube",
@@ -111,6 +116,10 @@
     "win": {
       "icon": "public/favicon.png",
       "target": "nsis"
+    },
+    "linux": {
+      "icon": "public/favicon.png",
+      "target": "AppImage"
     }
   }
 }
