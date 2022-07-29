@@ -4,15 +4,13 @@ const fs = require('fs');
 const path = require('path');
 const moment = require('moment');
 
-let cmdPath = 'favor';
+let cmdPath = path.join(__dirname, '../favor');
+let startCmd = os.platform() === 'win32' ? 'favorX.exe' : './favorX';
+let cmd = '--config=favor.yaml';
+
 let workerProcess;
 
 function run({win, logs}) {
-
-    let startCmd = os.platform() === 'win32' ? 'favorX.exe' : './favorX';
-    let config = fs.readFileSync('./favor/favor.yaml', {encoding: 'utf-8'});
-    let url = 'http://localhost:';
-    let api = url + config.match(/api-addr: :(\d*)/)[1];
 
     win.once("kill", () => {
         workerProcess.kill();
@@ -21,7 +19,7 @@ function run({win, logs}) {
     return runExec();
 
     function runExec() {
-        workerProcess = spawn(startCmd, ['--config=favor.yaml', 'start'], {
+        workerProcess = spawn(startCmd, [cmd, 'start'], {
             cwd: cmdPath,
         });
 
@@ -34,7 +32,10 @@ function run({win, logs}) {
         let writeLog = (log) => {
             let fileName =
                 'favor__' + moment().format('YYYY_MM_DD') + '.log';
-            fs.appendFile(path.join(cmdPath, fileName), log, (err) => {
+
+            let logPath = os.platform() === 'win32' ? cmdPath : os.tmpdir();
+
+            fs.appendFile(path.join(logPath, fileName), log, (err) => {
                 if (err) console.log(err);
             });
         }
@@ -47,9 +48,8 @@ function run({win, logs}) {
             }
             let re = /\Sapi address: http(s?):\/\/\[::]:(\d*)/;
             if (notStart && re.test(log)) {
-                console.log(api)
                 notStart = false;
-                win?.webContents.send('start', {api});
+                win?.webContents.send('start', {api: 'http://localhost:' + log.match(re)[2]});
             }
             let n = logs.push(log);
             if (n >= 300) logs.splice(0, 100);

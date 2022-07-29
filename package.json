@@ -78,7 +78,7 @@
     "not dead"
   ],
   "build": {
-    "asar": true,
+    "asar": false,
     "directories": {
       "output": "build"
     },
@@ -91,10 +91,10 @@
     "files": [
       "dist",
       "electron",
-      "public"
+      "public",
+      "favor"
     ],
     "extraFiles": [
-      "favor"
     ],
     "productName": "FavorTube",
     "appId": "com.favorTube.app",
@@ -119,7 +119,13 @@
     },
     "linux": {
       "icon": "public/favicon.png",
-      "target": "AppImage"
+      "target": "AppImage",
+      "executableArgs": [
+        "--no-sandbox"
+      ]
+    },
+    "mac": {
+      "icon": "public/favicon.icns"
     }
   }
 }
