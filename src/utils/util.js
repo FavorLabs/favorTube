@@ -71,3 +71,10 @@ export const randomHex = () => {
     return `#${Math.floor(Math.random() * 0xffffff).toString(16).padEnd(6, "0")}`;
 }
 
+export const getUrlParams = (url) => {
+    let urlStr = url.split('?')[1];
+    const urlSearchParams = new URLSearchParams(urlStr);
+    const result = Object.fromEntries(urlSearchParams.entries());
+    return result;
+}
+

@@ -40,7 +40,7 @@
 
 <script>
 import {mapGetters} from "vuex";
-import {websocket} from "@/utils/util";
+import {websocket, getUrlParams} from "@/utils/util";
 import FavorService from "@/services/FavorService";
 import {proxyGroup} from "@/store/modules/auth";
 import {getWeb3} from "@/utils/web3Utils";
@@ -93,7 +93,7 @@ export default {
         }
       } else {
         this.loading = false;
-        await this.$router.push("/config");
+        this.getEndPoint();
       }
     },
     wsCloseHandle() {
@@ -117,6 +117,23 @@ export default {
       }
       this.web3?.currentProvider?.disconnect?.();
     },
+    getEndPoint() {
+      const href = location.href.split('#/')[0];
+      const urlParams = getUrlParams(href);
+      // console.log('urlParams', urlParams);
+      const endPoint = urlParams?.endpoint;
+      if (endPoint) {
+        this.$router.push({
+          name: 'Config',
+          params: {
+            endPoint
+          }
+        });
+      } else {
+        this.$router.push('/config');
+      }
+
+    }
   },
   watch: {
     "ws": {
