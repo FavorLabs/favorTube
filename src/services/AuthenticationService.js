@@ -10,6 +10,9 @@ export default {
   updateUserDetails(data) {
     return Api().put('auth/updatedetails', data)
   },
+  updateUserSecret(data) {
+    return Api().put('auth/updatesecret', data)
+  },
   uploadUserAvatar(data) {
     return Api().put('auth/avatar', data)
   },

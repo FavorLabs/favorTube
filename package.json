@@ -1,6 +1,6 @@
 {
   "name": "favortube",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "author": {
     "name": "favortube",
     "email": "**"
@@ -49,7 +49,7 @@
     "babel-eslint": "^10.1.0",
     "cross-env": "^7.0.3",
     "electron": "^16.0.2",
-    "electron-builder": "^22.14.5",
+    "electron-builder": "^23.0.3",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
     "sass": "^1.19.0",
@@ -78,6 +78,7 @@
     "not dead"
   ],
   "build": {
+    "asar": false,
     "directories": {
       "output": "build"
     },
@@ -87,9 +88,13 @@
       "allowElevation": true,
       "allowToChangeInstallationDirectory": true
     },
-    "extraFiles": [
-      "public/favicon.png",
+    "files": [
+      "dist",
+      "electron",
+      "public",
       "favor"
+    ],
+    "extraFiles": [
     ],
     "productName": "FavorTube",
     "appId": "com.favorTube.app",
@@ -111,6 +116,16 @@
     "win": {
       "icon": "public/favicon.png",
       "target": "nsis"
+    },
+    "linux": {
+      "icon": "public/favicon.png",
+      "target": "AppImage",
+      "executableArgs": [
+        "--no-sandbox"
+      ]
+    },
+    "mac": {
+      "icon": "public/favicon.icns"
     }
   }
 }

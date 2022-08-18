@@ -52,7 +52,7 @@
               <ValidationProvider
                   v-slot="{ errors }"
                   name="Visibilty"
-                  rules="required|oneOf:private,public"
+                  rules="required|oneOf:private,member,public"
               >
                 <v-select
                     :loading="inputLoading"
@@ -143,7 +143,7 @@ export default {
       ],
       categoriesTitles: [],
       categories: [],
-      visibility: ['public', 'private'],
+      visibility: ['public','member', 'private'],
       formData: {
         title: '',
         description: '',

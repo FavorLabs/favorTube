@@ -32,7 +32,7 @@
                         controls
                         autoplay
                         style="height: 100%; width: 100%"
-                        v-if="subscribed"
+                        v-if="playable"
                     >
                       <source
                           :src="`${getApi}/file/${video.url}/`"
@@ -42,14 +42,16 @@
                     <div v-else>
                       <div style="position: absolute;z-index: 1;left: 50%;top:50%;transform: translate(-50%,-50%);"
                            id="subscribe-tips">
-                        <!--                        <img :src="require('@/assets/noPlay.svg')" alt="no-play" width="100px">-->
+                        <!-- <img :src="require('@/assets/noPlay.svg')" alt="no-play" width="100px">-->
                         <v-btn color="#F44336" style="color:#fff;" @click="clickSubBtn">To watch the videos, please pay
-                          to subscribe first
+                          to join first
                         </v-btn>
                       </div>
-                      <v-img v-if="video.thumbnailUrl !== 'no-photo.jpg'"
-                             :src="`${getImgUrl}/uploads/thumbnails/${video.thumbnailUrl}`"></v-img>
-                      <div v-if="video.thumbnailUrl === 'no-photo.jpg'"
+                      <v-img
+                          v-if="video.thumbnailUrl !== 'no-photo.jpg'"
+                          :src="`${getImgUrl}/uploads/thumbnails/${video.thumbnailUrl}`"
+                      />
+                      <div v-else
                            style="width:100%;height:450px;background-color: #000;color:#fff;text-align:center;line-height:450px">
                         No Thumbnail
                       </div>
@@ -187,18 +189,30 @@
                         <v-btn
                             :disabled="subscribed"
                             :class="[
-                            { 'red white--text': !subscribed },
-                            {
-                              'grey grey--text lighten-3 text--darken-3': subscribed
-                            },
+                            subscribed ? 'grey grey--text lighten-3 text--darken-3':'red white--text',
                             'mt-6'
+                          ]"
+                            tile
+                            large
+                            depressed
+                            @click="subscribe"
+                        >
+                          {{ !subscribed ? 'subscribe' : 'subscribed' }}
+                        </v-btn
+                        >
+                        <v-btn
+                            :disabled="isMember"
+                            :class="[
+                            isMember ? 'grey grey--text lighten-3 text--darken-3':'red white--text' ,
+                            'mt-6',
+                            'ml-2'
                           ]"
                             tile
                             large
                             depressed
                             @click="clickSubBtn"
                         >
-                          {{ !subscribed ? 'subscribe' : 'subscribed' }}
+                          {{ isMember ? 'Joined' : 'Join' }}
                         </v-btn
                         >
                       </div>
@@ -335,24 +349,20 @@
       </v-row>
     </v-container>
     <signin-modal
+        v-if="signinDialog"
         :openModal="signinDialog"
         :details="details"
         @closeModal="signinDialog = false"
     />
-    <signin-modal
-        :openModal="signinDialog"
-        :details="details"
-        @closeModal="signinDialog = false"
-    />
-    <Subscribe-modal
-        v-if="subscribeDialog"
-        :openModal="subscribeDialog"
-        @closeSubModal="subscribeDialog = false"
+    <JoinModal
+        v-if="joinDialog"
+        :openModal="joinDialog"
+        @closeJoinModal="joinDialog = false"
         :account="video.userId.address"
-        :channel-name="video.userId.channelName"
-        @subscribed="subscribedFn"
-        :video_id = "video.userId._id"
-    ></Subscribe-modal>
+        :channelName="video.userId.channelName"
+        @callback="joinCallback"
+        :video_id="video.userId._id"
+    ></JoinModal>
     <SourceInfoModal
         v-if="sourceInfoDialog"
         :openModal="sourceInfoDialog"
@@ -373,7 +383,7 @@ import FeelingService from '@/services/FeelingService'
 import HistoryService from '@/services/HistoryService'
 
 import SigninModal from '@/components/SigninModal'
-import SubscribeModal from '@/components/SubscribeModal'
+import JoinModal from '@/components/JoinModal'
 import SourceInfoModal from '@/components/SourceInfoModal'
 import AddComment from '@/components/comments/AddComment'
 import CommentList from '@/components/comments/CommentList'
@@ -385,9 +395,10 @@ export default {
     errored: false,
     videoLoading: true,
     subscribed: false,
-    subscribeDialog: false,
     subscribeLoading: false,
-    showSubBtn: true,
+    joinDialog: false,
+    isMember: false,
+    playable: false,
     feeling: '',
     video: {},
     videoId: '',
@@ -406,7 +417,7 @@ export default {
     channelAddress: '',
   }),
   computed: {
-    ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated', "getImgUrl", "getApi", "getContinuousPlay"])
+    ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated', "getImgUrl", "getApi"]),
   },
   methods: {
     clickSubBtn() {
@@ -418,13 +429,40 @@ export default {
         }
         return;
       }
-      this.subscribeDialog = true;
+      this.joinDialog = true;
     },
-    subscribedFn() {
-      this.subscribeDialog = false;
+    joinCallback() {
+      this.joinDialog = false;
       this.subscribed = true;
-      this.bindAutoPlay();
+      this.isMember = true;
+      this.playable = true;
       this.video.userId.subscribers++;
+    },
+    async subscribe() {
+      if (!this.isAuthenticated) {
+        this.signinDialog = true
+        this.details = {
+          title: 'Want to subscribe to this channel?',
+          text: 'Sign in to subscribe to this channel.'
+        }
+        return
+      }
+      this.subscribeLoading = true
+      const sub = await SubscriptionService.createSubscription({
+        channelId: this.video.userId._id
+      })
+          .catch((err) => console.log(err))
+          .finally(() => {
+            this.subscribeLoading = false
+          })
+      if (!sub) return
+      if (!sub.data.data._id) {
+        this.subscribed = false
+        this.video.userId.subscribers--
+      } else {
+        this.subscribed = true
+        this.video.userId.subscribers++
+      }
     },
     async getVideo(id) {
       this.errored = false
@@ -433,34 +471,37 @@ export default {
       try {
         const video = await VideoService.getById(id)
 
-        if (!video) return this.$router.push('/')
+        if (!video) return this.$router.push('/');
         this.video = video.data.data
         this.videoHash = video.data.data.url;
         this.channelAddress = video.data.data.userId.address;
+        if (this.video.status === 'public') {
+          this.playable = true;
+        }
       } catch (err) {
         this.errored = true
         console.log(err)
       } finally {
-        if (this.channelAddress === this.$store.state.auth.user?.address) {
+        if (this.channelAddress === this.currentUser?.address) {
           this.videoLoading = false;
           this.subscribed = true;
-          this.bindAutoPlay();
+          this.isMember = true;
+          this.playable = true;
+          // this.bindAutoPlay();
         } else {
           await this.checkSubscription(this.video.userId._id)
         }
-        // this.checkSubscription(this.video.userId._id)
         await this.checkFeeling(this.video._id)
+        this.videoLoading = false;
       }
-
-      this.showSubBtn = !(this.currentUser && this.currentUser._id === this.video.userId._id);
 
       if (!this.isAuthenticated) return
 
-      if (
-          this.video.userId._id.toString() !== this.currentUser._id.toString() &&
-          this.video.status !== 'public'
-      )
-        return this.$router.push('/')
+      // if (
+      //     this.video.userId._id.toString() !== this.currentUser._id.toString() &&
+      //     this.video.status !== 'public'
+      // )
+      //   return this.$router.push('/')
 
       const data = {
         type: 'watch',
@@ -516,14 +557,16 @@ export default {
           .finally(() => {
             // this.loading = false
           })
-      this.videoLoading = false;
+
+      // this.videoLoading = false;
       if (!sub) return
 
-      if (!sub.data.data._id) {
-        this.subscribed = false;
-      } else {
+      if (sub.data.data._id) {
         this.subscribed = true;
-        this.bindAutoPlay();
+      }
+      if (sub.data.data.tx) {
+        this.isMember = true;
+        this.playable = true;
       }
     },
     async checkFeeling(id) {
@@ -748,12 +791,11 @@ export default {
     AddComment,
     CommentList,
     SigninModal,
-    SubscribeModal,
+    JoinModal,
     SourceInfoModal,
     InfiniteLoading
   },
   mounted() {
-    console.log(process.env)
     this.getVideo(this.$route.params.id)
     // if (this.isAuthenticated) this.updateViews(this.$route.params.id)
   },
@@ -764,6 +806,9 @@ export default {
           this.isShowInfinite = true;
         }
       }
+    },
+    playable(newV) {
+      if (newV) this.bindAutoPlay();
     }
   },
   beforeRouteUpdate(to, from, next) {

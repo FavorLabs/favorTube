@@ -1,8 +1,8 @@
 <template>
-  <v-dialog v-model="openModal" :persistent="true" width="600">
+  <v-dialog v-model="openModal" width="600" persistent>
     <v-card>
       <v-card-title class="text-h5 grey lighten-2">
-        Subscribe {{ channelName }}
+        Join {{ channelName }}
       </v-card-title>
       <v-card-text class="text" style="color: #000">
         <p>
@@ -79,7 +79,7 @@ import {getChainInfo} from "@/utils/web3Utils";
 
 
 export default {
-  name: "SubscribeModal",
+  name: "JoinModal",
   props: {
     openModal: {
       type: Boolean,
@@ -142,7 +142,7 @@ export default {
       const tokenContract = new chainWeb3.eth.Contract(tokenAbi, this.token.address);
       this.token.decimal = await tokenContract.methods.decimals().call();
       this.balance = await tokenContract.methods.balanceOf(this.currentUser.address).call();
-      this.price = await favorTubeContract.methods.defaultPrice().call({from: this.account})
+      this.price = (await favorTubeContract.methods.userConfig().call({from: this.account})).price
       clearTimeout(timer);
       this.favorTubeContract = favorTubeContract;
       this.tokenContract = tokenContract;
@@ -157,7 +157,7 @@ export default {
   },
   methods: {
     closeModal() {
-      this.$emit('closeSubModal');
+      this.$emit('closeJoinModal');
     },
     async getAmount(chainWeb3) {
       this.amountLoading = true;
@@ -175,7 +175,7 @@ export default {
         data: this.tokenContract.methods.transfer(
             this.favorTubeCAddress,
             this.price,
-            this.web3.eth.abi.encodeParameters(['address', "uint"], [this.account, 518400])
+            this.web3.eth.abi.encodeParameter('address', this.account)
         ).encodeABI()
       }, (err) => {
         this.payLoading = true;
@@ -193,7 +193,7 @@ export default {
           if (lock) return;
           lock = true;
           const {data} = await SubscriptionService.checkSubscription({channelId: this.video_id});
-          if (data.data._id) {
+          if (data.data.tx) {
             clearInterval(timer);
             setTimeout(() => {
               this.payLoading = false;
@@ -202,7 +202,7 @@ export default {
                 type: "success",
                 text: "Subscription Success"
               });
-              this.$emit("subscribed");
+              this.$emit("callback");
             }, 3000)
           }
           lock = false;

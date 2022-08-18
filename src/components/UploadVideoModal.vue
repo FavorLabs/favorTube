@@ -266,7 +266,7 @@ export default {
       videoLimitSize: 1024 * 1024,
       categoriesTitles: [],
       categories: [],
-      visibilty: ["Public", "Private"],
+      visibilty: ["Public", "Member", "Private"],
       selectedFile: null,
       formData: {
         id: "",

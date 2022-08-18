@@ -55,12 +55,13 @@ export default {
   computed: {
     ...mapGetters(['getList', "getUrl", "ws", "web3", "isAuthenticated"]),
   },
-  beforeCreate() {
+  mounted() {
     if (process.env.VUE_APP_MOBILE) {
       document.addEventListener('deviceready', () => {
         setTimeout(function () {
           navigator.splashscreen.hide();
         }, 500);
+        this.getWs();
       });
       document.addEventListener('resume', () => {
         console.log('resume');
@@ -71,10 +72,9 @@ export default {
           }
         }
       });
+    } else {
+      this.getWs();
     }
-  },
-  async mounted() {
-    this.getWs();
   },
   methods: {
     async getWs() {

@@ -61,7 +61,7 @@ async function createWindow() {
     start();
 
     // Create the menu
-    tray = new Tray('./public/favicon.png'); // sets tray icon image
+    tray = new Tray(path.join(__dirname, '../public/favicon.png')); // sets tray icon image
     const contextMenu = Menu.buildFromTemplate([
         {
             label: 'Clear Cache',
