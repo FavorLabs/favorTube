@@ -9,12 +9,16 @@
       style="height: 300px"
   >
     <!-- :to="`/watch/${video._id}`" -->
-    <div style="flex: 1;background-color:#ccc;">
+    <div style="flex: 1;background-color:#ccc;position: relative">
       <v-img
           v-if="video.thumbnailUrl !== 'no-photo.jpg'"
           :src="`${getImgUrl}/uploads/thumbnails/${video.thumbnailUrl}`"
           height="200px"
       ></v-img>
+      <div v-if="video.status ==='member'"
+           style="position: absolute;bottom: 5px;right: 5px;padding: 0 5px;background-color:#ffffff;font-size: 12px">
+        Members Only
+      </div>
     </div>
     <v-row style="flex: 0">
       <v-col cols="2" v-if="card.type != 'noAvatar'">

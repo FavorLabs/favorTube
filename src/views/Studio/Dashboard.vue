@@ -23,11 +23,13 @@
       <v-row>
         <v-col cols="12" sm="6" md="4">
           <v-card class="mx-auto" outlined>
-            <v-card-title class="pl-5">The current price of your channel is {{ price }}</v-card-title>
+            <v-card-title class="pl-5">The current price of your channel is {{ userConfig.price / 100 }}, mode is
+              {{ userConfig.mode === "0" ? "normal" : "activity" }}
+            </v-card-title>
 
             <v-card-actions class="d-block ml-2">
               <v-btn color="blue" text @click="setPriceModal = true">
-                Set Channel Price
+                Set Channel Config
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -41,6 +43,21 @@
               <v-btn color="blue" text @click="subscribersDialog = true">
                 See all
               </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="6" md="4">
+          <v-card class="mx-auto fill-height" outlined
+                  style="display: flex;flex-direction: column;justify-content: space-between">
+            <v-card-title class="pl-5">Secret Channel</v-card-title>
+            <v-card-actions class="d-block ml-2" style="height: 52px">
+              <v-switch
+                  style="margin-top: 0;padding: 0;display: flex;align-items: center;height: 36px"
+                  color="#F44336"
+                  v-model="currentUser.secret"
+                  hide-details
+                  @change="setSecret"
+              ></v-switch>
             </v-card-actions>
           </v-card>
         </v-col>
@@ -62,7 +79,7 @@
     <SetPriceModal
         v-if="setPriceModal"
         :dialog="setPriceModal"
-        :n="price"
+        :userConfig="userConfig"
         @closeDialog="setPriceModal = false"
         @success="setPriceSuccess"
     />
@@ -76,6 +93,8 @@ import SetPriceModal from '@/components/SetPriceModal'
 import {mapGetters} from "vuex"
 import Web3 from "web3";
 import {favorTubeAbi, getContracts,} from "@/config/contract";
+import AuthenticationService from "@/services/AuthenticationService";
+
 
 let contractAddress = getContracts();
 
@@ -86,7 +105,10 @@ export default {
     subscribersDialog: false,
     setPriceModal: false,
     favorTubeCAddress: contractAddress.favorTubeAddress,
-    price: 0
+    userConfig: {
+      price: 0,
+      mode: 0
+    }
   }),
   components: {
     UploadVideoModal,
@@ -100,16 +122,23 @@ export default {
     async getPrice() {
       const chainWeb3 = new Web3(this.getApi + "/chain");
       const favorTubeContract = new chainWeb3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
-      const price = await favorTubeContract.methods.defaultPrice().call({from: this.currentUser.address});
-      this.price = price / 100;
+      this.userConfig = await favorTubeContract.methods.userConfig().call({from: this.currentUser.address});
     },
     setPriceSuccess() {
       this.setPriceModal = false;
       this.getPrice();
+    },
+    async setSecret(secret) {
+      await AuthenticationService.updateUserSecret({secret})
+      this.getMe();
+    },
+    getMe() {
+      this.$store.dispatch('getCurrentUser', localStorage.getItem("token"));
     }
   },
   created() {
     this.getPrice();
+    this.getMe();
   }
 }
 </script>

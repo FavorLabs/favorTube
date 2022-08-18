@@ -15,7 +15,6 @@
         >
           <v-text-field
               label="Price"
-              filled
               dense
               :rules="rules"
               hide-details="auto"
@@ -23,6 +22,11 @@
               v-model="price"
               min="0"
           ></v-text-field>
+          <v-select
+              v-model="mode"
+              label="Mode"
+              :items="items"
+          ></v-select>
         </v-form>
         <footer style="margin-top: 20px">
           <v-btn @click="closeModal" style="margin-right: 20px">cancel</v-btn>
@@ -42,17 +46,27 @@ import {getContracts, favorTubeAbi} from "@/config/contract";
 
 export default {
   name: "SetPrice",
-  props: ["dialog", "n"],
+  props: ["dialog", "userConfig"],
   data() {
     return {
       loading: false,
       valid: true,
-      price: this.n,
+      price: this.userConfig.price / 100,
+      mode: this.userConfig.mode,
       rules: [
         value => !!value || 'Required',
         value => Number.isInteger(value * 100) || 'Maximum two decimal places',
-        value => value !== this.n || 'No change in price',
         value => value >= 0 || 'Price cannot be less than 0'
+      ],
+      items: [
+        {
+          text: "normal",
+          value: "0",
+        },
+        {
+          text: "activity",
+          value: "1",
+        }
       ],
     }
   },
@@ -64,9 +78,9 @@ export default {
       this.$emit('closeDialog')
     },
     async set() {
+      console.log(this.$refs.form.validate())
       if (this.$refs.form.validate()) {
         this.loading = true;
-        console.log(this.price)
         const price = await this.web3.eth.getGasPrice();
         let {favorTubeAddress} = getContracts();
         const favorTubeContract = new this.web3.eth.Contract(favorTubeAbi, favorTubeAddress);
@@ -74,7 +88,7 @@ export default {
           from: this.currentUser.address,
           to: favorTubeAddress,
           gasPrice: this.web3.utils.toHex(price),
-          data: favorTubeContract.methods.setUserPrice(this.price * 100).encodeABI()
+          data: favorTubeContract.methods.setUserConfig(this.price * 100,this.mode).encodeABI()
         }, (error, hash) => {
           if (error) {
             this.$store.dispatch('showTips', {

@@ -48,7 +48,7 @@
         </div>
       </div>
     </v-overlay>
-    <v-overlay v-else :value="loading" class="flex justify-center align-center">
+    <v-overlay v-else :value="loading" class="flex justify-center align-center" opacity="1">
       <v-progress-circular
           indeterminate
           size="64"

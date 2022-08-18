@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" @click:outside="closeModal" width="400">
+  <v-dialog v-model="dialog" @click:outside="closeModal" width="400" persistent @keydown="keydown">
     <v-card class="pt-8">
       <v-card-text>
         <h2 class="mb-3">{{ details.title }}</h2>
@@ -38,6 +38,11 @@ export default {
   methods: {
     closeModal() {
       this.$emit('closeModal')
+    },
+    keydown(keyboardEvent){
+      if(keyboardEvent.keyCode === 27){
+        this.closeModal();
+      }
     }
   }
 }
