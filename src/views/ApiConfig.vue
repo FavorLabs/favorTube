@@ -134,8 +134,11 @@ export default {
       if (this.$route.params.api) {
         this.loading = false;
       } else {
+        const endPoint = this.$route.params?.endPoint;
         const {origin} = window.location;
-        this.set(origin).finally(() => {
+        const api = endPoint ? endPoint : origin;
+        // console.log('api', origin, endPoint);
+        this.set(api).finally(() => {
           this.loading = false;
         })
       }
