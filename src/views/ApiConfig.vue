@@ -53,6 +53,7 @@
           indeterminate
           size="64"
       ></v-progress-circular>
+      <div style="margin-top: 15px;font-size: 18px;">{{version}}</div>
     </v-overlay>
   </div>
 </template>
@@ -72,14 +73,18 @@ export default {
       logs: [],
       showLogs: [],
       isElectron: isElectron,
-      app: false
+      app: false,
+      version: '',
     }
   },
 
   created() {
     if (process.env.VUE_APP_MOBILE) {
       this.app = true;
-      // eslint-disable-next-line no-inner-declarations
+      // eslint-disable-next-line no-undef
+      cordova.plugins.node.getVersion((version)=>{
+        this.version = version;
+      })
       const startNode = () => {
         // eslint-disable-next-line no-undef
         cordova.plugins.node.start(
@@ -151,14 +156,10 @@ export default {
   methods: {
     async setting() {
       if (!this.$refs.form.validate()) return;
-      this.set(this.api).catch((err) => {
+      this.set(this.api).catch(() => {
         this.$refs.form.setErrors({
           'Api': "Connection failed"
         })
-        this.$store.dispatch('showTips', {
-          type: "error",
-          text: err?.message ? err.message : err,
-        });
       })
     },
     async set(api) {
