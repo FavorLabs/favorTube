@@ -855,6 +855,18 @@ export const contracts = {
 }
 
 export const getContracts = () => {
-    let network_id = sessionStorage.getItem("network_id");
-    return contracts[network_id] ?? contracts[19]
+    const config = sessionStorage.getItem('current_config');
+    const network_id = sessionStorage.getItem('network_id');
+    if (config) {
+        const configObj = JSON.parse(config);
+        const contract = {
+            tokenAddress: configObj.favorTokenAddress,
+            favorTubeAddress: configObj.favorTubeAddress
+        };
+        console.log('getContracts from api');
+        return contract;
+    } else {
+        console.log('getContracts from local');
+        return contracts[network_id] ?? contracts[19];
+    }
 }

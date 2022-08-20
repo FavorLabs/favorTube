@@ -1,7 +1,7 @@
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
-export const chain = {
+export const chains = {
     18: {
         chainId: 137,
         rpc: "https://polygon-rpc.com",
@@ -26,8 +26,31 @@ export const chain = {
 }
 
 export const getChainInfo = () => {
-    let network_id = sessionStorage.getItem("network_id");
-    return chain[network_id] ?? chain[19]
+    const config = sessionStorage.getItem('current_config');
+    const network_id = sessionStorage.getItem("network_id");
+    if (config) {
+        const configObj = JSON.parse(config);
+        let chain = {};
+        if (configObj?.faucet) {
+            chain = {
+                chainId: configObj.chainId,
+                rpc: configObj.chainEndpoint,
+                faucet: configObj.faucet,
+                tokenName: configObj.tokenName,
+            }
+        } else {
+            chain = {
+                chainId: configObj.chainId,
+                rpc: configObj.chainEndpoint,
+                tokenName: configObj.tokenName,
+            }
+        }
+        console.log('getChainInfo from api');
+        return chain;
+    } else {
+        console.log('getChainInfo from local');
+        return chains[network_id] ?? chains[19];
+    }
 }
 
 export const ConnectMetaMask = async (chainInfo) => {
@@ -105,6 +128,7 @@ export const ConnectWalletConnect = async (chainInfo, cb) => {
 
 export const connect = (connectType, cb) => {
     let chainInfo = getChainInfo();
+    console.log('chainInfo', chainInfo);
 
     if (connectType === "metaMask") {
         return ConnectMetaMask(chainInfo);

@@ -172,7 +172,7 @@
                             </v-list-item-title
                             >
                             <v-list-item-subtitle
-                            >{{ video.userId.subscribers }} subscribers
+                            >{{ video.userId.subscribers }} collectors
                             </v-list-item-subtitle>
                           </v-list-item-content>
                         </v-list-item>
@@ -197,7 +197,7 @@
                             depressed
                             @click="subscribe"
                         >
-                          {{ !subscribed ? 'subscribe' : 'subscribed' }}
+                          {{ !subscribed ? 'collect' : 'collected' }}
                         </v-btn
                         >
                         <v-btn
@@ -212,7 +212,7 @@
                             depressed
                             @click="clickSubBtn"
                         >
-                          {{ isMember ? 'Joined' : 'Join' }}
+                          {{ isMember ? 'subscribed' : 'subscribe' }}
                         </v-btn
                         >
                       </div>
