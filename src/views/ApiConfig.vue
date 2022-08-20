@@ -60,7 +60,7 @@
 <script>
 import {websocket} from "@/utils/util";
 import FavorService from "../services/FavorService"
-import {isElectron, ipc} from "@/utils/util";
+import {isElectron, ipc, getCurrentContract} from "@/utils/util";
 
 let ipcRenderer = ipc();
 export default {
@@ -151,10 +151,14 @@ export default {
   methods: {
     async setting() {
       if (!this.$refs.form.validate()) return;
-      this.set(this.api).catch(() => {
+      this.set(this.api).catch((err) => {
         this.$refs.form.setErrors({
           'Api': "Connection failed"
         })
+        this.$store.dispatch('showTips', {
+          type: "error",
+          text: err?.message ? err.message : err,
+        });
       })
     },
     async set(api) {
@@ -170,6 +174,7 @@ export default {
       this.$store.commit("SET_URL", api);
       let addresses = await FavorService.getAddresses();
       sessionStorage.setItem("network_id", addresses.data.network_id);
+      await getCurrentContract(addresses.data.network_id);
       let ws = websocket(host);
       this.$store.commit("SET_WS", ws);
       await this.$router.replace({name: 'Home'});

@@ -83,6 +83,13 @@
         @closeDialog="setPriceModal = false"
         @success="setPriceSuccess"
     />
+    <SecretModal
+        v-if="secretModal"
+        :open-dialog="secretModal"
+        :secret-status="secretStatus"
+        @closeDialog="canceSecret"
+        @secretSetting="setSecretEffect"
+    />
   </div>
 </template>
 
@@ -90,6 +97,7 @@
 import UploadVideoModal from '@/components/UploadVideoModal'
 import SubscribersModal from '@/components/SubscribersModal'
 import SetPriceModal from '@/components/SetPriceModal'
+import SecretModal from '@/components/SecretModal'
 import {mapGetters} from "vuex"
 import Web3 from "web3";
 import {favorTubeAbi, getContracts,} from "@/config/contract";
@@ -104,6 +112,8 @@ export default {
     dialog: false,
     subscribersDialog: false,
     setPriceModal: false,
+    secretModal: false,
+    secretStatus: false,
     favorTubeCAddress: contractAddress.favorTubeAddress,
     userConfig: {
       price: 0,
@@ -113,7 +123,8 @@ export default {
   components: {
     UploadVideoModal,
     SubscribersModal,
-    SetPriceModal
+    SetPriceModal,
+    SecretModal,
   },
   computed: {
     ...mapGetters(["currentUser", "getApi"])
@@ -129,7 +140,16 @@ export default {
       this.getPrice();
     },
     async setSecret(secret) {
-      await AuthenticationService.updateUserSecret({secret})
+      this.secretStatus = secret;
+      this.secretModal = true;
+    },
+    canceSecret() {
+      this.secretModal = false;
+      this.getMe();
+    },
+    async setSecretEffect(secret) {
+      await AuthenticationService.updateUserSecret({secret});
+      this.secretModal = false;
       this.getMe();
     },
     getMe() {

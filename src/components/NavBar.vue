@@ -262,7 +262,7 @@
             <v-subheader
                 class="pl-3 py-4 subtitle-1 font-weight-bold text-uppercase"
             >
-              Subscriptions
+              Favorites
             </v-subheader>
             <div class="Subscriptions-box">
               <v-list-item

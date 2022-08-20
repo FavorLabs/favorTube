@@ -2,7 +2,7 @@
   <v-dialog v-model="openModal" width="600" persistent>
     <v-card>
       <v-card-title class="text-h5 grey lighten-2">
-        Join {{ channelName }}
+        Subscribe {{ channelName }}
       </v-card-title>
       <v-card-text class="text" style="color: #000">
         <p>

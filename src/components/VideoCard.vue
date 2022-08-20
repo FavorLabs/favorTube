@@ -15,10 +15,6 @@
           :src="`${getImgUrl}/uploads/thumbnails/${video.thumbnailUrl}`"
           height="200px"
       ></v-img>
-      <div v-if="video.status ==='member'"
-           style="position: absolute;bottom: 5px;right: 5px;padding: 0 5px;background-color:#ffffff;font-size: 12px">
-        Members Only
-      </div>
     </div>
     <v-row style="flex: 0">
       <v-col cols="2" v-if="card.type != 'noAvatar'">
@@ -48,12 +44,36 @@
         <v-card-subtitle class="pl-2 pb-0">
           {{ channel.name }}
         </v-card-subtitle>
-        <v-card-subtitle class="pl-2 pt-0">
+        <v-card-subtitle class="pl-2 pt-0" style="display: flex;justify-content: flex-start;align-items: center;">
           {{ video.views }} views
           <v-icon>mdi-circle-small
           </v-icon
           >
           {{ dateFormatter(video.createdAt) }}
+          <div v-if="video.status ==='member'"
+               style="display: inline-block;padding: 0 5px;font-size: 12px;width: 25px;margin-left: 5px">
+            <!-- Members Only -->
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <div
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <svg viewBox="0 0 24 24"
+                    preserveAspectRatio="xMidYMid meet"
+                    focusable="false" class="style-scope yt-icon"
+                    style="pointer-events: none; display: block; width: 100%; height: 100%;color:#107516"
+                  >
+                    <g class="style-scope yt-icon" fill="#107516">
+                      <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z" class="style-scope yt-icon">
+                      </path>
+                    </g>
+                  </svg>
+                </div>
+              </template>
+              <span>Members Only</span>
+            </v-tooltip>
+          </div>
         </v-card-subtitle>
       </v-col>
     </v-row>

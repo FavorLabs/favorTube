@@ -263,7 +263,7 @@ export default {
       // interval: {},
       value: 0,
       show: false,
-      videoLimitSize: 1024 * 1024,
+      videoLimitSize: sessionStorage.getItem('current_config') ? (JSON.parse(sessionStorage.getItem('current_config')).videoLimitSize) : (1024 * 1024),
       categoriesTitles: [],
       categories: [],
       visibilty: ["Public", "Member", "Private"],
@@ -617,7 +617,6 @@ export default {
       }
     });
     this.getCategories();
-
   },
 };
 </script>
