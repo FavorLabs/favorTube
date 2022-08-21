@@ -3,7 +3,7 @@
     <v-dialog
         v-model="openModal"
         :persistent="true"
-        width="70vw"
+        :width="isPC() ? '40vw' : '85vw'"
     >
       <v-card :loading="loading">
         <v-card-title class="text-h5 grey lighten-2">
@@ -109,6 +109,14 @@ export default {
     },
     getRandomHex() {
       return randomHex();
+    },
+    isPC() {
+      const screenWidth = document.body.clientWidth;
+      if (screenWidth >= 1024) {
+        return true;
+      } else {
+        return false;
+      }
     }
   }
 }
@@ -138,6 +146,23 @@ export default {
 
 .chunk-percent {
   margin-left: 20px;
-  font-size: 1.2rem;
+  /* font-size: 1.2rem; */
+}
+
+@media screen and (max-width: 1024px) {
+  .chunkInfo-item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  
+  .chunk-overlay {
+    display: inline-block;
+    width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    white-space: nowrap;
+  }
 }
 </style>

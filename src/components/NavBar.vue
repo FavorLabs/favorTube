@@ -332,6 +332,7 @@
             >{{ link.text }}</v-btn
             >
           </span>
+          <p style="margin: 10px">Version: {{ FavorTubeVersion }}</p>
         </v-list>
       </div>
     </v-navigation-drawer>
@@ -342,8 +343,8 @@
 import {mapGetters} from 'vuex'
 import SubscriptionService from '@/services/SubscriptionService'
 import HistoryService from '@/services/HistoryService'
-
 import {removeAllPendingRequestsRecord} from "@/services/Api";
+import { version as FavorTubeVersion } from '../../package.json'
 
 export default {
   data: () => ({
@@ -468,6 +469,7 @@ export default {
     searchText: '',
     // user: null,
     goBackClickStatus: false,
+    FavorTubeVersion: FavorTubeVersion
   }),
   computed: {
     ...mapGetters(['currentUser', 'isAuthenticated', "getImgUrl", "getApi", "web3"]),
@@ -694,8 +696,8 @@ export default {
 }
 
 .Subscriptions-box {
-  max-height: 336px;
-  overflow-y: auto;
+  // max-height: 336px;
+  // overflow-y: auto;
 }
 
 .Subscriptions-box::-webkit-scrollbar {

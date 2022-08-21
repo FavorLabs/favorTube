@@ -78,7 +78,7 @@
                         {{ dateFormatter(video.createdAt) }}
                       </v-card-subtitle>
                       <v-card-actions class="pt-0 pl-0">
-                        <v-icon v-if="videoHash && subscribed"
+                        <v-icon v-if="videoHash"
                                 style="cursor: pointer;margin:4px 24px 0 0;font-size:1.6rem;"
                                 @click="sourceInfo">mdi-information
                         </v-icon>
@@ -172,7 +172,7 @@
                             </v-list-item-title
                             >
                             <v-list-item-subtitle
-                            >{{ video.userId.subscribers }} collectors
+                            >{{ video.userId.subscribers }} favorites
                             </v-list-item-subtitle>
                           </v-list-item-content>
                         </v-list-item>
@@ -197,7 +197,7 @@
                             depressed
                             @click="subscribe"
                         >
-                          {{ !subscribed ? 'collect' : 'collected' }}
+                          {{ !subscribed ? 'bookmark' : 'bookmarked' }}
                         </v-btn
                         >
                         <v-btn
