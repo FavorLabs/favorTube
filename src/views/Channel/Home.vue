@@ -36,7 +36,7 @@
                         }}
                       </v-list-item-title>
                       <v-list-item-subtitle
-                      >{{ channel.subscribers }} collectors
+                      >{{ channel.subscribers }} favorites
                       </v-list-item-subtitle>
                     </v-list-item-content>
                   </v-list-item>

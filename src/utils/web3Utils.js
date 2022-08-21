@@ -128,7 +128,7 @@ export const ConnectWalletConnect = async (chainInfo, cb) => {
 
 export const connect = (connectType, cb) => {
     let chainInfo = getChainInfo();
-    console.log('chainInfo', chainInfo);
+    // console.log('chainInfo', chainInfo);
 
     if (connectType === "metaMask") {
         return ConnectMetaMask(chainInfo);
