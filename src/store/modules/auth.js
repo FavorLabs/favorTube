@@ -4,7 +4,42 @@ export const proxyGroup = "favortube";
 export const domainName = "favortube.com";
 export const storeGroup = "favortube-storage";
 
-export const group = `/group/http/${proxyGroup}/${domainName}`;
+export const getProxyGroup = () => {
+    const config = sessionStorage.getItem('current_config');
+    if (config) {
+        const configObj = JSON.parse(config);
+        // console.log('proxyGroup form api config');
+        return configObj.proxyGroup;
+    } else {
+        return proxyGroup;
+    }
+}
+
+export const getDomainName = () => {
+    const config = sessionStorage.getItem('current_config');
+    if (config) {
+        const configObj = JSON.parse(config);
+        // console.log('domainName form api config');
+        return configObj.domainName;
+    } else {
+        return domainName;
+    }
+}
+
+export const getStoreGroup = () => {
+    const config = sessionStorage.getItem('current_config');
+    if (config) {
+        const configObj = JSON.parse(config);
+        // console.log('storeGroup form api config');
+        return configObj.storeGroup;
+    } else {
+        return storeGroup;
+    }
+}
+
+export const group = () => {
+    return `/group/http/${getProxyGroup()}/${getDomainName()}`;
+};
 
 const state = {
     api: "",
@@ -25,10 +60,10 @@ const getters = {
         return state.api || sessionStorage.getItem("api");
     },
     getUrl: () => {
-        return state.url || sessionStorage.getItem("api") + group + "/api/v1";
+        return state.url || sessionStorage.getItem("api") + group() + "/api/v1";
     },
     getImgUrl: () => {
-        return state.imgUrl || sessionStorage.getItem("api") + group
+        return state.imgUrl || sessionStorage.getItem("api") + group()
     },
     isAuthenticated: (state) => {
         return state.isUserLoggedIn
@@ -63,8 +98,8 @@ const mutations = {
     },
     SET_URL(state, api) {
         state.api = api;
-        state.url = api + group + "/api/v1";
-        state.imgUrl = api + group;
+        state.url = api + group() + "/api/v1";
+        state.imgUrl = api + group();
     }
 }
 
