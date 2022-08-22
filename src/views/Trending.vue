@@ -3,8 +3,8 @@
     <v-container fluid>
       <v-row>
         <v-col
-            cols="8"
-            sm="7"
+            cols="9"
+            sm="8"
             md="10"
             lg="10"
             v-for="(video, i) in loading ? 12 : videos"
@@ -19,8 +19,8 @@
               large
           >
             <v-card class="card" tile flat :to="`/watch/${video._id}`">
-              <v-row no-gutters>
-                <v-col class="mx-auto" cols="12" sm="8" md="5" lg="4">
+              <v-row no-gutters class="trending-card-item">
+                <v-col class="mx-auto" cols="11" sm="8" md="5" lg="4">
                   <!-- <v-responsive max-height="100%"> -->
                   <v-img
                       max-height="200"
@@ -30,7 +30,8 @@
                   </v-img>
                   <!-- </v-responsive> -->
                 </v-col>
-                <v-col class="hidden-sm-and-down">
+                <!-- hidden-sm-and-down -->
+                <v-col class="mx-auto" cols="12" sm="9" md="6" lg="8">
                   <div class="ml-4 ">
                     <v-card-title class="pl-2 pt-0 subtitle-1 font-weight-bold">
                       {{ video.title }}

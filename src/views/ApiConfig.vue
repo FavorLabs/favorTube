@@ -61,7 +61,7 @@
 <script>
 import {websocket} from "@/utils/util";
 import FavorService from "../services/FavorService"
-import {isElectron, ipc, getCurrentContract} from "@/utils/util";
+import {isElectron, ipc, getServiceConfig} from "@/utils/util";
 
 let ipcRenderer = ipc();
 export default {
@@ -168,17 +168,19 @@ export default {
       if (!wsPort) throw new Error("ws not enabled");
       let isHttps = /^https/.test(api);
       let host = (isHttps ? "wss" : "ws") + `://${new URL(api).hostname}:${wsPort}`;
-      await FavorService.observe(api);
+      // await FavorService.observe(api);
       sessionStorage.setItem("debugApi", (isHttps ? "https" : "http") + `://${new URL(api).hostname}:${res.data.debugApiPort}`);
       sessionStorage.setItem("api", api);
       sessionStorage.setItem("ws", host);
       this.$store.commit("SET_URL", api);
       let addresses = await FavorService.getAddresses();
       sessionStorage.setItem("network_id", addresses.data.network_id);
-      await getCurrentContract(addresses.data.network_id);
-      let ws = websocket(host);
-      this.$store.commit("SET_WS", ws);
-      await this.$router.replace({name: 'Home'});
+      getServiceConfig(addresses.data.network_id).finally(async () => {
+        await FavorService.observe(api);
+        let ws = websocket(host);
+        this.$store.commit("SET_WS", ws);
+        await this.$router.replace({name: 'Home'});
+      })
     },
     fillInApi() {
       this.api = this.$route.params.api || "";

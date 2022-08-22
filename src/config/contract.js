@@ -863,10 +863,10 @@ export const getContracts = () => {
             tokenAddress: configObj.favorTokenAddress,
             favorTubeAddress: configObj.favorTubeAddress
         };
-        console.log('getContracts from api');
+        // console.log('getContracts from api');
         return contract;
     } else {
-        console.log('getContracts from local');
+        // console.log('getContracts from local');
         return contracts[network_id] ?? contracts[19];
     }
 }

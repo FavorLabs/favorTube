@@ -242,7 +242,7 @@ import data2blob from "vue-image-crop-upload/utils/data2blob";
 import {mapGetters} from "vuex";
 import FavorService from "@/services/FavorService";
 import {splicingBit, stringToBinary, getProgress} from "@/utils/util";
-import {storeGroup} from "@/store/modules/auth";
+import {getStoreGroup} from "@/store/modules/auth";
 
 export default {
   name: "UploadModal",
@@ -314,7 +314,7 @@ export default {
               "id": 1,
               "jsonrpc": "2.0",
               "method": "group_subscribe",
-              "params": ["peers", storeGroup]
+              "params": ["peers", getStoreGroup()]
             },
             (err, res) => {
               if (err) reject(err);

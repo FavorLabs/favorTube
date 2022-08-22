@@ -79,15 +79,17 @@ export const getUrlParams = (url) => {
     return result;
 }
 
-export const getCurrentContract = async (networkId) => {
+export const getServiceConfig = async (networkId) => {
     try {
-        const { data } = await axios.get('https://service.favorlabs.io/api/v1/config', {
+        const { data } = await axios.get('https://service.favorlabs.io/api/v1/favortubeconfig', {
             params: {
                 networkId
             }
         })
+        console.log('getServiceConfig success');
         sessionStorage.setItem("current_config", JSON.stringify(data.data));
     } catch (err) {
+        console.log('getServiceConfig failed');
         console.error('err', err);
         sessionStorage.setItem("current_config", '');
     }

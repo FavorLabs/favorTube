@@ -42,7 +42,7 @@
 import {mapGetters} from "vuex";
 import {websocket, getUrlParams} from "@/utils/util";
 import FavorService from "@/services/FavorService";
-import {proxyGroup} from "@/store/modules/auth";
+import {getProxyGroup} from "@/store/modules/auth";
 import {getWeb3} from "@/utils/web3Utils";
 
 export default {
@@ -82,6 +82,7 @@ export default {
       let api = sessionStorage.getItem("api");
       if (wsHost && api) {
         try {
+          // console.log('FavorService.observe', 'App');
           await FavorService.observe(api);
           let ws = websocket(wsHost);
           this.$store.commit("SET_WS", ws);
@@ -145,7 +146,7 @@ export default {
           "id": 1,
           "jsonrpc": "2.0",
           "method": "group_subscribe",
-          "params": ["peers", proxyGroup]
+          "params": ["peers", getProxyGroup()]
         }, (err, {result}) => {
           ws.on(result, (res) => {
             console.log(res)
