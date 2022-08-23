@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {proxyGroup, storeGroup} from "@/store/modules/auth";
+import {getProxyGroup, getStoreGroup} from "@/store/modules/auth";
 
 const proxyNodes = {
     18: [
@@ -47,21 +47,43 @@ const storeNodes = {
     ]
 }
 
+const getProxyNodes = (network_id) => {
+    const config = sessionStorage.getItem('current_config');
+    if (config) {
+        const configObj = JSON.parse(config);
+        // console.log('proxyNodes form api config');
+        return configObj.proxyNodes;
+    } else {
+        return proxyNodes[network_id] || proxyNodes[19];
+    }
+}
+
+const getStoreNodes = (network_id) => {
+    const config = sessionStorage.getItem('current_config');
+    if (config) {
+        const configObj = JSON.parse(config);
+        // console.log('storeNodes form api config');
+        return configObj.storeNodes;
+    } else {
+        return storeNodes[network_id] || storeNodes[19];
+    }
+}
+
 export default {
     getPort(api) {
         return axios.get(api + '/apiPort')
     },
     observe(api) {
         let network_id = sessionStorage.getItem("network_id");
-        return axios.post(api + `/group/observe/` + proxyGroup, {
-            nodes: proxyNodes[network_id] || proxyNodes[19],
+        return axios.post(api + `/group/observe/` + getProxyGroup(), {
+            nodes: getProxyNodes(network_id),
             "keep-connected-peers": 1
         })
     },
     observeStorage(api) {
         let network_id = sessionStorage.getItem("network_id");
-        return axios.post(api + `/group/observe/` + storeGroup, {
-            nodes: storeNodes[network_id] || storeNodes[19],
+        return axios.post(api + `/group/observe/` + getStoreGroup(), {
+            nodes: getStoreNodes(network_id),
             "keep-connected-peers": 1
         })
     },
@@ -81,7 +103,7 @@ export default {
     async sendMessage(api, overlay, hash) {
         const debugApi = sessionStorage.getItem("debugApi");
         const data = await axios.get(debugApi + "/addresses");
-        return axios.post(api + `/group/send/${storeGroup}/` + overlay, {
+        return axios.post(api + `/group/send/${getStoreGroup()}/` + overlay, {
             source: data.data.overlay,
             hash,
         }, {timeout: 30 * 1000})

@@ -45,10 +45,10 @@ export const getChainInfo = () => {
                 tokenName: configObj.tokenName,
             }
         }
-        console.log('getChainInfo from api');
+        // console.log('getChainInfo from api');
         return chain;
     } else {
-        console.log('getChainInfo from local');
+        // console.log('getChainInfo from local');
         return chains[network_id] ?? chains[19];
     }
 }
