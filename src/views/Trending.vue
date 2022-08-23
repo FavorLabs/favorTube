@@ -33,17 +33,17 @@
                 <!-- hidden-sm-and-down -->
                 <v-col class="mx-auto" cols="12" sm="9" md="6" lg="8">
                   <div class="ml-4 ">
-                    <v-card-title class="pl-2 pt-0 subtitle-1 font-weight-bold">
+                    <v-card-title class="pl-2 pt-0 subtitle-1 font-weight-bold text-ellipsis">
                       {{ video.title }}
                     </v-card-title>
 
-                    <v-card-subtitle class="pl-2 pb-0" v-if="video.userId">
+                    <v-card-subtitle class="pl-2 pb-0 text-ellipsis-center" v-if="video.userId">
                       {{ video.userId.channelName }}
                       <v-icon>mdi-circle-small</v-icon
                       >{{ video.views }} views<v-icon>mdi-circle-small</v-icon
                     >{{ dateFormatter(video.createdAt) }}
                     </v-card-subtitle>
-                    <v-card-subtitle class="pl-2 pt-0">
+                    <v-card-subtitle class="pl-2 pt-0 text-ellipsis">
                       {{ truncateText(video.description, 200) }}
                     </v-card-subtitle>
                   </div>
@@ -169,6 +169,22 @@ export default {
   }
   .v-skeleton-loader__text {
     height: 20px;
+  }
+}
+
+@media screen and (max-width: 920px) {
+  .text-ellipsis {
+    display:-webkit-box;
+    text-overflow: ellipsis;
+    -webkit-box-orient:vertical; 
+    overflow: hidden;
+    -webkit-line-clamp: 1;
+    padding: 0;
+    margin-top: 12px;
+  }
+
+  .text-ellipsis-center {
+    margin-top: 0px!important;
   }
 }
 </style>
