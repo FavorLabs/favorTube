@@ -1,6 +1,9 @@
 <template>
-  <div class="text-center">
-    <div class="h-auto" v-if="!app">
+  <div>
+    <div v-if="isElectron" style="height:100vh;display: flex;align-items: center">
+      <RunNode/>
+    </div>
+    <div class="h-auto text-center" v-else-if="!loading">
       <v-card
           max-width="400"
           class="mx-auto card"
@@ -35,17 +38,9 @@
         </ValidationObserver>
       </v-card>
     </div>
-    <v-overlay v-if="isElectron" :value="loading" style="display: block;text-align:left;" class="log-overlay">
-      <div style="margin-top: -60px;height: 80vh;overflow-y: scroll" id="message-box">
-        <p v-for="(item, index) in showLogs" :key="'log' + index" style="width: 50%">{{ item }}</p>
-        <div class="spinner" id="message-anchor">
-          <div class="bounce1"></div>
-          <div class="bounce2"></div>
-          <div class="bounce3"></div>
-          <div class="bounce4"></div>
-          <div class="bounce5"></div>
-          <div class="bounce6"></div>
-        </div>
+    <v-overlay v-if="isElectron" :value="loading" opacity="1" style="justify-content: start;align-items: start">
+      <div style="padding: 10px 20px">
+        <p v-for="item in logs" :key=item>{{ item }}</p>
       </div>
     </v-overlay>
     <v-overlay v-else :value="loading" class="flex justify-center align-center" opacity="1">
@@ -53,7 +48,7 @@
           indeterminate
           size="64"
       ></v-progress-circular>
-      <div style="margin-top: 15px;font-size: 18px;">{{version}}</div>
+      <div style="margin-top: 15px;font-size: 18px;">{{ version }}</div>
     </v-overlay>
   </div>
 </template>
@@ -63,26 +58,45 @@ import {websocket} from "@/utils/util";
 import FavorService from "../services/FavorService"
 import {isElectron, ipc, getCurrentContract} from "@/utils/util";
 
+import RunNode from "@/components/RunNode";
+
 let ipcRenderer = ipc();
+
 export default {
   name: "ApiConfig",
   data: function () {
     return {
       api: "",
-      loading: true,
+      loading: false,
       logs: [],
-      showLogs: [],
       isElectron: isElectron,
       app: false,
       version: '',
     }
   },
-
+  components: {
+    RunNode
+  },
   created() {
+    if (isElectron) {
+      ipcRenderer.removeAllListeners("getLogInfo");
+      ipcRenderer.removeAllListeners("start");
+      ipcRenderer.on("start", (event, {api}) => {
+        this.set(api).catch((reason) => {
+          console.log(reason);
+        });
+      })
+      ipcRenderer.on('getLogInfo', (event, msg) => {
+        this.loading = true;
+        this.logs.push(msg);
+        console.log(msg)
+      })
+      return;
+    }
     if (process.env.VUE_APP_MOBILE) {
       this.app = true;
       // eslint-disable-next-line no-undef
-      cordova.plugins.node.getVersion((version)=>{
+      cordova.plugins.node.getVersion((version) => {
         this.version = version;
       })
       const startNode = () => {
@@ -106,35 +120,6 @@ export default {
         );
       }
       startNode();
-      return;
-    }
-
-    if (isElectron) {
-      ipcRenderer.removeAllListeners("getLogInfo")
-      ipcRenderer.on('getLogInfo', (event, msg) => {
-        // console.log('msg', msg);
-        this.logs.push(msg);
-        this.showLogs = this.logs.slice(-5);
-        const messageBox = document.querySelector('#message-anchor');
-        if (messageBox) {
-          messageBox.scrollIntoView();
-        }
-      })
-      if (ipcRenderer._events.start) {
-        console.log('ipcRenderer._events.start', ipcRenderer._events.start);
-        if (ipcRenderer._events.start instanceof Array) {
-          console.log('events.start is array', ipcRenderer._events.start);
-          ipcRenderer._events.start.splice(1);
-        }
-      } else {
-        console.log('no start listeners');
-        ipcRenderer.on("start", (event, {api}) => {
-          console.log('api', api)
-          this.set(api).finally(() => {
-            this.loading = false;
-          })
-        })
-      }
     } else {
       if (this.$route.params.api) {
         this.loading = false;
@@ -143,26 +128,27 @@ export default {
         const {origin} = window.location;
         const api = endPoint ? endPoint : origin;
         // console.log('api', origin, endPoint);
-        this.set(api).finally(() => {
+        this.set(api).catch(() => {
           this.loading = false;
         })
       }
-
     }
   },
   mounted() {
     this.fillInApi();
   },
   methods: {
-    async setting() {
+    setting() {
       if (!this.$refs.form.validate()) return;
       this.set(this.api).catch(() => {
+        this.loading = false;
         this.$refs.form.setErrors({
           'Api': "Connection failed"
         })
       })
     },
     async set(api) {
+      this.loading = true;
       let res = await FavorService.getPort(api);
       let wsPort = res.data.rpcWsPort;
       if (!wsPort) throw new Error("ws not enabled");
@@ -178,6 +164,7 @@ export default {
       await getCurrentContract(addresses.data.network_id);
       let ws = websocket(host);
       this.$store.commit("SET_WS", ws);
+      this.loading = false;
       await this.$router.replace({name: 'Home'});
     },
     fillInApi() {
@@ -272,7 +259,7 @@ export default {
   width: 0 !important;
 }
 
->>> .log-overlay .v-overlay__scrim {
+.log-overlay .v-overlay__scrim {
   opacity: 1 !important;
 }
 </style>
