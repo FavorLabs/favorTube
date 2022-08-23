@@ -859,12 +859,15 @@ export const getContracts = () => {
     const network_id = sessionStorage.getItem('network_id');
     if (config) {
         const configObj = JSON.parse(config);
-        const contract = {
-            tokenAddress: configObj.favorTokenAddress,
-            favorTubeAddress: configObj.favorTubeAddress
+        const mergeConfig = {
+            favorTokenAddress: contracts[network_id].tokenAddress ?? contracts[19].tokenAddress,
+            favorTubeAddress: contracts[network_id].favorTubeAddress ?? contracts[19].favorTubeAddress,
+            ...configObj
         };
-        // console.log('getContracts from api');
-        return contract;
+        return {
+            tokenAddress: mergeConfig.favorTokenAddress,
+            favorTubeAddress: mergeConfig.favorTubeAddress,
+        };
     } else {
         // console.log('getContracts from local');
         return contracts[network_id] ?? contracts[19];

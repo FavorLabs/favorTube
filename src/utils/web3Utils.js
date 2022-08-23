@@ -30,23 +30,19 @@ export const getChainInfo = () => {
     const network_id = sessionStorage.getItem("network_id");
     if (config) {
         const configObj = JSON.parse(config);
-        let chain = {};
-        if (configObj?.faucet) {
-            chain = {
-                chainId: configObj.chainId,
-                rpc: configObj.chainEndpoint,
-                faucet: configObj.faucet,
-                tokenName: configObj.tokenName,
-            }
-        } else {
-            chain = {
-                chainId: configObj.chainId,
-                rpc: configObj.chainEndpoint,
-                tokenName: configObj.tokenName,
-            }
-        }
-        // console.log('getChainInfo from api');
-        return chain;
+        const mergeConfig = {
+            chainId: chains[network_id].chainId ?? chains[19].chainId,
+            rpc: chains[network_id].rpc ?? chains[19].rpc,
+            faucet: chains[network_id]?.faucet ?? chains[19]?.faucet,
+            tokenName: chains[network_id].tokenName ?? chains[19].tokenName,
+            ...configObj
+        };
+        return {
+            chainId: mergeConfig.chainId,
+            rpc: mergeConfig.rpc,
+            faucet: mergeConfig.faucet,
+            tokenName: mergeConfig.tokenName,
+        };
     } else {
         // console.log('getChainInfo from local');
         return chains[network_id] ?? chains[19];

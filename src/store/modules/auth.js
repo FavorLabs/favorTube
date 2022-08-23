@@ -8,8 +8,11 @@ export const getProxyGroup = () => {
     const config = sessionStorage.getItem('current_config');
     if (config) {
         const configObj = JSON.parse(config);
-        // console.log('proxyGroup form api config');
-        return configObj.proxyGroup;
+        const mergeConfig = {
+            proxyGroup,
+            ...configObj
+        };
+        return mergeConfig.proxyGroup
     } else {
         return proxyGroup;
     }
@@ -19,8 +22,11 @@ export const getDomainName = () => {
     const config = sessionStorage.getItem('current_config');
     if (config) {
         const configObj = JSON.parse(config);
-        // console.log('domainName form api config');
-        return configObj.domainName;
+        const mergeConfig = {
+            domainName,
+            ...configObj
+        };
+        return mergeConfig.domainName
     } else {
         return domainName;
     }
@@ -30,8 +36,11 @@ export const getStoreGroup = () => {
     const config = sessionStorage.getItem('current_config');
     if (config) {
         const configObj = JSON.parse(config);
-        // console.log('storeGroup form api config');
-        return configObj.storeGroup;
+        const mergeConfig = {
+            storeGroup,
+            ...configObj
+        };
+        return mergeConfig.storeGroup
     } else {
         return storeGroup;
     }

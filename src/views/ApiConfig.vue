@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center">
+  <div class="text-center" v-show="isShowConfig">
     <div class="h-auto" v-if="!app">
       <v-card
           max-width="400"
@@ -75,6 +75,7 @@ export default {
       isElectron: isElectron,
       app: false,
       version: '',
+      isShowConfig: false,
     }
   },
 
@@ -163,7 +164,13 @@ export default {
       })
     },
     async set(api) {
-      let res = await FavorService.getPort(api);
+      let res;
+      try {
+        res = await FavorService.getPort(api);
+        this.isShowConfig = false;
+      } catch (err) {
+        this.isShowConfig = true;
+      }
       let wsPort = res.data.rpcWsPort;
       if (!wsPort) throw new Error("ws not enabled");
       let isHttps = /^https/.test(api);
@@ -175,15 +182,15 @@ export default {
       this.$store.commit("SET_URL", api);
       let addresses = await FavorService.getAddresses();
       sessionStorage.setItem("network_id", addresses.data.network_id);
-      getServiceConfig(addresses.data.network_id).finally(async () => {
-        await FavorService.observe(api);
-        let ws = websocket(host);
-        this.$store.commit("SET_WS", ws);
-        await this.$router.replace({name: 'Home'});
-      })
+      await getServiceConfig(addresses.data.network_id);
+      await FavorService.observe(api);
+      let ws = websocket(host);
+      this.$store.commit("SET_WS", ws);
+      await this.$router.replace({name: 'Home'});
     },
     fillInApi() {
       this.api = this.$route.params.api || "";
+      this.isShowConfig = true;
     }
   },
 }

@@ -91,7 +91,6 @@ export const getServiceConfig = async (networkId) => {
     } catch (err) {
         console.log('getServiceConfig failed');
         console.error('err', err);
-        sessionStorage.setItem("current_config", '');
     }
 }
 
