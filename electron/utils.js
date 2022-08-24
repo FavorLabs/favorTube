@@ -6,11 +6,11 @@ const moment = require('moment');
 
 let cmdPath = path.join(__dirname, '../favor');
 let startCmd = os.platform() === 'win32' ? 'favorX.exe' : './favorX';
-let cmd = '--config=favor.yaml';
+let cmd = '--config=favorx.yaml';
 
 let workerProcess;
 
-function run({win, logs}) {
+function run({win, logs, data}) {
 
     win.once("kill", () => {
         workerProcess.kill();
@@ -19,7 +19,8 @@ function run({win, logs}) {
     return runExec();
 
     function runExec() {
-        workerProcess = spawn(startCmd, [cmd, 'start'], {
+
+        workerProcess = spawn(startCmd, [cmd, 'start', ...getConfig(data)], {
             cwd: cmdPath,
         });
 
@@ -75,6 +76,19 @@ function run({win, logs}) {
             console.log('out code:' + code);
         });
     }
+}
+
+function getConfig(data) {
+    let configList = [];
+    if (data) {
+        configList.push(`--network-id=${data.networkId}`);
+        configList.push(`--chain-endpoint=${data.chainEndpoint}`);
+        configList.push(`--oracle-contract-addr=${data.oracleContractAddr}`);
+        configList.push(`--bootnode=${data.bootNode}`);
+        configList.push(`--traffic-enable=${data.traffic}`);
+        configList.push(`--traffic-contract-addr=${data.trafficContractAddr}`);
+    }
+    return configList;
 }
 
 module.exports = {

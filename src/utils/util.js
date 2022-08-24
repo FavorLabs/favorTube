@@ -1,4 +1,3 @@
-import axios from 'axios';
 import Web3 from "web3";
 
 export const isElectron =
@@ -77,20 +76,5 @@ export const getUrlParams = (url) => {
     const urlSearchParams = new URLSearchParams(urlStr);
     const result = Object.fromEntries(urlSearchParams.entries());
     return result;
-}
-
-export const getServiceConfig = async (networkId) => {
-    try {
-        const { data } = await axios.get('https://service.favorlabs.io/api/v1/favortubeconfig', {
-            params: {
-                networkId
-            }
-        })
-        console.log('getServiceConfig success');
-        sessionStorage.setItem("current_config", JSON.stringify(data.data));
-    } catch (err) {
-        console.log('getServiceConfig failed');
-        console.error('err', err);
-    }
 }
 
