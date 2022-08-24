@@ -10,6 +10,7 @@ const {run} = require('./utils');
 let win;
 let tray;
 let logs = [];
+let startData;
 
 let menuExit = false;
 
@@ -23,11 +24,11 @@ function restart() {
     logs = [];
     win.webContents.send('logs', logs);
     win.webContents.send('startLoading');
-    start();
+    start(startData);
 }
 
-function start() {
-    run({win, logs});
+function start(data = {}) {
+    run({win, logs, data});
 }
 
 
@@ -58,7 +59,7 @@ async function createWindow() {
         }
     });
 
-    start();
+    // start();
 
     // Create the menu
     tray = new Tray(path.join(__dirname, '../public/favicon.png')); // sets tray icon image
@@ -141,5 +142,10 @@ app.on('window-all-closed', function () {
 
 ipcMain.on('restart', async () => {
     restart();
+});
+
+ipcMain.on('start', async (event, args) => {
+    startData = args;
+    start(args);
 });
 
