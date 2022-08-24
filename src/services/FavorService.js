@@ -47,23 +47,31 @@ const storeNodes = {
     ]
 }
 
-const getProxyNodes = (network_id) => {
+const getProxyNodes = () => {
     const config = sessionStorage.getItem('current_config');
+    const network_id = sessionStorage.getItem("network_id");
     if (config) {
         const configObj = JSON.parse(config);
-        // console.log('proxyNodes form api config');
-        return configObj.proxyNodes;
+        const mergeConfig = {
+            proxyNodes: proxyNodes[network_id] || proxyNodes[19],
+            ...configObj
+        };
+        return mergeConfig.proxyNodes;
     } else {
         return proxyNodes[network_id] || proxyNodes[19];
     }
 }
 
-const getStoreNodes = (network_id) => {
+const getStoreNodes = () => {
     const config = sessionStorage.getItem('current_config');
+    const network_id = sessionStorage.getItem("network_id");
     if (config) {
         const configObj = JSON.parse(config);
-        // console.log('storeNodes form api config');
-        return configObj.storeNodes;
+        const mergeConfig = {
+            storeNodes: storeNodes[network_id] || storeNodes[19],
+            ...configObj
+        };
+        return mergeConfig.storeNodes;
     } else {
         return storeNodes[network_id] || storeNodes[19];
     }
@@ -74,16 +82,14 @@ export default {
         return axios.get(api + '/apiPort')
     },
     observe(api) {
-        let network_id = sessionStorage.getItem("network_id");
         return axios.post(api + `/group/observe/` + getProxyGroup(), {
-            nodes: getProxyNodes(network_id),
+            nodes: getProxyNodes(),
             "keep-connected-peers": 1
         })
     },
     observeStorage(api) {
-        let network_id = sessionStorage.getItem("network_id");
         return axios.post(api + `/group/observe/` + getStoreGroup(), {
-            nodes: getStoreNodes(network_id),
+            nodes: getStoreNodes(),
             "keep-connected-peers": 1
         })
     },

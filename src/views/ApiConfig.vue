@@ -56,7 +56,8 @@
 <script>
 import {websocket} from "@/utils/util";
 import FavorService from "../services/FavorService"
-import {isElectron, ipc, getCurrentContract} from "@/utils/util";
+import FavorlabsService from "@/services/favorlabs/FavorlabsService";
+import {isElectron, ipc} from "@/utils/util";
 
 import RunNode from "@/components/RunNode";
 
@@ -154,14 +155,19 @@ export default {
       if (!wsPort) throw new Error("ws not enabled");
       let isHttps = /^https/.test(api);
       let host = (isHttps ? "wss" : "ws") + `://${new URL(api).hostname}:${wsPort}`;
-      await FavorService.observe(api);
       sessionStorage.setItem("debugApi", (isHttps ? "https" : "http") + `://${new URL(api).hostname}:${res.data.debugApiPort}`);
       sessionStorage.setItem("api", api);
       sessionStorage.setItem("ws", host);
       this.$store.commit("SET_URL", api);
       let addresses = await FavorService.getAddresses();
       sessionStorage.setItem("network_id", addresses.data.network_id);
-      await getCurrentContract(addresses.data.network_id);
+      try {
+        const { data } = await FavorlabsService.getConfig(addresses.data.network_id);
+        sessionStorage.setItem("current_config", JSON.stringify(data.data));
+      } catch (err) {
+        console.error('err', err);
+      }
+      await FavorService.observe(api);
       let ws = websocket(host);
       this.$store.commit("SET_WS", ws);
       this.loading = false;
