@@ -1,60 +1,65 @@
 <template>
-  <div class="text-center" v-show="isShowConfig">
-    <div class="h-auto" v-if="!app">
-      <v-card
-          max-width="400"
-          class="mx-auto card"
-      >
-        <h3>
-          Please enter the api of the favor node
-        </h3>
-        <ValidationObserver ref="form" v-slot="{ handleSubmit }">
-          <form
-              @submit.prevent="handleSubmit(setting)"
-          >
-            <ValidationProvider
-                v-slot="{ errors }"
-                name="Api"
-                rules="required|api"
+  <div class="text-center">
+    <div class="text-center" v-show="isShowConfig">
+      <div class="h-auto" v-if="!app">
+        <v-card
+            max-width="400"
+            class="mx-auto card"
+        >
+          <h3>
+            Please enter the api of the favor node
+          </h3>
+          <ValidationObserver ref="form" v-slot="{ handleSubmit }">
+            <form
+                @submit.prevent="handleSubmit(setting)"
             >
-              <v-text-field
-                  v-model="api"
-                  :error-messages="errors"
-                  label="API Endpoint"
-                  class="mb-3"
-              ></v-text-field>
-            </ValidationProvider>
-            <div class="setting">
-              <v-btn
-                  type="submit"
-              >Setting
-              </v-btn
+              <ValidationProvider
+                  v-slot="{ errors }"
+                  name="Api"
+                  rules="required|api"
               >
-            </div>
-          </form>
-        </ValidationObserver>
-      </v-card>
-    </div>
-    <v-overlay v-if="isElectron" :value="loading" style="display: block;text-align:left;" class="log-overlay">
-      <div style="margin-top: -60px;height: 80vh;overflow-y: scroll" id="message-box">
-        <p v-for="(item, index) in showLogs" :key="'log' + index" style="width: 50%">{{ item }}</p>
-        <div class="spinner" id="message-anchor">
-          <div class="bounce1"></div>
-          <div class="bounce2"></div>
-          <div class="bounce3"></div>
-          <div class="bounce4"></div>
-          <div class="bounce5"></div>
-          <div class="bounce6"></div>
-        </div>
+                <v-text-field
+                    v-model="api"
+                    :error-messages="errors"
+                    label="API Endpoint"
+                    class="mb-3"
+                ></v-text-field>
+              </ValidationProvider>
+              <div class="setting">
+                <v-btn
+                    type="submit"
+                >Setting
+                </v-btn
+                >
+              </div>
+            </form>
+          </ValidationObserver>
+        </v-card>
       </div>
-    </v-overlay>
-    <v-overlay v-else :value="loading" class="flex justify-center align-center" opacity="1">
-      <v-progress-circular
-          indeterminate
-          size="64"
-      ></v-progress-circular>
-      <div style="margin-top: 15px;font-size: 18px;">{{version}}</div>
-    </v-overlay>
+      <v-overlay v-if="isElectron" :value="loading" style="display: block;text-align:left;" class="log-overlay">
+        <div style="margin-top: -60px;height: 80vh;overflow-y: scroll" id="message-box">
+          <p v-for="(item, index) in showLogs" :key="'log' + index" style="width: 50%">{{ item }}</p>
+          <div class="spinner" id="message-anchor">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+            <div class="bounce4"></div>
+            <div class="bounce5"></div>
+            <div class="bounce6"></div>
+          </div>
+        </div>
+      </v-overlay>
+      <v-overlay v-else :value="loading" class="flex justify-center align-center" opacity="1">
+        <v-progress-circular
+            indeterminate
+            size="64"
+        ></v-progress-circular>
+        <div style="margin-top: 15px;font-size: 18px;">{{version}}</div>
+      </v-overlay>
+    </div>
+    <div class="electron-show" v-show="!isShowConfig">
+      loading...
+    </div>
   </div>
 </template>
 
@@ -255,6 +260,16 @@ export default {
 .spinner .bounce6 {
   -webkit-animation-delay: 0.48s;
   animation-delay: 0.48s;
+}
+
+.electron-show {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bolder;
+  font-size: 20px;
 }
 
 @-webkit-keyframes sk-bouncedelay {

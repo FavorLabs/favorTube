@@ -44,14 +44,15 @@
         <v-card-subtitle class="pl-2 pb-0">
           {{ channel.name }}
         </v-card-subtitle>
-        <v-card-subtitle class="pl-2 pt-0" style="display: flex;justify-content: flex-start;align-items: center;">
-          {{ video.views }} views
-          <v-icon>mdi-circle-small
-          </v-icon
-          >
-          {{ dateFormatter(video.createdAt) }}
+        <v-card-subtitle class="pl-2 pt-0" style="display: flex;justify-content: space-between;align-items: center;padding-right: 0px">
+            <span>{{ video.views }} views
+              <v-icon>mdi-circle-small
+              </v-icon
+              >
+              {{ dateFormatter(video.createdAt) }}
+            </span>
           <div v-if="video.status ==='member'"
-               style="display: inline-block;padding: 0 5px;font-size: 12px;width: 25px;margin-left: 5px">
+               style="display: inline-block;padding: 0 5px;font-size: 12px;width: 38px;margin-left: 5px">
             <!-- Members Only -->
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
