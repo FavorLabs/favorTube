@@ -3,7 +3,7 @@
     <div v-if="isElectron" style="height:100vh;display: flex;align-items: center">
       <RunNode/>
     </div>
-    <div class="h-auto text-center" v-else-if="!loading">
+    <div class="h-auto text-center" v-else v-show="!loading">
       <v-card
           max-width="400"
           class="mx-auto card"
