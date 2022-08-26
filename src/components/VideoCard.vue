@@ -19,15 +19,16 @@
     <v-row style="flex: 0">
       <v-col cols="2" v-if="card.type != 'noAvatar'">
         <v-list-item class="pl-0 pt-3" router :to="`/channels/${channel._id}`">
-          <v-list-item-avatar>
+          <v-list-item-avatar :class="{ mode: video.userId.mode == 0}">
             <v-img
                 v-if="channel.photoUrl !== 'no-photo.jpg'"
                 class="elevation-6"
                 :src="`${getImgUrl}/uploads/avatars/${channel.photoUrl}`"
             ></v-img>
             <v-avatar v-else color="red">
-              <span class="white--text headline ">
-                {{ channel.channelName.split('')[0].toUpperCase() }}</span
+              <span class="white--text headline">
+                {{ channel.channelName.split('')[0].toUpperCase() }}
+              </span
               >
             </v-avatar>
           </v-list-item-avatar>
@@ -44,7 +45,8 @@
         <v-card-subtitle class="pl-2 pb-0">
           {{ channel.name }}
         </v-card-subtitle>
-        <v-card-subtitle class="pl-2 pt-0" style="display: flex;justify-content: space-between;align-items: center;padding-right: 0px">
+        <v-card-subtitle class="pl-2 pt-0"
+                         style="display: flex;justify-content: space-between;align-items: center;padding-right: 0px">
             <span>{{ video.views }} views
               <v-icon>mdi-circle-small
               </v-icon
@@ -57,16 +59,18 @@
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <div
-                  v-bind="attrs"
-                  v-on="on"
+                    v-bind="attrs"
+                    v-on="on"
                 >
                   <svg viewBox="0 0 24 24"
-                    preserveAspectRatio="xMidYMid meet"
-                    focusable="false" class="style-scope yt-icon"
-                    style="pointer-events: none; display: block; width: 100%; height: 100%;color:#107516"
+                       preserveAspectRatio="xMidYMid meet"
+                       focusable="false" class="style-scope yt-icon"
+                       style="pointer-events: none; display: block; width: 100%; height: 100%;color:#107516"
                   >
                     <g class="style-scope yt-icon" fill="#107516">
-                      <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z" class="style-scope yt-icon">
+                      <path
+                          d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"
+                          class="style-scope yt-icon">
                       </path>
                     </g>
                   </svg>
@@ -111,6 +115,9 @@ export default {
   computed: {
     ...mapGetters(['getImgUrl']),
   },
+  created() {
+    console.log(this.video.userId.mode)
+  },
   methods: {
     dateFormatter(date) {
       return moment(date).fromNow();
@@ -140,5 +147,9 @@ export default {
   text-overflow: ellipsis;
   margin-bottom: 20px;
   padding-bottom: 0px;
+}
+
+.mode {
+  border: 3px solid #FFD700;
 }
 </style>

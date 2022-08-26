@@ -64,7 +64,7 @@ export default {
           value: "0",
         },
         {
-          text: "activity",
+          text: "promotion",
           value: "1",
         }
       ],

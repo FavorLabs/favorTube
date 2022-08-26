@@ -837,20 +837,20 @@ export const favorTubeAbi = [
 
 export const contracts = {
     18: {
-        tokenAddress: "0x9b1596e834219e8c1914c17e99c89052ce38b299",
+        tokenAddress: "0x55c948561336a98f7683dd3d79f31ef6e3e0bac8",
         favorTubeAddress: "0x86056a6aa8d39b7701712e78327812f41ecd5213",
     },
     19: {
         tokenAddress: "0x784c0A0669C5823549bd2Ae9D2E393C73048828a",
-        favorTubeAddress: "0xA7526410138A11aBF5ba688b13D622Eb5aa00114",
+        favorTubeAddress: "0xd67ad32853dD9c5302880D10c8359E63bE7906Dc",
     },
     20: {
-        tokenAddress: "0xeBa2d8B495864Fb12D9078f070AA99BEc248Beac",
-        favorTubeAddress: "0xa9b9Edc35889414666Beb92ae6a47518aFE73bfB",
+        tokenAddress: "0x753291B61dC6547c9B785ea2fBd7B04c83e7b6d4",
+        favorTubeAddress: "0xC5Bc667221885F32360A09a7cDEC17dE946E17E7",
     },
     21:{
-        tokenAddress: "0xd80BD81Dbb896CFF430d0B9FaFb1B0eab55356A0",
-        favorTubeAddress: "0x609A4Af45a3FA8D8568eDD375f586Fe8bFC292e9",
+        tokenAddress: "0xBce5bbc384a9e703F3a22dAb55aEe2170bdB3fe4",
+        favorTubeAddress: "0x3Ba2c1d9dAA8E897a8ae687e0E02dA75B71Ac880",
     }
 }
 

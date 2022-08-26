@@ -24,7 +24,7 @@
         <v-col cols="12" sm="6" md="4">
           <v-card class="mx-auto" outlined>
             <v-card-title class="pl-5">The current price of your channel is {{ userConfig.price / 100 }}, mode is
-              {{ userConfig.mode === "0" ? "normal" : "activity" }}
+              {{ userConfig.mode === "0" ? "normal" : "promotion" }}
             </v-card-title>
 
             <v-card-actions class="d-block ml-2">
