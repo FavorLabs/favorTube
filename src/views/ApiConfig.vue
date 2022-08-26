@@ -48,6 +48,7 @@
           indeterminate
           size="64"
       ></v-progress-circular>
+      <div style="margin-top: 15px;">loading configuration</div>
       <div style="margin-top: 15px;font-size: 18px;">{{ version }}</div>
     </v-overlay>
   </div>

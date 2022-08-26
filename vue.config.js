@@ -1,3 +1,5 @@
+const TerserPlugin = require('terser-webpack-plugin');
+
 module.exports = {
   "transpileDependencies": [
     "vuetify"
@@ -6,6 +8,28 @@ module.exports = {
     index: {
       entry: 'src/main.js',
       title: 'FavorTube'
+    }
+  },
+  productionSourceMap: false,
+  configureWebpack: config => {
+    if (process.env.NODE_ENV === 'production') {
+      config.plugins.push(
+        new TerserPlugin({
+          cache: true,
+	        sourceMap: false,
+	        parallel: true,
+          terserOptions: {
+            ecma: undefined,
+            warnings: false,
+            parse: {},
+            compress: {
+              drop_console: true,
+              drop_debugger: false,
+              pure_funcs: ['console.log']
+            }
+          },
+        }),
+      )
     }
   },
   publicPath: process.env.NODE_ENV === 'production'
