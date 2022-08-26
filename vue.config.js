@@ -12,6 +12,7 @@ module.exports = {
   },
   productionSourceMap: false,
   configureWebpack: config => {
+    config.devtool = false;
     if (process.env.NODE_ENV === 'production') {
       config.plugins.push(
         new TerserPlugin({

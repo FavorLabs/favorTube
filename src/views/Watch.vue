@@ -442,8 +442,8 @@ export default {
       if (!this.isAuthenticated) {
         this.signinDialog = true
         this.details = {
-          title: 'Want to subscribe to this channel?',
-          text: 'Sign in to subscribe to this channel.'
+          title: 'Want to bookmark this channel?',
+          text: 'Sign in to bookmark this channel.'
         }
         return
       }
@@ -704,79 +704,91 @@ export default {
         let error = false;
 
         let videoRef = this.$refs.videoPlayer;
-        if (!videoRef) return;
         // console.log('videoRef', videoRef);
+        // if (!videoRef) return;
 
-        if (this.watchVideoStatusTimer) {
-          clearInterval(this.watchVideoStatusTimer);
-        }
-
-        this.watchVideoStatusTimer = setInterval(() => {
-
-          if (videoRef.networkState === 3) {
-            clearInterval(_this.watchVideoStatusTimer);
-            this.$store.dispatch("showTips", {
-              type: "error", text: "Blockchain congestion or file format error"
-            });
-            cIndex++;
-            playNextVideo()
+        const timer = setInterval(() => {
+          // console.log('videoRef', videoRef);
+          if (!videoRef) {
+            videoRef = _this.$refs.videoPlayer;
+          } else {
+            clearInterval(timer);
+            bindVideoEvent();
           }
-        }, 3000)
+        }, 100);
 
-        videoRef.addEventListener('loadeddata', () => {
-          if (this.isAuthenticated) _this.updateViews(_this.$route.params.id)
-        })
-
-
-        videoRef.addEventListener('error', () => {
-          console.log("error")
-          error = true;
-          setTimeout(() => {
-            videoRef.load();
-          }, 3000)
-        })
-
-        videoRef.addEventListener('pause', () => {
-          pauseTime = videoRef.currentTime;
-        })
-
-        videoRef.addEventListener('play', () => {
-          if (videoRef.currentTime === 0 && error) {
-            videoRef.currentTime = pauseTime;
-            error = false;
+        const bindVideoEvent = () => {
+          if (this.watchVideoStatusTimer) {
+            clearInterval(this.watchVideoStatusTimer);
           }
-        })
 
-        async function playNextVideo() {
-          await addPageNum();
-          await equalToCurrent();
-          id = videos[cIndex].id;
-          await _this.$router.push({
-            path: `/watch/${id}`,
-            query: {
-              cpage: cPage,
-              cindex: cIndex,
+          this.watchVideoStatusTimer = setInterval(() => {
+
+            if (videoRef.networkState === 3) {
+              clearInterval(_this.watchVideoStatusTimer);
+              this.$store.dispatch("showTips", {
+                type: "error", text: "Blockchain congestion or file format error"
+              });
+              cIndex++;
+              playNextVideo()
             }
-          });
-        }
+          }, 3000)
 
-        async function addPageNum() {
-          if ((cIndex + 1) % _this.pageSize === 0) {
-            cPage++;
-            cIndex = 0;
-          }
-          _this.isShowInfinite = false;
-          data = await VideoService.getAll('public', {page: cPage, userId: _this.video.userId._id});
-          videos = [...data.data.data];
-        }
+          videoRef.addEventListener('loadeddata', () => {
+            if (this.isAuthenticated) _this.updateViews(_this.$route.params.id)
+          })
 
-        async function equalToCurrent() {
-          let currentId = _this.$route.params.id
-          // console.log(cindex, videos);
-          if (currentId === videos[cIndex].id) {
-            // console.log('Same as in the next video');
-            cIndex++;
+
+          videoRef.addEventListener('error', () => {
+            console.log("error")
+            error = true;
+            setTimeout(() => {
+              videoRef.load();
+            }, 3000)
+          })
+
+          videoRef.addEventListener('pause', () => {
+            pauseTime = videoRef.currentTime;
+          })
+
+          videoRef.addEventListener('play', () => {
+            if (videoRef.currentTime === 0 && error) {
+              videoRef.currentTime = pauseTime;
+              error = false;
+            }
+          })
+
+          async function playNextVideo() {
             await addPageNum();
+            await equalToCurrent();
+            id = videos[cIndex].id;
+            await _this.$router.push({
+              path: `/watch/${id}`,
+              query: {
+                cpage: cPage,
+                cindex: cIndex,
+              }
+            });
+          }
+
+          async function addPageNum() {
+            if ((cIndex + 1) % _this.pageSize === 0) {
+              cPage++;
+              cIndex = 0;
+            }
+            _this.isShowInfinite = false;
+            data = await VideoService.getAll('public', {page: cPage, userId: _this.video.userId._id});
+            videos = [...data.data.data];
+          }
+
+          async function equalToCurrent() {
+            let currentId = _this.$route.params.id
+            // console.log(cindex, videos);
+            if (currentId === videos[cIndex].id) {
+              // console.log('Same as in the next video');
+              cIndex++;
+              await addPageNum();
+            }
           }
         }
       })

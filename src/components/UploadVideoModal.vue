@@ -1,7 +1,7 @@
 <template>
   <div>
 
-    <v-overlay :value="uploading" z-index="9999" class="text-center">
+    <v-overlay :value="uploading" z-index="9999" class="text-center" style="display:flex;justify-content: center;align-items: center;">
       <v-progress-linear
           :value="value"
           v-if="value"

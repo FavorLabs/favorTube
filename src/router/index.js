@@ -160,7 +160,7 @@ router.beforeEach((to, from, next) => {
   const loggedIn = localStorage.getItem('user')
 
   if (to.matched.some((record) => record.meta.requiresAuth) && !loggedIn) {
-    console.log('1-------', to, from);
+    // console.log('1-------', to, from);
     if (to.path === '/studio') {
       SignInTips();
     }
@@ -169,9 +169,10 @@ router.beforeEach((to, from, next) => {
       to.matched.some((record) => record.meta.requiresVisitor) &&
       loggedIn
   ) {
-    console.log('2------');
+    // console.log('2------');
     next('/')
   } else {
+    // console.log('3------');
     next()
   }
 })
