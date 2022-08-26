@@ -46,11 +46,16 @@ export default {
       FavorlabsService.getConfig(networkId).then(({data}) => {
         this.start({...data.data, networkId});
       }).catch(() => {
-        this.start();
+        this.$store.dispatch('showTips', {
+          type: "info",
+          text: "Failed to get configuration, node started with networkId 18"
+        });
+        this.start(null);
       });
     },
     start(data) {
       ipcRenderer.send("start", data);
+      this.$emit("startNode");
     },
   }
 }

@@ -1,9 +1,9 @@
 <template>
   <div>
     <div v-if="isElectron" style="height:100vh;display: flex;align-items: center">
-      <RunNode/>
+      <RunNode @startNode="startNode"/>
     </div>
-    <div class="h-auto text-center" v-else-if="!loading">
+    <div class="h-auto text-center" v-else v-show="!loading">
       <v-card
           max-width="400"
           class="mx-auto card"
@@ -38,9 +38,15 @@
         </ValidationObserver>
       </v-card>
     </div>
-    <v-overlay v-if="isElectron" :value="loading" opacity="1" style="justify-content: start;align-items: start">
-      <div style="padding: 10px 20px">
+    <v-overlay v-if="isElectron" absolute :value="loading" opacity="1"
+               style="justify-content: start;align-items: start;">
+      <div style="padding: 10px 20px 0;height: 90vh;overflow-y: scroll;" id="message-box" >
         <p v-for="item in logs" :key=item>{{ item }}</p>
+        <div class="spinner" ref="log"  style="height: 10vh">
+          <div class="bounce1"></div>
+          <div class="bounce1"></div>
+          <div class="bounce2"></div>
+        </div>
       </div>
     </v-overlay>
     <v-overlay v-else :value="loading" class="flex justify-center align-center" opacity="1" style="text-align: center;">
@@ -89,9 +95,9 @@ export default {
         });
       })
       ipcRenderer.on('getLogInfo', (event, msg) => {
-        this.loading = true;
         this.logs.push(msg);
-        console.log(msg)
+        let ref = this.$refs.log;
+        ref.scrollIntoView();
       })
       return;
     }
@@ -140,6 +146,9 @@ export default {
     this.fillInApi();
   },
   methods: {
+    startNode() {
+      this.loading = true;
+    },
     setting() {
       if (!this.$refs.form.validate()) return;
       this.set(this.api).catch(() => {
@@ -163,7 +172,7 @@ export default {
       let addresses = await FavorService.getAddresses();
       sessionStorage.setItem("network_id", addresses.data.network_id);
       try {
-        const { data } = await FavorlabsService.getConfig(addresses.data.network_id);
+        const {data} = await FavorlabsService.getConfig(addresses.data.network_id);
         sessionStorage.setItem("current_config", JSON.stringify(data.data));
       } catch (err) {
         console.error('err', err);
@@ -204,10 +213,10 @@ export default {
   text-align: right;
 }
 
-.spinner {
-  width: 50px;
-  text-align: center;
-}
+/*.spinner {*/
+/*  width: 50px;*/
+/*  text-align: center;*/
+/*}*/
 
 .spinner > div {
   width: 5px;
