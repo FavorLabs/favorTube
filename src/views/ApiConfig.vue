@@ -49,12 +49,12 @@
         </div>
       </div>
     </v-overlay>
-    <v-overlay v-else :value="loading" class="flex justify-center align-center" opacity="1">
+    <v-overlay v-else :value="loading" class="flex justify-center align-center" opacity="1" style="text-align: center;">
       <v-progress-circular
           indeterminate
           size="64"
       ></v-progress-circular>
-      <div style="margin-top: 15px;">loading configuration</div>
+      <div style="margin-top: 15px;font-size: 18px;">loading configuration</div>
       <div style="margin-top: 15px;font-size: 18px;">{{ version }}</div>
     </v-overlay>
   </div>
@@ -181,7 +181,15 @@ export default {
       let ws = websocket(host);
       this.$store.commit("SET_WS", ws);
       this.loading = false;
-      await this.$router.replace({name: 'Home'});
+      const shareParams = this.$route.params?.shareParams;
+      console.log('shareParams', shareParams);
+      if (shareParams) {
+        await this.$router.push({
+          path: `/${shareParams}`,
+        })
+      } else {
+        await this.$router.replace({name: 'Home'});
+      }
     },
     fillInApi() {
       this.api = this.$route.params.api || "";

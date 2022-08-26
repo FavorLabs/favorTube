@@ -94,7 +94,7 @@ export default {
         }
       } else {
         this.loading = false;
-        this.getEndPoint();
+        this.analyzingUrl();
       }
     },
     wsCloseHandle() {
@@ -118,22 +118,20 @@ export default {
       }
       this.web3?.currentProvider?.disconnect?.();
     },
-    getEndPoint() {
+    analyzingUrl() {
       const href = location.href.split('#/')[0];
+      const shareParams = location.hash.split('#/')[1];
       const urlParams = getUrlParams(href);
       // console.log('urlParams', urlParams);
+      console.log('shareParams', shareParams);
       const endPoint = urlParams?.endpoint;
-      if (endPoint) {
-        this.$router.push({
-          name: 'Config',
-          params: {
-            endPoint
-          }
-        });
-      } else {
-        this.$router.push('/config');
-      }
-
+      this.$router.push({
+        name: 'Config',
+        params: {
+          endPoint,
+          shareParams
+        }
+      });
     }
   },
   watch: {
