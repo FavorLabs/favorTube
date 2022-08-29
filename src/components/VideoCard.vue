@@ -19,7 +19,7 @@
     <v-row style="flex: 0">
       <v-col cols="2" v-if="card.type != 'noAvatar'">
         <v-list-item class="pl-0 pt-3" router :to="`/channels/${channel._id}`">
-          <v-list-item-avatar :class="{ mode: video.userId.mode == 0}">
+          <v-list-item-avatar :class="{ mode: video.userId.mode == 1}">
             <v-img
                 v-if="channel.photoUrl !== 'no-photo.jpg'"
                 class="elevation-6"
