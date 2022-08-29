@@ -319,15 +319,10 @@ export default {
       this.show = !this.show
     },
     cropSuccess(imgDataUrl, field) {
-      // console.log('-------- crop success --------')
       console.log(field)
-      // console.log(imgDataUrl)
       this.imgDataUrl = imgDataUrl
-      // console.log(this.imgDataUrl)
-      // console.log(field)
     },
     cropUploadSuccess(jsonData, field) {
-      // console.log('-------- upload success --------')
       const user = this.$store.getters.currentUser
       user.photoUrl = jsonData.data
       this.$store.dispatch('signin', user)
@@ -335,7 +330,6 @@ export default {
     },
 
     cropUploadFail(status, field) {
-      console.log('-------- upload fail --------')
       console.log(status)
       console.log('field: ' + field)
     }

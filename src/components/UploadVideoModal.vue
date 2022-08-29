@@ -241,7 +241,7 @@ import CategoryService from "@/services/CategoryService";
 import data2blob from "vue-image-crop-upload/utils/data2blob";
 import {mapGetters} from "vuex";
 import FavorService from "@/services/FavorService";
-import {splicingBit, stringToBinary, getProgress} from "@/utils/util";
+import {splicingBit, stringToBinary, getProgress, getVideoLimitSize} from "@/utils/util";
 import {getStoreGroup} from "@/store/modules/auth";
 
 export default {
@@ -263,7 +263,7 @@ export default {
       // interval: {},
       value: 0,
       show: false,
-      videoLimitSize: sessionStorage.getItem('current_config') ? (JSON.parse(sessionStorage.getItem('current_config')).videoLimitSize) : (1024 * 1024),
+      videoLimitSize: getVideoLimitSize(),
       categoriesTitles: [],
       categories: [],
       visibilty: ["Public", "Member", "Private"],
@@ -397,16 +397,13 @@ export default {
           let sourceInfo;
           try {
             sourceInfo = await FavorService.sourceInfo(hash);
-            // console.log(sourceInfo);
           } catch (e) {
             reject(e);
           }
 
           sourceInfo = sourceInfo?.data.find(item => item.overlay === overlay);
-          // console.log(`%c check sourceInfo`, 'background:#35495e ; padding: 2px 1px; border-radius: 3px 0 0 3px;  color: #fff');
           if (sourceInfo) {
             let p = getProgress(stringToBinary(sourceInfo.bit.b, sourceInfo.bit.len), len)
-            console.log(`%c storePeer source progress ${p}`, 'background:#34595e ; padding: 2px 1px; border-radius: 3px 0 0 3px;  color: #fff');
 
             _this.value = p;
             if (p === 100) {
@@ -438,7 +435,6 @@ export default {
               } else {
                 p = getProgress(stringToBinary(downloadData.Bitvector.b, downloadData.Bitvector.len), len)
               }
-              console.log(p);
               _this.value = p;
               if (p === 100) {
                 resolve("Upload successful");
@@ -484,9 +480,6 @@ export default {
 
         let latestFiles = sessionStorage.getItem('latestFiles');
         if (latestFiles && JSON.parse(latestFiles).indexOf(hash) !== -1) {
-          // console.log('Uploaded successfully---');
-          // this.uploaded = true;
-          // this.$emit('closeDialog');
           this.$store.dispatch("showTips", {
             type: "success",
             text: 'Video uploaded successfully'
@@ -501,7 +494,6 @@ export default {
           if (latestFiles) {
             let tem = JSON.parse(latestFiles);
             tem.push(hash);
-            console.log('tem', tem);
             sessionStorage.setItem('latestFiles', JSON.stringify(tem));
           } else {
             sessionStorage.setItem('latestFiles', JSON.stringify([hash]));
@@ -558,7 +550,6 @@ export default {
       this.closeModal();
 
       await this.$router.push(`/studio/videos?${new Date()}`);
-      // console.log('submittied')
     },
     async getCategories() {
       this.categoryLoading = true;
@@ -594,7 +585,6 @@ export default {
       this.show = !this.show;
     },
     cropSuccess(imgDataUrl, field) {
-      console.log("-------- crop success --------");
       console.log(field);
       this.imgDataUrl = imgDataUrl;
     },

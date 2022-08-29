@@ -199,7 +199,6 @@ export default {
           .finally(() => (this.loading = false));
 
       if (!videos) return;
-      // console.log(videos)
       this.videos = videos.data.data;
     },
     editItem(item) {
@@ -211,7 +210,6 @@ export default {
     },
     async deleteItem() {
       this.deleteBtnLoading = true;
-      console.log(this.itemToDelete._id)
       await VideoService.deleteById(this.itemToDelete._id)
           .catch((err) => console.log(err))
           .finally(() => {

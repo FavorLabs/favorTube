@@ -241,6 +241,7 @@
                   <AddComment
                       @videoCommentLength="video.comments++"
                       :videoId="video._id"
+                      @showSigninDialog="showSigninDialog"
                   />
                   <CommentList
                       @videoCommentLength="video.comments--"
@@ -604,34 +605,28 @@ export default {
         case type === 'like' && this.feeling === '':
           this.feeling = 'like'
           this.video.likes++
-          // console.log('new like')
           break
         case type === 'like' && this.feeling === type:
           this.feeling = ''
           this.video.likes--
-          // console.log('remove like')
           break
         case type === 'like' && this.feeling === 'dislike':
           this.feeling = 'like'
           this.video.dislikes--
           this.video.likes++
-          // console.log('change to like')
           break
         case type === 'dislike' && this.feeling === '':
           this.feeling = 'dislike'
           this.video.dislikes++
-          // console.log('new dislike')
           break
         case type === 'dislike' && this.feeling === type:
           this.feeling = ''
           this.video.dislikes--
-          // console.log('remove dislike')
           break
         case type === 'dislike' && this.feeling === 'like':
           this.feeling = 'dislike'
           this.video.likes--
           this.video.dislikes++
-          // console.log('change to dislike')
       }
 
       const feeling = await FeelingService.createFeeling({
@@ -704,11 +699,8 @@ export default {
         let error = false;
 
         let videoRef = this.$refs.videoPlayer;
-        // console.log('videoRef', videoRef);
-        // if (!videoRef) return;
 
         const timer = setInterval(() => {
-          // console.log('videoRef', videoRef);
           if (!videoRef) {
             videoRef = _this.$refs.videoPlayer;
           } else {
@@ -783,9 +775,7 @@ export default {
 
           async function equalToCurrent() {
             let currentId = _this.$route.params.id
-            // console.log(cindex, videos);
             if (currentId === videos[cIndex].id) {
-              // console.log('Same as in the next video');
               cIndex++;
               await addPageNum();
             }
@@ -796,6 +786,13 @@ export default {
     sourceInfo() {
       if (!this.videoHash) return;
       this.sourceInfoDialog = true;
+    },
+    showSigninDialog(value) {
+      this.details = {
+        title: 'Want to comment on this video?',
+        text: 'Sign in to comment on this video.'
+      }
+      this.signinDialog = value;
     },
     ...mapMutations(['addContinuousPlay']),
   },
@@ -809,7 +806,6 @@ export default {
   },
   mounted() {
     this.getVideo(this.$route.params.id)
-    // if (this.isAuthenticated) this.updateViews(this.$route.params.id)
   },
   watch: {
     video: {

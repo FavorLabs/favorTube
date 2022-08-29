@@ -116,7 +116,6 @@ export default {
     ...mapGetters(['getImgUrl']),
   },
   created() {
-    console.log(this.video.userId.mode)
   },
   methods: {
     dateFormatter(date) {
@@ -125,7 +124,6 @@ export default {
     watchSideBarVideo(index, vid) {
       let cpage = Math.ceil((index + 1) / this.pageSize);
       let cindex = index < this.pageSize ? index : (index % this.pageSize);
-      console.log('index', index, 'cpage', cpage, 'cindex', cindex);
       this.$router.push({
         path: `/watch/${vid}`,
         query: {

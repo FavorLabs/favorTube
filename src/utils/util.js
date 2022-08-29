@@ -11,7 +11,11 @@ export const ipc = () => {
 }
 
 export const websocket = (host) => {
-    let ws = new Web3.providers.WebsocketProvider(host);
+    let ws = new Web3.providers.WebsocketProvider(host, {
+        reconnect: {
+            auto: true,
+        }
+    });
     ws.on(ws.DATA, (res) => {
         ws.emit(res.params.subscription, res.params.result)
     })
@@ -77,4 +81,28 @@ export const getUrlParams = (url) => {
     const result = Object.fromEntries(urlSearchParams.entries());
     return result;
 }
+
+export const getVideoLimitSize = () => {
+    const config = sessionStorage.getItem('current_config');
+    const defaultSize = 1024 * 1024;
+    if (config) {
+        const configObj = JSON.parse(config);
+        return configObj?.videoLimitSize ? configObj.videoLimitSize : defaultSize;
+    } else {
+        return defaultSize;
+    }
+}
+
+export const getSize = (size, level = 0) => {
+    let levelList = ['KB', 'MB', 'GB', 'TB'];
+    let n = 0;
+    while (size >= Math.pow(1024, n + 1)) {
+      n++;
+    }
+    return (
+      parseFloat((size / Math.pow(1024, n)).toFixed(2)) +
+      ' ' +
+      levelList[level + n]
+    );
+};
 

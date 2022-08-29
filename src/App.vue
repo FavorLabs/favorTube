@@ -82,7 +82,6 @@ export default {
       let api = sessionStorage.getItem("api");
       if (wsHost && api) {
         try {
-          // console.log('FavorService.observe', 'App');
           await FavorService.observe(api);
           let ws = websocket(wsHost);
           this.$store.commit("SET_WS", ws);
@@ -122,8 +121,6 @@ export default {
       const href = location.href.split('#/')[0];
       const shareParams = location.hash.split('#/')[1];
       const urlParams = getUrlParams(href);
-      // console.log('urlParams', urlParams);
-      console.log('shareParams', shareParams);
       const endPoint = urlParams?.endpoint;
       this.$router.push({
         name: 'Config',

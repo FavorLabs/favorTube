@@ -480,9 +480,7 @@ export default {
   methods: {
     async search() {
       if (!this.searchText) return
-      // console.log(this.searchText == this.$route.query['search-query'])
       if (this.searchText === this.$route.query['search-query']) return
-      // this.searchText = this.$route.query['search-query']
       const data = {
         type: 'search',
         searchText: this.searchText
@@ -536,20 +534,10 @@ export default {
       this.$router.back(-1);
     },
   },
-  // beforeRouteLeave(to, from, next) {
-  //   this.searchText = ''
-  //   next()
-  // },
-  // beforeRouteUpdate(to, from, next) {
-  //   if (!to.query['search-query'] === '') return
-  //   this.searchText = to.query['search-query']
-  //   next()
-  // },
   beforeRouteEnter(to, from, next) {
     next((vm) => {
       if (!to.query['search-query'] === '') return
       vm.searchText = to.query['search-query']
-      // vm.getSearchResults(to.query['search-query'])
     })
   },
   beforeRouteLeave(to, from, next) {

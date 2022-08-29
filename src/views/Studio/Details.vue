@@ -206,7 +206,6 @@ export default {
       });
 
       this.$router.push('/studio/videos')
-      // console.log('submittied')
     },
     async updateImg(id) {
       if (this.imgDataUrl === "") return;
@@ -232,7 +231,6 @@ export default {
       this.show = !this.show
     },
     cropSuccess(imgDataUrl, field) {
-      console.log('-------- crop success --------')
       console.log(field)
       this.imgDataUrl = imgDataUrl
     }
@@ -241,7 +239,6 @@ export default {
     myUpload
   },
   mounted() {
-    console.log(11111111111)
     this.getVideo()
     this.getCategories()
   }

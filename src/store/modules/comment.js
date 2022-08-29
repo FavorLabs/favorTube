@@ -18,9 +18,7 @@ export default {
       state.comments = comments
     },
     addComment(state, comment) {
-      // console.log('hello', comment)
       state.comments.data.unshift(comment)
-      // console.log(state.comments.data)
     }
   },
   actions: {
