@@ -109,7 +109,7 @@ export default {
       price: 0,
       token: {
         decimal: 2,
-        name: "Favor Token",
+        name: "FAVT",
         address: contractAddress.tokenAddress
       },
       favorTubeCAddress: contractAddress.favorTubeAddress,
@@ -255,6 +255,14 @@ export default {
 
 .value {
   margin-left: 10px;
+}
+
+@media screen and (max-width: 650px) {
+  .key {
+    display: unset;
+    width: unset;
+    text-align: unset;
+  }
 }
 
 </style>
