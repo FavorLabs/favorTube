@@ -345,7 +345,7 @@ export default {
   },
   methods: {
     search() {
-      console.log('hello')
+
     },
     modal() {
       this.dialog = true

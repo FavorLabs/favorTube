@@ -233,7 +233,6 @@ export default {
   },
   methods: {
     async getChannel(id) {
-      // console.log(this.$route.params.id)
       this.loading = true
       this.errored = false
 
@@ -247,20 +246,14 @@ export default {
 
       if (!channel) return
       this.channel = channel.data.data
-      // console.log(channel)
       if (this.currentUser && this.currentUser._id === this.channel._id) {
         this.showSubBtn = false
       } else {
         this.showSubBtn = true
       }
       this.getVideos()
-
-      // this.checkSubscription(this.channel._id)
-      // console.log(channel)
     },
     async getVideos($state) {
-      // console.log('getVideos----------', $state);
-      // this.getChannel()
       if (!this.loaded) {
         this.loading = true
       }
@@ -277,7 +270,6 @@ export default {
 
       if (typeof videos === 'undefined') return
 
-      // console.log('videos', videos.config.params.userId, 'current',this.$route.params.id);
       if (videos.config.params.userId !== this.$route.params.id) {
         if ($state) {
           $state.loaded();
@@ -285,14 +277,12 @@ export default {
         return;
       }
 
-      // this.videos = videos.data
       if (videos.data.data.length) {
         this.page += 1;
         this.videos.push(...videos.data.data);
         if ($state) {
           $state.loaded()
         }
-        // console.log('this.data', this.videos);
         this.loaded = true
       } else {
         if ($state) {
@@ -310,7 +300,6 @@ export default {
           .finally(() => {
             this.loading = false
           })
-      // console.log(sub.data.data)
       if (!sub) return
 
       if (!sub.data.data._id) this.subscribed = false
@@ -343,8 +332,6 @@ export default {
         this.subscribed = true
         this.channel.subscribers++
       }
-
-      // console.log(this.subscribed)
     }
   },
   mounted() {
@@ -359,15 +346,6 @@ export default {
       }
     }
   },
-  // beforeRouteUpdate(to, from, next) {
-  //   console.log(to)
-  //   // console.log('beforeRouteUpdate');
-  //   this.videos = [];
-  //   this.page = 1;
-  //   this.getChannel(to.params.id)
-  //   // console.log('channelId', to.params.id);
-  //   next()
-  // },
 }
 </script>
 

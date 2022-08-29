@@ -43,16 +43,6 @@
                 </v-avatar>
                 <span class="pl-2">{{ item.subscriberId.channelName }}</span>
               </template>
-              <!-- <template v-slot:item.actions="{ item }">
-                <v-btn
-                  text
-                  small
-                  class="mr-2 blue--text text--darken-4"
-                  @click="subscribe(item)"
-                >
-                  Subscribe
-                </v-btn>
-              </template> -->
               <template v-slot:no-data>
                 <v-btn color="primary" @click="getSubscribers">Reset</v-btn>
               </template>
@@ -104,8 +94,6 @@ export default {
 
       if (!subscribers) return
       this.subscribers = subscribers.data.data
-
-      // console.log(subscribers)
     },
     // initialize() {
     //   this.subscribers = [
@@ -123,9 +111,6 @@ export default {
     //     }
     //   ]
     // },
-    subscribe(item) {
-      console.log(item)
-    },
     closeModal() {
       this.$emit('closeDialog')
     }

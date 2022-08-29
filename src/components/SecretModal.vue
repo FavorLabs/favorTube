@@ -2,8 +2,9 @@
   <div class="text-center">
     <v-dialog
       v-model="openDialog"
-      @click:outside="closeModal"
-      width="500"
+      persistent
+      transition="fab-transition"
+      max-width="500"
     >
       <template v-slot:activator="{ on, attrs }">
         <v-btn

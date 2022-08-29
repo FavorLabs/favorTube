@@ -253,17 +253,12 @@ export default {
           .dispatch('setComments', this.videoId)
           .catch((err) => console.log(err))
           .finally(() => (this.loading = false))
-      // console.log(this.loading)
       if (!comments) return
 
       this.comments = this.$store.getters.getComments.data
-      // console.log(this.comments.length)
-      // this.loading = false
-      // console.log(this.$store.getters.getComments.data)
     },
     async deleteComment(id) {
       if (!this.isAuthenticated) return
-      // this.$store.dispatch('deleteComment', id)
       this.comments = this.comments.filter(
           (comment) => comment._id.toString() !== id.toString()
       )
@@ -284,9 +279,7 @@ export default {
       if (this.$refs[`input${id}`][0].$refs.input.value == '') return
 
       this.btnLoading = true
-      // console.log((event.target.loading = true))
       this.$refs[`form${id}`][0].reset()
-      // console.log(this.$refs[`input${id}`][0].$refs.input.value)
 
       const reply = await ReplyService.createReply({
         commentId: id,
@@ -297,35 +290,16 @@ export default {
           })
           .finally(() => {
             this.btnLoading = false
-            // this.$store.dispatch('setComments', this.videoId)
           })
       reply.data.data.userId = this.$store.getters.currentUser
-      // this.$store.dispatch('addComment', reply.data.data)
-      // console.log(this.$store.getters.getComments.data)
       let comment = this.comments.find(
           (comment) => comment._id.toString() === id.toString()
       )
-      // console.log(comment)
       if (!comment.replies) {
-        // console.log('1')
-        // comment.replies = []
         comment.replies.push(reply.data.data)
       } else {
-        // console.log('2')
         comment.replies.unshift(reply.data.data)
-        // this.comments
-        //   .find((comment) => comment._id === id)
-        //   .replies.unshift(reply.data.data)
       }
-
-      // console.log(
-      //   this.$store.getters.getComments.data.find(
-      //     (comment) => comment._id === id
-      //   )
-      // )
-      // this.comments
-      //   .find((comment) => comment._id === id)
-      //   .replies.unshift(reply.data.data)
     },
     clickTextField() {
       if (!this.isAuthenticated) return this.$router.push('/signin')
@@ -344,7 +318,6 @@ export default {
 
   mounted() {
     this.getComments()
-    // console.log(this.comments)
   }
 }
 </script>

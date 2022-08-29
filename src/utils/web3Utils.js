@@ -44,7 +44,6 @@ export const getChainInfo = () => {
             tokenName: mergeConfig.tokenName,
         };
     } else {
-        // console.log('getChainInfo from local');
         return chains[network_id] ?? chains[19];
     }
 }
@@ -124,7 +123,6 @@ export const ConnectWalletConnect = async (chainInfo, cb) => {
 
 export const connect = (connectType, cb) => {
     let chainInfo = getChainInfo();
-    // console.log('chainInfo', chainInfo);
 
     if (connectType === "metaMask") {
         return ConnectMetaMask(chainInfo);

@@ -3,7 +3,7 @@
     <v-container fluid>
       <v-row>
         <v-col
-            cols="9"
+            cols="11"
             sm="8"
             md="10"
             lg="10"

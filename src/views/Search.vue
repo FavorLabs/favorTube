@@ -206,7 +206,6 @@ export default {
         })
 
       if (!results) return
-      // console.log(results)
       if (results.data.data.length) {
         this.page += 1
 
@@ -227,7 +226,6 @@ export default {
     InfiniteLoading
   },
   beforeRouteUpdate(to, from, next) {
-    // console.log(to.query['search-query'])
     if (to.query['search-query'] === '') return
     this.text = to.query['search-query']
     this.page = 1

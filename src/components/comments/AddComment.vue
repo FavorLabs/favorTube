@@ -85,7 +85,10 @@ export default {
       this.$emit('videoCommentLength')
     },
     clickTextField() {
-      if (!this.isAuthenticated) return this.$router.push('/signin')
+      if (!this.isAuthenticated) {
+        this.$emit('showSigninDialog', true);
+        return;
+      }
       this.showCommentBtns = true
     }
   }

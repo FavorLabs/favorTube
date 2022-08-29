@@ -869,7 +869,6 @@ export const getContracts = () => {
             favorTubeAddress: mergeConfig.favorTubeAddress,
         };
     } else {
-        // console.log('getContracts from local');
         return contracts[network_id] ?? contracts[19];
     }
 }

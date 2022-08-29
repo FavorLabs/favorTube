@@ -11,7 +11,7 @@ import {
   setInteractionMode
 } from 'vee-validate'
 import Vuebar from 'vuebar'
-// import InfiniteLoading from 'vue-infinite-loading'
+import { getSize } from './utils/util'
 
 import '@mdi/font/css/materialdesignicons.min.css';
 
@@ -69,7 +69,9 @@ extend('password', {
 
 extend('size', {
   ...size,
-  message: 'video size should be less than 1 GB!'
+  message: (name, rules) => {
+    return `video size should be less than ${getSize(rules.size)}!`
+  }
 })
 
 Vue.config.productionTip = false

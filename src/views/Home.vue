@@ -16,7 +16,7 @@
       </v-alert>
 
       <main v-else>
-        <h3 class="headline font-weight-medium">Recommended</h3>
+        <!-- <h3 class="headline font-weight-medium">Recommended</h3> -->
         <v-row>
           <v-col
               cols="12"

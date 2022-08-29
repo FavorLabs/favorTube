@@ -132,11 +132,10 @@ export default {
       if (this.$route.params.api) {
         this.loading = false;
       } else {
-        const endPoint = this.$route.params?.endPoint;
+        const { endPoint, shareParams } = this.$route.params;
         const {origin} = window.location;
-        const api = endPoint ? endPoint : origin;
-        // console.log('api', origin, endPoint);
-        this.set(api).catch(() => {
+        const api = endPoint || origin;
+        this.set(api, shareParams).catch(() => {
           this.loading = false;
         })
       }
@@ -158,7 +157,7 @@ export default {
         })
       })
     },
-    async set(api) {
+    async set(api, routerString) {
       this.loading = true;
       let res = await FavorService.getPort(api);
       let wsPort = res.data.rpcWsPort;
@@ -181,15 +180,7 @@ export default {
       let ws = websocket(host);
       this.$store.commit("SET_WS", ws);
       this.loading = false;
-      const shareParams = this.$route.params?.shareParams;
-      console.log('shareParams', shareParams);
-      if (shareParams) {
-        await this.$router.push({
-          path: `/${shareParams}`,
-        })
-      } else {
-        await this.$router.replace({name: 'Home'});
-      }
+      await this.$router.replace({path: routerString ? `/${routerString}` : '/'})
     },
     fillInApi() {
       this.api = this.$route.params.api || "";
