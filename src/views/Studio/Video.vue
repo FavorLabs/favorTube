@@ -34,6 +34,12 @@
                 :loading="loading"
                 loading-text="Loading... Please wait"
             >
+              <template v-slot:item.registered="{ item }">
+                <span v-if="item.registered"
+                ><v-icon small class="pr-1">mdi-checkbox-marked</v-icon
+                ></span
+                >
+              </template>
               <template v-slot:item.feelings="{ item }">
                 <span class="mr-3"
                 ><v-icon small class="pr-1">mdi-thumb-up</v-icon
@@ -176,6 +182,7 @@ export default {
       { text: "Visibility", value: "status" },
       { text: "Views", value: "views" },
       { text: "Comments", value: "comments" },
+      { text: 'Register', value: "registered" },
       { text: "Likes (vs. dislikes)", value: "feelings" },
       { text: "Actions", value: "actions", sortable: false },
     ],
