@@ -26,16 +26,16 @@
         max-width="1000"
     >
       <v-card>
-        <div class="d-flex justify-space-between mb-5" id="modal-header">
+        <div class="d-flex justify-space-between mb-5" id="modal-header" style="position: relative">
           <v-card-title class="py-3">Upload Video</v-card-title>
-          <div class="mt-3 mr-2">
+          <div class="mt-3 mr-8 modal-header-text">
             <v-btn text>
               Upload With Classic
             </v-btn>
-            <v-btn icon text @click="closeModal">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
           </div>
+          <v-btn icon text @click="closeModal" style="position: absolute; top: 12px; right: 12px;">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
         </div>
 
         <v-card-text
@@ -205,7 +205,7 @@
                   langType="en"
                   :maxSize="1024 * 5"
               ></my-upload>
-              <v-responsive width="330" class="mx-auto">
+              <v-responsive width="330" class="mx-auto" @click="toggleShow">
                 <div v-if="!imgDataUrl" class="px-12" id="image-placeholder">
                   <v-icon>mdi-image-plus</v-icon>
                 </div>
@@ -374,7 +374,10 @@ export default {
           console.log("message", data);
           if (data.code) {
             if (data.code === 1001) {
-              resolve(data.message);
+              resolve({
+                text: data.message,
+                overlay,
+              });
               return;
             }
             downloadFailed()
@@ -407,7 +410,10 @@ export default {
 
             _this.value = p;
             if (p === 100) {
-              resolve("Video uploaded successfully");
+              resolve({
+                text: "Video uploaded successfully",
+                overlay,
+              });
             }
           }
           _this.statusTip = "Uploading the file to the P2P storage node";
@@ -437,7 +443,10 @@ export default {
               }
               _this.value = p;
               if (p === 100) {
-                resolve("Upload successful");
+                resolve({
+                text: "Upload successful",
+                overlay,
+              });
               }
             })
           }
@@ -477,30 +486,34 @@ export default {
         console.log(hash);
         let fileInfo = await FavorService.getFileInfo(hash);
         let len = fileInfo.data.list[0].bitVector.len;
+        let currentOverlay = '';
 
         let latestFiles = sessionStorage.getItem('latestFiles');
-        if (latestFiles && JSON.parse(latestFiles).indexOf(hash) !== -1) {
+        if (latestFiles && JSON.parse(latestFiles)[hash]) {
           this.$store.dispatch("showTips", {
             type: "success",
             text: 'Video uploaded successfully'
           })
+          currentOverlay = JSON.parse(latestFiles)[hash];
         } else {
-          let message = await this.test(hash, len)
+          let { text, overlay } = await this.test(hash, len)
           await this.$store.dispatch("showTips", {
             type: "success",
-            text: message
+            text
           })
+          currentOverlay = overlay;
           latestFiles = sessionStorage.getItem('latestFiles');
           if (latestFiles) {
             let tem = JSON.parse(latestFiles);
-            tem.push(hash);
+            tem[hash] = overlay;
             sessionStorage.setItem('latestFiles', JSON.stringify(tem));
           } else {
-            sessionStorage.setItem('latestFiles', JSON.stringify([hash]));
+            sessionStorage.setItem('latestFiles', JSON.stringify({[hash]: overlay}));
           }
         }
         let video = await VideoService.uploadVideo({
-          url: hash
+          url: hash,
+          overlay: currentOverlay
         });
         this.formData.url = hash;
         video = video.data.data
@@ -620,5 +633,14 @@ export default {
   padding-top: 8em;
   padding-bottom: 8em;
   border: 2px dashed rgb(209, 209, 209);
+}
+
+@media screen and (max-width: 450px) {
+  #modal-header {
+    display: block!important;
+    .modal-header-text {
+      margin: 0!important;
+    }
+  }
 }
 </style>

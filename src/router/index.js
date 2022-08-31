@@ -142,6 +142,14 @@ const routes = [
           import(/* webpackChunkName: "video" */ '../views/ApiConfig')
     }
   },
+  {
+    path: '/refresh',
+    name: 'Refresh',
+    components: {
+      default: () => 
+          import(/* webpackChunkName: "video" */ '../views/refresh')
+    }
+  }
 ]
 
 const router = new VueRouter({

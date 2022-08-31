@@ -44,6 +44,7 @@ import {websocket, getUrlParams} from "@/utils/util";
 import FavorService from "@/services/FavorService";
 import {getProxyGroup} from "@/store/modules/auth";
 import {getWeb3} from "@/utils/web3Utils";
+import { version as FavorTubeVersion } from '../package.json'
 
 export default {
   name: 'App',
@@ -56,6 +57,7 @@ export default {
     ...mapGetters(['getList', "getUrl", "ws", "web3", "isAuthenticated"]),
   },
   mounted() {
+    console.log('version', FavorTubeVersion);
     if (process.env.VUE_APP_MOBILE) {
       document.addEventListener('deviceready', () => {
         setTimeout(function () {

@@ -1,6 +1,6 @@
 {
   "name": "favortube",
-  "version": "1.2.3",
+  "version": "1.2.5",
   "author": {
     "name": "favortube",
     "email": "**"
@@ -19,7 +19,8 @@
     "electron:win32": "electron-builder --win  --ia32",
     "electron:win64": "electron-builder --win  --x64",
     "electron:mac": "electron-builder --mac",
-    "electron:linux": "electron-builder --linux"
+    "electron:linux": "electron-builder --linux",
+    "cache": "cd ./dist && appcache-manifest './**/**/**/**/**.**' --network-star -o ./appcache.manifest && cd ../"
   },
   "dependencies": {
     "@mdi/font": "^6.7.96",
@@ -46,6 +47,7 @@
     "@vue/cli-plugin-router": "^4.3.0",
     "@vue/cli-plugin-vuex": "^4.3.0",
     "@vue/cli-service": "^4.3.0",
+    "appcache-manifest": "^2.1.0",
     "babel-eslint": "^10.1.0",
     "cross-env": "^7.0.3",
     "electron": "^16.0.2",
@@ -94,8 +96,7 @@
       "public",
       "favor"
     ],
-    "extraFiles": [
-    ],
+    "extraFiles": [],
     "productName": "FavorTube",
     "appId": "com.favorTube.app",
     "dmg": {

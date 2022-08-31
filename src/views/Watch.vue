@@ -56,6 +56,7 @@
                         No Thumbnail
                       </div>
                     </div>
+                    <v-btn v-if="retryStatus" :class="`retry-btn ${video.registered ? 'red white--text' : 'grey-bgc'}`" @click="retry">Please try again</v-btn>
                   </v-responsive>
 
                   <v-card flat tile class="card">
@@ -416,6 +417,7 @@ export default {
     videoHash: '',
     sourceInfoDialog: false,
     channelAddress: '',
+    retryStatus: false,
   }),
   computed: {
     ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated', "getImgUrl", "getApi"]),
@@ -690,11 +692,11 @@ export default {
     bindAutoPlay() {
       this.$nextTick(() => {
         let _this = this;
-        let id = '';
-        let cIndex = parseInt(this.$route.query.cindex);
-        let cPage = parseInt(this.$route.query.cpage);
-        let data = null;
-        let videos = [];
+        // let id = '';
+        // let cIndex = parseInt(this.$route.query.cindex);
+        // let cPage = parseInt(this.$route.query.cpage);
+        // let data = null;
+        // let videos = [];
         let pauseTime = 0;
         let error = false;
 
@@ -721,8 +723,9 @@ export default {
               this.$store.dispatch("showTips", {
                 type: "error", text: "Blockchain congestion or file format error"
               });
-              cIndex++;
-              playNextVideo()
+              // cIndex++;
+              // playNextVideo()
+              this.retryStatus = true;
             }
           }, 3000)
 
@@ -750,36 +753,36 @@ export default {
             }
           })
 
-          async function playNextVideo() {
-            await addPageNum();
-            await equalToCurrent();
-            id = videos[cIndex].id;
-            await _this.$router.push({
-              path: `/watch/${id}`,
-              query: {
-                cpage: cPage,
-                cindex: cIndex,
-              }
-            });
-          }
+          // async function playNextVideo() {
+          //   await addPageNum();
+          //   await equalToCurrent();
+          //   id = videos[cIndex].id;
+          //   await _this.$router.push({
+          //     path: `/watch/${id}`,
+          //     query: {
+          //       cpage: cPage,
+          //       cindex: cIndex,
+          //     }
+          //   });
+          // }
 
-          async function addPageNum() {
-            if ((cIndex + 1) % _this.pageSize === 0) {
-              cPage++;
-              cIndex = 0;
-            }
-            _this.isShowInfinite = false;
-            data = await VideoService.getAll('public', {page: cPage, userId: _this.video.userId._id});
-            videos = [...data.data.data];
-          }
+          // async function addPageNum() {
+          //   if ((cIndex + 1) % _this.pageSize === 0) {
+          //     cPage++;
+          //     cIndex = 0;
+          //   }
+          //   _this.isShowInfinite = false;
+          //   data = await VideoService.getAll('public', {page: cPage, userId: _this.video.userId._id});
+          //   videos = [...data.data.data];
+          // }
 
-          async function equalToCurrent() {
-            let currentId = _this.$route.params.id
-            if (currentId === videos[cIndex].id) {
-              cIndex++;
-              await addPageNum();
-            }
-          }
+          // async function equalToCurrent() {
+          //   let currentId = _this.$route.params.id
+          //   if (currentId === videos[cIndex].id) {
+          //     cIndex++;
+          //     await addPageNum();
+          //   }
+          // }
         }
       })
     },
@@ -793,6 +796,14 @@ export default {
         text: 'Sign in to comment on this video.'
       }
       this.signinDialog = value;
+    },
+    retry() {
+      this.$router.replace({
+        path: '/refresh',
+        query: {
+          t: Date.now(),
+        }
+      })
     },
     ...mapMutations(['addContinuousPlay']),
   },
@@ -839,6 +850,10 @@ video {
   color: #7f7f7f !important;
 }
 
+.grey-bgc {
+  background: #7f7f7f;
+}
+
 #btns {
   border-bottom: 1px solid #e0d8d8;
 }
@@ -859,6 +874,13 @@ button.v-btn.remove-hover-bg {
   text-overflow: ellipsis;
   margin-bottom: 20px;
   padding-bottom: 0px;
+}
+
+.retry-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 @media screen and (max-width: 959px) {
