@@ -81,6 +81,7 @@
                       <v-card-actions class="pt-0 pl-0">
                         <v-icon v-if="videoHash"
                                 style="cursor: pointer;margin:4px 24px 0 0;font-size:1.6rem;"
+                                :class="video.registered ? 'black-font' : ''"
                                 @click="sourceInfo">mdi-information
                         </v-icon>
                         <v-btn text @click="createFeeling('like')"
@@ -852,6 +853,10 @@ video {
 
 .grey-bgc {
   background: #7f7f7f;
+}
+
+.black-font {
+  color: rgba(0,0,0,.87);
 }
 
 #btns {

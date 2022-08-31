@@ -36,7 +36,11 @@
             >
               <template v-slot:item.registered="{ item }">
                 <span v-if="item.registered"
-                ><v-icon small class="pr-1">mdi-checkbox-marked</v-icon
+                ><v-icon small class="pr-1">mdi-checkbox-outline</v-icon
+                ></span
+                >
+                <span v-else
+                ><v-icon small class="pr-1">mdi-checkbox-blank-outline</v-icon
                 ></span
                 >
               </template>
