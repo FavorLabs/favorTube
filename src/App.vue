@@ -44,13 +44,14 @@ import {websocket, getUrlParams} from "@/utils/util";
 import FavorService from "@/services/FavorService";
 import {getProxyGroup} from "@/store/modules/auth";
 import {getWeb3} from "@/utils/web3Utils";
-import { version as FavorTubeVersion } from '../package.json'
+import {version as FavorTubeVersion} from '../package.json'
 
 export default {
   name: 'App',
   data() {
     return {
       loading: true,
+      timer: null,
     }
   },
   computed: {
@@ -156,7 +157,12 @@ export default {
     "loading": async function (v) {
       if (v) {
         document.documentElement.style.overflow = "hidden";
+        this.timer = setInterval(() => {
+          let api = sessionStorage.getItem("api");
+          FavorService.observe(api);
+        }, 2000)
       } else if (this.ws) {
+        clearInterval(this.timer);
         if (this.isAuthenticated && !this.web3) {
           const {err, res} = await getWeb3(() => {
             this.signOut();
@@ -209,4 +215,7 @@ html {
   overflow: auto !important;
 }
 
+.v-list-item__avatar {
+  overflow: visible !important;
+}
 </style>

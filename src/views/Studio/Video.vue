@@ -186,7 +186,7 @@ export default {
       { text: "Visibility", value: "status" },
       { text: "Views", value: "views" },
       { text: "Comments", value: "comments" },
-      { text: 'Register', value: "registered" },
+      { text: 'Registered', value: "registered" },
       { text: "Likes (vs. dislikes)", value: "feelings" },
       { text: "Actions", value: "actions", sortable: false },
     ],
