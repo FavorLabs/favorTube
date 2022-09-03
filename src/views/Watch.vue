@@ -32,10 +32,12 @@
                         controls
                         autoplay
                         style="height: 100%; width: 100%"
+                        webkit-playsinline
+                        playsinline
                         v-if="playable"
                     >
                       <source
-                          :src="`${getApi}/file/${video.url}/`"
+                          :src="videoURL"
                           type="video/mp4"
                       />
                     </video>
@@ -56,7 +58,9 @@
                         No Thumbnail
                       </div>
                     </div>
-                    <v-btn v-if="retryStatus" :class="`retry-btn ${video.registered ? 'red white--text' : 'grey-bgc'}`" @click="retry">Please try again</v-btn>
+                    <v-btn v-if="retryStatus" :class="`retry-btn ${video.registered ? 'red white--text' : 'grey-bgc'}`"
+                           @click="retry">Please try again
+                    </v-btn>
                   </v-responsive>
 
                   <v-card flat tile class="card">
@@ -422,6 +426,9 @@ export default {
   }),
   computed: {
     ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated', "getImgUrl", "getApi"]),
+    videoURL() {
+      return `${this.getApi}/file/${this.video.url}?targets=${this.video.oracle.join(",")}`;
+    }
   },
   methods: {
     clickSubBtn() {
@@ -856,7 +863,7 @@ video {
 }
 
 .black-font {
-  color: rgba(0,0,0,.87);
+  color: rgba(0, 0, 0, .87);
 }
 
 #btns {
