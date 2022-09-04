@@ -423,12 +423,10 @@ export default {
     sourceInfoDialog: false,
     channelAddress: '',
     retryStatus: false,
+    videoURL: '',
   }),
   computed: {
     ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated', "getImgUrl", "getApi"]),
-    videoURL() {
-      return `${this.getApi}/file/${this.video.url}?targets=${this.video.oracle.join(",")}`;
-    }
   },
   methods: {
     clickSubBtn() {
@@ -485,6 +483,7 @@ export default {
         if (!video) return this.$router.push('/');
         this.video = video.data.data
         this.videoHash = video.data.data.url;
+        this.videoURL = `${this.getApi}/file/${this.video.url}?targets=${this.video.oracle.join(",")}`;
         this.channelAddress = video.data.data.userId.address;
         if (this.video.status === 'public') {
           this.playable = true;
