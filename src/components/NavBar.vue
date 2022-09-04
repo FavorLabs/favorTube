@@ -332,6 +332,12 @@
             >{{ link.text }}</v-btn
             >
           </span>
+          <div class="connecting">
+            <span
+            :class="'connecting-status ' + (peersNum >= 3 ? (peersNum >= 8 ? 'peers-many' : 'peers-normal') : '')">
+            </span>
+            peers: {{peersNum}}
+          </div>
           <p style="margin: 10px">Version: {{ FavorTubeVersion }}</p>
         </v-list>
       </div>
@@ -342,6 +348,7 @@
 <script>
 import {mapGetters} from 'vuex'
 import SubscriptionService from '@/services/SubscriptionService'
+import FavorService from '@/services/FavorService'
 import HistoryService from '@/services/HistoryService'
 import {removeAllPendingRequestsRecord} from "@/services/Api";
 import { version as FavorTubeVersion } from '../../package.json'
@@ -469,10 +476,11 @@ export default {
     searchText: '',
     // user: null,
     goBackClickStatus: false,
-    FavorTubeVersion: FavorTubeVersion
+    FavorTubeVersion: FavorTubeVersion,
+    peersNum: 0,
   }),
   computed: {
-    ...mapGetters(['currentUser', 'isAuthenticated', "getImgUrl", "getApi", "web3"]),
+    ...mapGetters(['currentUser', 'isAuthenticated', "getImgUrl", "getApi", "web3", "ws"]),
     getUrl() {
       return this.getImgUrl
     }
@@ -533,6 +541,28 @@ export default {
       this.goBackClickStatus = true;
       this.$router.back(-1);
     },
+    async getTopology() {
+      const { data } = await FavorService.getTopology();
+      this.peersNum = (data?.connected || 0) + (data?.bootNodes?.connected || 0);
+
+      let _this = this;
+      _this.ws?.send(
+        {
+          "id": 3,
+          "jsonrpc": '2.0',
+          "method": 'p2p_subscribe',
+          "params": ['kadInfo'],
+        },
+        (err, res) => {
+          if (err || res?.error) {
+            console.error(err || res?.error);
+          }
+          _this.ws?.on(res?.result, (res) => {
+            _this.peersNum = res?.connected?.full_nodes;
+          });
+        },
+      );
+    },
   },
   beforeRouteEnter(to, from, next) {
     next((vm) => {
@@ -556,6 +586,8 @@ export default {
 
     this.drawer = !this.$vuetify.breakpoint.mdAndDown
     this.drawer = this.$route.name === 'Watch' ? false : this.drawer
+
+    this.getTopology();
 
   },
   created() {
@@ -698,6 +730,24 @@ export default {
 .Subscriptions-box::-webkit-scrollbar-thumb {
   background: #aaa;
   border-radius: 3px;
+}
+
+.connecting {
+  margin: 10px;
+  .connecting-status {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 10px;
+    border-radius: 50%;
+    background: #f00;
+  }
+  .peers-normal {
+    background: rgb(255, 255, 83);
+  }
+  .peers-many {
+    background: rgb(69, 202, 69);
+  }
 }
 
 @media screen and (max-width: 800px) {
