@@ -1,5 +1,5 @@
 <template>
-  <span class="container">
+  <span class="container" v-if="isShow">
     <template
         v-for="item in list"
     >
@@ -8,9 +8,9 @@
               :network="item.network"
               :url="url"
               title=""
-              style="margin-right: 10px"
+              class="share-item"
           >
-          <img width="25" style="vertical-align: middle" :src="item.img"
+          <img width="22" style="vertical-align: middle" :src="item.img"
                :alt="item.network"/>
         </ShareNetwork>
     </template>
@@ -32,6 +32,7 @@ export default {
   },
   data() {
     return {
+      isShow: false,
       url: `https://share.favorlabs.io/share/${this.text}`,
       list: [
         {
@@ -45,10 +46,20 @@ export default {
       ]
     }
   },
-  computed: {}
+  computed: {},
+  mounted() {
+    if (sessionStorage.getItem('network_id') === '18') {
+      this.isShow = true;
+    }
+  }
 }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+.container {
+  margin-left: 10px;
+  .share-item:nth-child(1) {
+    margin-right: 36px;
+  }
+}
 </style>

@@ -26,7 +26,7 @@
                   large
               >
                 <div ref="hello">
-                  <v-responsive style="position: relative">
+                  <v-responsive max-height="450" style="position: relative">
                     <video
                         ref="videoPlayer"
                         controls

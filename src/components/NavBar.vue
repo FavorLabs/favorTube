@@ -334,7 +334,7 @@
           </span>
           <div class="connecting">
             <span
-            :class="'connecting-status ' + (peersNum >= 3 ? (peersNum >= 8 ? 'peers-many' : 'peers-normal') : '')">
+            :class="'connecting-status ' + (peersNum > 5 ? (peersNum > 10 ? 'peers-many' : 'peers-normal') : '')">
             </span>
             peers: {{peersNum}}
           </div>
