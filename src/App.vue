@@ -64,7 +64,7 @@ export default {
       timer: null,
       refreshTimer: null,
       finished: false,
-      refreshPage: ['/', '/trending'],
+      refreshPage: ['/', '/trending', '/subscriptions'],
       allowRefresh: true,
     }
   },
