@@ -81,7 +81,6 @@
                         </v-icon
                         >
                         {{ dateFormatter(video.createdAt) }}
-                        <Share :text="video.id"></Share>
                       </v-card-subtitle>
                       <v-card-actions class="pt-0 pl-0">
                         <v-icon v-if="videoHash"
