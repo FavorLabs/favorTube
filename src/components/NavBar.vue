@@ -582,7 +582,7 @@ export default {
     }
   },
   async mounted() {
-    if (this.$route.params?.refresh) {
+    if (this.$route.params?.refresh || this.$route.query?.refresh) {
       this.drawer = false;
     } else {
       this.$nextTick(() => {
