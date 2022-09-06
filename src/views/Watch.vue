@@ -26,7 +26,7 @@
                   large
               >
                 <div ref="hello">
-                  <v-responsive  style="position: relative">
+                  <v-responsive style="position: relative">
                     <video
                         ref="videoPlayer"
                         controls
@@ -81,6 +81,7 @@
                         </v-icon
                         >
                         {{ dateFormatter(video.createdAt) }}
+                        <Share :text="video.id"></Share>
                       </v-card-subtitle>
                       <v-card-actions class="pt-0 pl-0">
                         <v-icon v-if="videoHash"
@@ -119,18 +120,18 @@
                           </v-icon
                           >
                           {{ video.dislikes }}
-                        </v-btn
-                        >
-                        <a style="text-decoration: none" :href="`${getApi}/file/${video.url}`" download
-                           v-if="subscribed">
-                          <v-btn
-                              text
-                              class="grey--text text--darken-1"
-                          >
-                            <v-icon>mdi-download</v-icon>
-                            Download
-                          </v-btn>
-                        </a>
+                        </v-btn>
+                        <Share :text="video.id"></Share>
+                        <!--                        <a style="text-decoration: none" :href="`${getApi}/file/${video.url}`" download-->
+                        <!--                           v-if="subscribed">-->
+                        <!--                          <v-btn-->
+                        <!--                              text-->
+                        <!--                              class="grey&#45;&#45;text text&#45;&#45;darken-1"-->
+                        <!--                          >-->
+                        <!--                            <v-icon>mdi-download</v-icon>-->
+                        <!--                            Download-->
+                        <!--                          </v-btn>-->
+                        <!--                        </a>-->
                         <!-- <v-btn text class="grey--text text--darken-1"
                           ><v-icon>mdi-share</v-icon> Share</v-btn
                         >
@@ -395,6 +396,7 @@ import JoinModal from '@/components/JoinModal'
 import SourceInfoModal from '@/components/SourceInfoModal'
 import AddComment from '@/components/comments/AddComment'
 import CommentList from '@/components/comments/CommentList'
+import Share from "@/components/Share";
 
 export default {
   data: () => ({
@@ -826,7 +828,8 @@ export default {
     SigninModal,
     JoinModal,
     SourceInfoModal,
-    InfiniteLoading
+    InfiniteLoading,
+    Share
   },
   mounted() {
     this.getVideo(this.$route.params.id)

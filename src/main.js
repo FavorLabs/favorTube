@@ -25,6 +25,10 @@ Vue.use(VueLoadmore, {
   lang: 'en-US'
 });
 
+import VueSocialSharing from 'vue-social-sharing'
+
+Vue.use(VueSocialSharing);
+
 setInteractionMode('eager')
 
 extend('api', {
