@@ -383,6 +383,7 @@
 import moment from 'moment'
 import {mapGetters, mapMutations} from 'vuex'
 import InfiniteLoading from 'vue-infinite-loading'
+import _ from 'lodash'
 
 import VideoService from '@/services/VideoService'
 import SubscriptionService from '@/services/SubscriptionService'
@@ -483,7 +484,12 @@ export default {
         if (!video) return this.$router.push('/');
         this.video = video.data.data
         this.videoHash = video.data.data.url;
-        this.videoURL = `${this.getApi}/file/${this.video.url}?targets=${this.video.oracle.join(",")}`;
+        let oracleArr = _.cloneDeep(this.video.oracle);
+        if (this.video.overlay) {
+          oracleArr.push(this.video.overlay);
+          oracleArr = _.uniq(oracleArr);
+        }
+        this.videoURL = `${this.getApi}/file/${this.video.url}?oracles=${oracleArr.join(",")}`;
         this.channelAddress = video.data.data.userId.address;
         if (this.video.status === 'public') {
           this.playable = true;

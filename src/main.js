@@ -19,6 +19,12 @@ import VueClipboard from 'vue-clipboard2'
 
 Vue.use(VueClipboard)
 
+import VueLoadmore from 'vuejs-loadmore';
+
+Vue.use(VueLoadmore, {
+  lang: 'en-US'
+});
+
 setInteractionMode('eager')
 
 extend('api', {
