@@ -9,8 +9,8 @@ export default {
   getById(id) {
     return Api().get(`videos/${id}`)
   },
-  uploadVideo(data, optional) {
-    return Api().post('videos', data, optional)
+  uploadVideo(data) {
+    return Api().post('videos', data)
   },
   updateVideo(id, data) {
     return Api().put(`videos/${id}`, data)

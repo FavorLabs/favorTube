@@ -355,7 +355,7 @@ import { version as FavorTubeVersion } from '../../package.json'
 
 export default {
   data: () => ({
-    drawer: true,
+    drawer: false,
     items: [
       {
         header: null,
@@ -582,6 +582,14 @@ export default {
     }
   },
   async mounted() {
+    if (this.$route.params?.refresh) {
+      this.drawer = false;
+    } else {
+      this.$nextTick(() => {
+        this.drawer = true;
+      })
+    }
+
     if (this.isAuthenticated) this.getSubscribedChannels(true)
 
     this.drawer = !this.$vuetify.breakpoint.mdAndDown

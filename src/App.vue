@@ -32,7 +32,16 @@
         ].includes(this.$route.name)
       }"
       >
-        <router-view></router-view>
+        <!-- <vue-pull-refresh :on-refresh="onRefresh">
+          <router-view></router-view>
+        </vue-pull-refresh> -->
+        <vue-loadmore
+          v-if="allowRefresh"
+          :on-refresh="onRefresh"
+          :finished="finished">
+          <router-view></router-view>
+        </vue-loadmore>
+        <router-view v-else></router-view>
       </v-content>
     </div>
   </v-app>
@@ -45,6 +54,7 @@ import FavorService from "@/services/FavorService";
 import {getProxyGroup} from "@/store/modules/auth";
 import {getWeb3} from "@/utils/web3Utils";
 import {version as FavorTubeVersion} from '../package.json'
+// import VuePullRefresh from 'vue-pull-refresh';
 
 export default {
   name: 'App',
@@ -52,8 +62,13 @@ export default {
     return {
       loading: true,
       timer: null,
+      refreshTimer: null,
+      finished: false,
+      refreshPage: ['/', '/trending'],
+      allowRefresh: true,
     }
   },
+  // components: { VuePullRefresh },
   computed: {
     ...mapGetters(['getList', "getUrl", "ws", "web3", "isAuthenticated"]),
   },
@@ -132,6 +147,19 @@ export default {
           shareParams
         }
       });
+    },
+    onRefresh(done) {
+      this.finished = false;
+      this.refreshTimer = setTimeout(() => {
+        clearTimeout(this.refreshTimer);
+        done();
+        this.$router.replace({
+          path: '/refresh',
+          query: {
+            t: Date.now(),
+          }
+        })
+      }, 1500)
     }
   },
   watch: {
@@ -176,6 +204,16 @@ export default {
         }
       }
     },
+    "$route.path": {
+      handler: function (path) {
+        let _this = this;
+        if (_this.refreshPage.includes(path)) {
+          _this.allowRefresh = true;
+        } else {
+          _this.allowRefresh = false;
+        }
+      }
+    }
   }
 }
 </script>
