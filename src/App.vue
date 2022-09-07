@@ -38,7 +38,8 @@
         <vue-loadmore
           v-if="allowRefresh"
           :on-refresh="onRefresh"
-          :finished="finished">
+          :finished="finished"
+        >
           <router-view></router-view>
         </vue-loadmore>
         <router-view v-else></router-view>
@@ -255,5 +256,27 @@ html {
 
 .v-list-item__avatar {
   overflow: visible !important;
+}
+
+.vuejs-refresh-head {
+  .vuejs-loading-spinner {
+    width: unset;
+    height: unset;
+    svg {
+      width: 30px;
+      height: 30px;
+      color: #f00;
+      circle {
+         stroke-width: 5;
+      }
+    }
+  }
+  .vuejs-refresh-text,
+  .vuejs-loading-text {
+    color: #f00;
+  }
+  .vuejs-loading-text {
+    display: none;
+  }
 }
 </style>

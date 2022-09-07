@@ -124,6 +124,9 @@ export default {
 
 <style scoped>
 .chunkInfo-item {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
   margin-bottom: 10px;
   background-color: #eee;
   padding: 10px;
@@ -135,13 +138,17 @@ export default {
   height: 15px;
   margin-right: 10px;
   vertical-align: middle;
+  flex-shrink: 0;
 }
 
 .chunk-overlay {
   margin-bottom: 0 !important;
   word-wrap: break-word;
   word-break: normal;
-  width: 100%;
+  overflow: hidden; 
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
 }
 
 .chunk-percent {
