@@ -61,6 +61,18 @@
             </v-card-actions>
           </v-card>
         </v-col>
+        <v-col cols="12" sm="6" md="4">
+          <v-card class="mx-auto fill-height" outlined
+                  style="display: flex;flex-direction: column;justify-content: space-between">
+            <v-card-title class="pl-5">Amount is {{ amount }}</v-card-title>
+
+            <v-card-actions class="d-block ml-2">
+              <v-btn color="blue" text @click="withdrawal" :disabled="amount==0">
+                Withdrawal
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
       </v-row>
       <v-row>
 
@@ -90,6 +102,13 @@
         @closeDialog="canceSecret"
         @secretSetting="setSecretEffect"
     />
+    <v-overlay :value="loading" style="z-index: 999" class="text-center" opacity="1">
+      <v-progress-circular
+          indeterminate
+          size="64"
+      ></v-progress-circular>
+      <div style="margin-top: 20px;font-size: 20px">loading...</div>
+    </v-overlay>
   </div>
 </template>
 
@@ -108,7 +127,7 @@ let contractAddress = getContracts();
 
 export default {
   data: () => ({
-    loading: true,
+    loading: false,
     dialog: false,
     subscribersDialog: false,
     setPriceModal: false,
@@ -118,7 +137,8 @@ export default {
     userConfig: {
       price: 0,
       mode: 0
-    }
+    },
+    amount: 0
   }),
   components: {
     UploadVideoModal,
@@ -127,13 +147,25 @@ export default {
     SecretModal,
   },
   computed: {
-    ...mapGetters(["currentUser", "getApi"])
+    ...mapGetters(["currentUser", "getApi", "web3"])
+  },
+
+  created() {
+    this.getPrice();
+    this.getMe();
+    this.getAmount();
   },
   methods: {
     async getPrice() {
       const chainWeb3 = new Web3(this.getApi + "/chain");
       const favorTubeContract = new chainWeb3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
       this.userConfig = await favorTubeContract.methods.userConfig().call({from: this.currentUser.address});
+    },
+    async getAmount() {
+      const chainWeb3 = new Web3(this.getApi + "/chain");
+      const favorTubeContract = new chainWeb3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
+      let amount = await favorTubeContract.methods.exchangeableAmount().call();
+      this.amount = amount / 100;
     },
     setPriceSuccess() {
       this.setPriceModal = false;
@@ -154,11 +186,46 @@ export default {
     },
     getMe() {
       this.$store.dispatch('getCurrentUser', localStorage.getItem("token"));
+    },
+    async withdrawal() {
+      this.loading = true;
+      const price = await this.web3.eth.getGasPrice();
+      const favorTubeContract = new this.web3.eth.Contract(favorTubeAbi, this.favorTubeAddress);
+      this.web3.eth.sendTransaction({
+        from: this.currentUser.address,
+        to: this.favorTubeAddress,
+        gasPrice: this.web3.utils.toHex(price),
+        data: favorTubeContract.methods.exchange().encodeABI()
+      }, (error, hash) => {
+        if (error) {
+          this.$store.dispatch('showTips', {
+            type: "error",
+            text: error.message
+          });
+          this.loading = false;
+        } else {
+          this.receipt(hash);
+        }
+      })
+    },
+    async receipt(hash) {
+      const data = await this.web3.eth.getTransactionReceipt(hash);
+      if (data) {
+        this.loading = false;
+        if (data.status) {
+          await this.getAmount();
+        } else {
+          this.$store.dispatch('showTips', {
+            type: "info",
+            text: "Transaction failure"
+          });
+        }
+      } else {
+        setTimeout(() => {
+          this.receipt(hash);
+        }, 1000)
+      }
     }
-  },
-  created() {
-    this.getPrice();
-    this.getMe();
   }
 }
 </script>
