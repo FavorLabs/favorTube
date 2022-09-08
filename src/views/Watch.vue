@@ -375,6 +375,7 @@
         :openModal="sourceInfoDialog"
         @closeSourceInfoModal="sourceInfoDialog = false"
         :videoHash="videoHash"
+        :oracleArrs="oracleArrs"
     ></SourceInfoModal>
   </div>
 </template>
@@ -426,6 +427,7 @@ export default {
     channelAddress: '',
     retryStatus: false,
     videoURL: '',
+    oracleArrs: [],
   }),
   computed: {
     ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated', "getImgUrl", "getApi"]),
@@ -490,6 +492,7 @@ export default {
           oracleArr.push(this.video.overlay);
           oracleArr = _.uniq(oracleArr);
         }
+        this.oracleArrs = oracleArr;
         this.videoURL = `${this.getApi}/file/${this.video.url}?oracles=${oracleArr.join(",")}`;
         this.channelAddress = video.data.data.userId.address;
         if (this.video.status === 'public') {
