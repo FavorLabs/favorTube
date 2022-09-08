@@ -12,7 +12,7 @@
 
         <v-card-text>
           <div style="overflow-y: scroll;max-height: 500px;padding-top: 10px">
-            <div class="chunkInfo-item" v-for="(item, index) in chunkArr" :key="'chunkArr' + index">
+            <div :class="'chunkInfo-item' + getOracleClass(item)" v-for="(item, index) in chunkArr" :key="'chunkArr' + index">
               <span class="chunk-color" :style="`background-color: ${getRandomHex()}`"></span>
               <span class="chunk-overlay">{{ item.overlay }}</span>
               <span class="chunk-percent">{{ ((item.downloadLen / len) * 100).toFixed(2) }}%</span>
@@ -49,6 +49,10 @@ export default {
     },
     videoHash: {
       type: String,
+      required: true,
+    },
+    oracleArrs: {
+      type: Array,
       required: true,
     }
   },
@@ -117,6 +121,13 @@ export default {
       } else {
         return false;
       }
+    },
+    getOracleClass(item) {
+      if (this.oracleArrs.includes(item.overlay)) {
+        return ' oracle-style';
+      } else {
+        return '';
+      }
     }
   }
 }
@@ -154,6 +165,10 @@ export default {
 .chunk-percent {
   margin-left: 20px;
   /* font-size: 1.2rem; */
+}
+
+.oracle-style {
+  background-color: #ccc;
 }
 
 @media screen and (max-width: 1024px) {
