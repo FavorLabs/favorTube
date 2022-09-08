@@ -193,7 +193,8 @@
                           v-if="typeof video.userId !== 'undefined'"
                       >
                         <v-btn
-                            :disabled="subscribed"
+                            :disabled="isMember"
+                            :loading="subscribeLoading"
                             :class="[
                             subscribed ? 'grey grey--text lighten-3 text--darken-3':'red white--text',
                             'mt-6'
@@ -201,13 +202,12 @@
                             tile
                             large
                             depressed
-                            @click="subscribe"
+                            @click="subscribeBefore"
                         >
                           {{ !subscribed ? 'bookmark' : 'bookmarked' }}
                         </v-btn
                         >
                         <v-btn
-                            :disabled="isMember"
                             :class="[
                             isMember ? 'grey grey--text lighten-3 text--darken-3':'red white--text' ,
                             'mt-6',
@@ -377,11 +377,56 @@
         :videoHash="videoHash"
         :oracleArrs="oracleArrs"
     ></SourceInfoModal>
+    <v-dialog
+        v-model="subscribeDialog"
+        persistent
+        transition="fab-transition"
+        max-width="500"
+    >
+      <v-card tile class="pt-4">
+        <v-card-title class="py-3">Confirm cancellation of bookmark?</v-card-title>
+        <v-card-text class="px-3 text-right">
+          <footer style="margin-top: 20px">
+            <v-btn @click="subscribeDialog = false" style="margin-right: 20px">cancel</v-btn>
+            <v-btn @click="subscribe" :loading="loading">Confirm</v-btn>
+          </footer>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+    <v-dialog
+        v-model="memberTime.dialog"
+        persistent
+        transition="fab-transition"
+        max-width="500"
+    >
+      <v-card tile>
+        <v-card-title class="py-3">Subscribe Time</v-card-title>
+        <v-card-text>
+          <div>
+            <span class="key">Current block height&nbsp;:</span>&nbsp;&nbsp;<span class="value">{{
+              memberTime.now
+            }}</span>
+          </div>
+          <div>
+            <span class="key">Expire block height&nbsp;:</span>&nbsp;&nbsp;<span class="value">{{
+              memberTime.expire
+            }}</span>
+          </div>
+          <div style="font-size: 18px;color: #222;margin-top: 10px">
+            About {{ expireTime }} days to expiration
+          </div>
+        </v-card-text>
+        <v-card-text class="px-3 text-right">
+          <footer style="margin-top: 20px">
+            <v-btn @click="memberTime.dialog = false" style="margin-right: 20px">Confirm</v-btn>
+          </footer>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
-import moment from 'moment'
 import {mapGetters, mapMutations} from 'vuex'
 import InfiniteLoading from 'vue-infinite-loading'
 import _ from 'lodash'
@@ -397,6 +442,7 @@ import SourceInfoModal from '@/components/SourceInfoModal'
 import AddComment from '@/components/comments/AddComment'
 import CommentList from '@/components/comments/CommentList'
 import Share from "@/components/Share";
+import moment from "moment"
 
 export default {
   data: () => ({
@@ -406,8 +452,14 @@ export default {
     videoLoading: true,
     subscribed: false,
     subscribeLoading: false,
+    subscribeDialog: false,
     joinDialog: false,
     isMember: false,
+    memberTime: {
+      dialog: false,
+      now: 0,
+      expire: 0
+    },
     playable: false,
     feeling: '',
     video: {},
@@ -430,7 +482,19 @@ export default {
     oracleArrs: [],
   }),
   computed: {
-    ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated', "getImgUrl", "getApi"]),
+    ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated', "getImgUrl", "getApi", "web3"]),
+    expireTime() {
+      let timeObj = {
+        18: 2,
+        19: 5,
+        20: 7,
+        21: 4
+      }
+      const networkId = sessionStorage.getItem('network_id');
+      let time = timeObj[networkId];
+      let block = (this.memberTime.expire - this.memberTime.now) * time
+      return Math.round(block / (60 * 60 * 24))
+    }
   },
   methods: {
     clickSubBtn() {
@@ -442,7 +506,11 @@ export default {
         }
         return;
       }
-      this.joinDialog = true;
+      if (this.isMember) {
+        this.memberTime.dialog = true;
+      } else {
+        this.joinDialog = true;
+      }
     },
     joinCallback() {
       this.joinDialog = false;
@@ -450,8 +518,9 @@ export default {
       this.isMember = true;
       this.playable = true;
       this.video.userId.subscribers++;
+      this.checkSubscription(this.video.userId._id);
     },
-    async subscribe() {
+    subscribeBefore() {
       if (!this.isAuthenticated) {
         this.signinDialog = true
         this.details = {
@@ -459,6 +528,16 @@ export default {
           text: 'Sign in to bookmark this channel.'
         }
         return
+      }
+      if (this.subscribed) {
+        this.subscribeDialog = true;
+      } else {
+        this.subscribe()
+      }
+    },
+    async subscribe() {
+      if (this.subscribed) {
+        this.subscribeDialog = false;
       }
       this.subscribeLoading = true
       const sub = await SubscriptionService.createSubscription({
@@ -468,8 +547,9 @@ export default {
           .finally(() => {
             this.subscribeLoading = false
           })
+      console.log(sub)
       if (!sub) return
-      if (!sub.data.data._id) {
+      if (!sub.data.data?._id) {
         this.subscribed = false
         this.video.userId.subscribers--
       } else {
@@ -587,6 +667,8 @@ export default {
       if (sub.data.data.tx) {
         this.isMember = true;
         this.playable = true;
+        this.memberTime.expire = sub.data.data.expire;
+        this.memberTime.now = await this.web3.eth.getBlockNumber();
       }
     },
     async checkFeeling(id) {
@@ -934,5 +1016,16 @@ button.v-btn.remove-hover-bg {
   #subscribe-tips {
     transform: translate(-50%, -50%) scale(.4) !important;
   }
+}
+
+.key {
+  display: inline-block;
+  font-size: 16px;
+  color: #222;
+  width: 160px;
+  text-align: right;
+}
+
+.value {
 }
 </style>
