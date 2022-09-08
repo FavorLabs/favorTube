@@ -64,7 +64,7 @@
         <v-col cols="12" sm="6" md="4">
           <v-card class="mx-auto fill-height" outlined
                   style="display: flex;flex-direction: column;justify-content: space-between">
-            <v-card-title class="pl-5">Amount is {{ amount }}</v-card-title>
+            <v-card-title class="pl-5">Revenue: {{ amount }}</v-card-title>
 
             <v-card-actions class="d-block ml-2">
               <v-btn color="blue" text @click="withdrawal" :disabled="amount==0">

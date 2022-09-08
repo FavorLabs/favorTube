@@ -208,6 +208,7 @@
                         </v-btn
                         >
                         <v-btn
+                            :disabled="video.userId.id == currentUser.id"
                             :class="[
                             isMember ? 'grey grey--text lighten-3 text--darken-3':'red white--text' ,
                             'mt-6',
@@ -382,12 +383,13 @@
         persistent
         transition="fab-transition"
         max-width="500"
+        v-if="video.userId"
     >
       <v-card tile class="pt-4">
-        <v-card-title class="py-3">Confirm cancellation of bookmark?</v-card-title>
+        <v-card-title class="py-3">Unbookmark {{ video.userId.channelName }}?</v-card-title>
         <v-card-text class="px-3 text-right">
           <footer style="margin-top: 20px">
-            <v-btn @click="subscribeDialog = false" style="margin-right: 20px">cancel</v-btn>
+            <v-btn @click="subscribeDialog = false" style="margin-right: 20px">Cancel</v-btn>
             <v-btn @click="subscribe" :loading="loading">Confirm</v-btn>
           </footer>
         </v-card-text>
@@ -398,26 +400,27 @@
         persistent
         transition="fab-transition"
         max-width="500"
+        v-if="video.userId"
     >
       <v-card tile>
-        <v-card-title class="py-3">Subscribe Time</v-card-title>
+        <v-card-title class="py-3">Subscribed "{{ video.userId.channelName }}" Info:</v-card-title>
         <v-card-text>
           <div>
-            <span class="key">Current block height&nbsp;:</span>&nbsp;&nbsp;<span class="value">{{
+            <span class="key">Current block height:</span>&nbsp;&nbsp;<span class="value">{{
               memberTime.now
             }}</span>
           </div>
           <div>
-            <span class="key">Expire block height&nbsp;:</span>&nbsp;&nbsp;<span class="value">{{
+            <span class="key">Expire block height:</span>&nbsp;&nbsp;<span class="value">{{
               memberTime.expire
             }}</span>
           </div>
-          <div style="font-size: 18px;color: #222;margin-top: 10px">
-            About {{ expireTime }} days to expiration
+          <div>
+            <span class="key">Remain:</span>&nbsp;&nbsp;<span class="value">{{ expireTime }} Days </span>
           </div>
         </v-card-text>
         <v-card-text class="px-3 text-right">
-          <footer style="margin-top: 20px">
+          <footer>
             <v-btn @click="memberTime.dialog = false" style="margin-right: 20px">Confirm</v-btn>
           </footer>
         </v-card-text>
@@ -493,7 +496,7 @@ export default {
       const networkId = sessionStorage.getItem('network_id');
       let time = timeObj[networkId];
       let block = (this.memberTime.expire - this.memberTime.now) * time
-      return Math.round(block / (60 * 60 * 24))
+      return Math.ceil(block / (60 * 60 * 24))
     }
   },
   methods: {
@@ -1020,12 +1023,15 @@ button.v-btn.remove-hover-bg {
 
 .key {
   display: inline-block;
-  font-size: 16px;
+  font-size: 14px;
   color: #222;
   width: 160px;
   text-align: right;
+  font-weight: 500;
 }
 
 .value {
+  font-size: 16px;
+  color: #222;
 }
 </style>
