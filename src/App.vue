@@ -104,6 +104,17 @@ export default {
           await FavorService.observe(api);
           let ws = websocket(wsHost);
           this.$store.commit("SET_WS", ws);
+          if (this.isAuthenticated && !this.web3) {
+            const {err, res} = await getWeb3(() => {
+              this.signOut();
+            });
+            if (err) {
+              this.signOut();
+            } else {
+              const {web3} = res;
+              this.$store.commit("SET_WEB3", web3);
+            }
+          }
         } catch (e) {
           await this.$store.dispatch("showTips", {
             type: "error",
@@ -113,17 +124,6 @@ export default {
       } else {
         this.loading = false;
         this.analyzingUrl();
-      }
-      if (this.isAuthenticated && !this.web3) {
-        const {err, res} = await getWeb3(() => {
-          this.signOut();
-        });
-        if (err) {
-          this.signOut();
-        } else {
-          const {web3} = res;
-          this.$store.commit("SET_WEB3", web3);
-        }
       }
     },
     wsCloseHandle() {
