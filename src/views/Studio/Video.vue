@@ -35,14 +35,13 @@
                 loading-text="Loading... Please wait"
             >
               <template v-slot:item.registered="{ item }">
-                <span v-if="item.registered"
-                ><v-icon small class="pr-1">mdi-checkbox-outline</v-icon
-                ></span
-                >
-                <span v-else
-                ><v-icon small class="pr-1">mdi-checkbox-blank-outline</v-icon
-                ></span
-                >
+                <span v-if="item.registered">
+                  <v-icon small class="pr-1">mdi-checkbox-outline</v-icon>
+                </span>
+                <span v-else>
+                  <v-icon small class="pr-1"
+                          @click="()=> register(item.url,item.overlay,item.id) ">mdi-checkbox-blank-outline</v-icon>
+                </span>
               </template>
               <template v-slot:item.feelings="{ item }">
                 <span class="mr-3"
@@ -90,7 +89,7 @@
 
                                   Published
                                   {{ dateFormatter(itemToDelete.createdAt) }}
-                                  <br />
+                                  <br/>
                                   {{ itemToDelete.views }} views
                                 </v-card-subtitle>
                               </div>
@@ -106,7 +105,8 @@
                           color="blue darken-1"
                           text
                           @click="dialogDelete = !dialogDelete"
-                      >Cancel</v-btn
+                      >Cancel
+                      </v-btn
                       >
 
                       <v-btn
@@ -114,7 +114,8 @@
                           color="blue darken-1"
                           text
                           @click="deleteItem"
-                      >Delete Forever</v-btn
+                      >Delete Forever
+                      </v-btn
                       >
                     </v-card-actions>
                   </v-card>
@@ -167,6 +168,7 @@
 import VideoService from "@/services/VideoService";
 import moment from "moment";
 import {mapGetters} from "vuex";
+import {oracleAbi} from "@/config/contract";
 
 export default {
   data: () => ({
@@ -183,27 +185,63 @@ export default {
         align: "start",
         value: "title",
       },
-      { text: "Visibility", value: "status" },
-      { text: "Views", value: "views" },
-      { text: "Comments", value: "comments" },
-      { text: 'Registered', value: "registered" },
-      { text: "Likes (vs. dislikes)", value: "feelings" },
-      { text: "Actions", value: "actions", sortable: false },
+      {text: "Visibility", value: "status"},
+      {text: "Views", value: "views"},
+      {text: "Comments", value: "comments"},
+      {text: 'Registered', value: "registered"},
+      {text: "Likes (vs. dislikes)", value: "feelings"},
+      {text: "Actions", value: "actions", sortable: false},
     ],
     videos: [],
     itemToDelete: {},
   }),
-  computed:{
-    ...mapGetters(["getImgUrl"]),
-    url(){
+  computed: {
+    ...mapGetters(["getImgUrl", "web3", "currentUser"]),
+    url() {
       return this.getImgUrl
     }
   },
   methods: {
+    async register(hash, overlay, id) {
+      this.loading = true;
+      let config = sessionStorage.getItem("current_config")
+      let oracleAddress = JSON.parse(config).oracleContractAddr;
+      const oracleContract = new this.web3.eth.Contract(oracleAbi, oracleAddress);
+      const price = await this.web3.eth.getGasPrice();
+      this.web3.eth.sendTransaction({
+        from: this.currentUser.address,
+        to: oracleAddress,
+        gasPrice: this.web3.utils.toHex(price),
+        data: oracleContract.methods.set('0x' + hash, '0x' + overlay).encodeABI()
+      }, (error) => {
+        if (error) {
+          this.$store.dispatch('showTips', {
+            type: "error",
+            text: error.message
+          });
+          this.loading = false;
+        } else {
+          this.receipt(id);
+        }
+      })
+    },
+    async receipt(id) {
+      let lock = false;
+      let timer = setInterval(async () => {
+        if (lock) return;
+        lock = true;
+        const {data} = await VideoService.getById(id);
+        if (data.data.oracle.length) {
+          clearInterval(timer);
+          await this.getVideos();
+        }
+        lock = false;
+      }, 2000)
+    },
     async getVideos() {
       this.loading = true;
 
-      const videos = await VideoService.getAll("private", { limit: 0 })
+      const videos = await VideoService.getAll("private", {limit: 0})
           .catch((err) => {
             console.log(err);
           })
@@ -213,7 +251,7 @@ export default {
       this.videos = videos.data.data;
     },
     editItem(item) {
-      this.$router.push({ name: `Detail`, params: { id: item.id } });
+      this.$router.push({name: `Detail`, params: {id: item.id}});
     },
     deleteBtn(item) {
       this.dialogDelete = true;
