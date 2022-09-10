@@ -63,10 +63,11 @@ export default {
 
 <style lang="scss" scoped>
 .container {
-  margin-left: 10px;
-
+  display: flex;
+  flex-wrap: nowrap;
+  margin-left: 0;
   .share-item:nth-child(1) {
-    margin-right: 36px;
+    margin-right: 33px;
   }
 }
 </style>

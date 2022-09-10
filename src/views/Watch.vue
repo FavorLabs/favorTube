@@ -82,9 +82,9 @@
                         >
                         {{ dateFormatter(video.createdAt) }}
                       </v-card-subtitle>
-                      <v-card-actions class="pt-0 pl-0">
+                      <v-card-actions class="pt-0 pl-0 actions-btns">
                         <v-icon v-if="videoHash"
-                                style="cursor: pointer;margin:4px 24px 0 0;font-size:1.6rem;"
+                                style="cursor: pointer;margin:4px 20px 0 0;font-size:1.6rem;"
                                 :class="video.registered ? 'black-font' : ''"
                                 @click="sourceInfo">mdi-information
                         </v-icon>
@@ -105,7 +105,7 @@
                         </v-btn
                         >
 
-                        <v-btn text @click="createFeeling('dislike')"
+                        <v-btn id="dislike-btn" text @click="createFeeling('dislike')"
                         >
                           <v-icon
                               :class="
@@ -988,6 +988,14 @@ button.v-btn.remove-hover-bg {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.actions-btns {
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  #dislike-btn {
+    margin-left: 5px;
+  }
 }
 
 @media screen and (max-width: 959px) {
