@@ -33,7 +33,7 @@ export default {
   },
   data() {
     return {
-      isShow: true,
+      isShow: false,
       // url: `https://share.favorlabs.io/share/${this.text}`,
       list: [
         {
