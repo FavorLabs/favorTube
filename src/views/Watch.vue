@@ -446,7 +446,8 @@ import AddComment from '@/components/comments/AddComment'
 import CommentList from '@/components/comments/CommentList'
 import Share from "@/components/Share";
 import moment from "moment"
-
+import {getNodeWeb3} from "@/utils/web3Utils";
+let nodeWeb3 = getNodeWeb3();
 export default {
   data: () => ({
     loading: false,
@@ -671,7 +672,7 @@ export default {
         this.isMember = true;
         this.playable = true;
         this.memberTime.expire = sub.data.data.expire;
-        this.memberTime.now = await this.web3.eth.getBlockNumber();
+        this.memberTime.now = await nodeWeb3.eth.getBlockNumber();
       }
     },
     async checkFeeling(id) {

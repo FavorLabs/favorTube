@@ -14,7 +14,7 @@
           <span class="value">
             <span class="price" v-if="!amountLoading">{{ amount }}</span><span v-else class="loading"></span>
             <a v-if="!!chainInfo.faucet" :href="chainInfo.faucet" target="_blank" style="margin: 0 10px;">Faucet</a>
-            <v-icon style="vertical-align: top" v-if="!amountLoading" color="#f44336" @click="getAmount(chainWeb3)">
+            <v-icon style="vertical-align: top" v-if="!amountLoading" color="#f44336" @click="getAmount()">
               mdi-refresh
             </v-icon>
           </span>
@@ -70,13 +70,11 @@
 import {mapGetters} from "vuex";
 // eslint-disable-next-line no-unused-vars
 import {tokenAbi, favorTubeAbi, getContracts} from "@/config/contract";
-// import {getWeb3} from "@/utils/web3Utils";
-import Web3 from "web3";
 import SubscriptionService from "@/services/SubscriptionService";
 
 import {getChainInfo} from "@/utils/web3Utils";
-// import {getContracts} from "@/config/contract";
-
+import {getNodeWeb3} from "@/utils/web3Utils";
+let nodeWeb3 = getNodeWeb3();
 
 export default {
   name: "JoinModal",
@@ -115,7 +113,6 @@ export default {
       favorTubeCAddress: contractAddress.favorTubeAddress,
       favorTubeContract: null,
       tokenContract: null,
-      chainWeb3: null,
       chainInfo: getChainInfo()
     }
   },
@@ -128,8 +125,6 @@ export default {
   },
   async created() {
     try {
-      if (!this.web3) return;
-      const chainWeb3 = new Web3(this.getApi + "/chain");
       let timer = setTimeout(() => {
         this.$store.dispatch("showTips", {
           type: "info",
@@ -137,16 +132,15 @@ export default {
         })
         this.closeModal();
       }, 1000 * 10)
-      await this.getAmount(chainWeb3);
-      const favorTubeContract = new chainWeb3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
-      const tokenContract = new chainWeb3.eth.Contract(tokenAbi, this.token.address);
+      await this.getAmount();
+      const favorTubeContract = new nodeWeb3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
+      const tokenContract = new nodeWeb3.eth.Contract(tokenAbi, this.token.address);
       this.token.decimal = await tokenContract.methods.decimals().call();
       this.balance = await tokenContract.methods.balanceOf(this.currentUser.address).call();
       this.price = (await favorTubeContract.methods.userConfig().call({from: this.account})).price
       clearTimeout(timer);
       this.favorTubeContract = favorTubeContract;
       this.tokenContract = tokenContract;
-      this.chainWeb3 = chainWeb3;
       this.payDisabled = false;
     } catch (e) {
       this.$store.dispatch("showTips", {
@@ -159,10 +153,10 @@ export default {
     closeModal() {
       this.$emit('closeJoinModal');
     },
-    async getAmount(chainWeb3) {
+    async getAmount() {
       this.amountLoading = true;
-      const amount = await chainWeb3.eth.getBalance(this.currentUser.address);
-      this.amount = Number(chainWeb3.utils.fromWei(amount, "ether")).toFixed(5);
+      const amount = await nodeWeb3.eth.getBalance(this.currentUser.address);
+      this.amount = Number(nodeWeb3.utils.fromWei(amount, "ether")).toFixed(5);
       this.amountLoading = false;
     },
     async pay() {

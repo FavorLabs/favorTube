@@ -102,7 +102,7 @@ export const ConnectWalletConnect = async (chainInfo, cb) => {
             rpc: {
                 [chainInfo.chainId]: chainInfo.rpc,
             }
-        });
+        })
         await provider.enable();
         const {chainId, accounts} = provider
         if (chainId !== chainInfo.chainId) {
@@ -134,6 +134,10 @@ export const connect = (connectType, cb) => {
 
 export const getWeb3 = async (cb) => {
     const type = localStorage.getItem("connect_type");
+    if (type === 'metaMask') {
+        const status = await window.ethereum._metamask.isUnlocked();
+        if (!status) return {err: "metamask lock"}
+    }
     return connect(type, cb);
 }
 
@@ -141,4 +145,9 @@ export const disConnect = (provider, cb) => {
     provider.on("disconnect", () => {
         cb();
     });
+}
+
+export const getNodeWeb3 = () => {
+    let api = sessionStorage.getItem("api")
+    return new Web3(api + '/chain');
 }
