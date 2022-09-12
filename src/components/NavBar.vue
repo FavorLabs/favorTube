@@ -312,8 +312,8 @@
                 text
                 class="text-none"
             >
-              <v-icon>{{ isLoadingChannel ? 'mdi-loading' : 'mdi-chevron-down' }}</v-icon>
-              {{ loadedAllChannel ? 'All(reload)' : `Show more` }}
+              <v-icon>{{ isLoadingChannel ? 'mdi-loading' : (isHiddenChannel ? 'mdi-chevron-down' : 'mdi-chevron-up') }}</v-icon>
+              {{ !isHiddenChannel ? 'Show less' : `Show more` }}
             </v-btn
             >
           </div>
@@ -352,6 +352,7 @@ import FavorService from '@/services/FavorService'
 import HistoryService from '@/services/HistoryService'
 import {removeAllPendingRequestsRecord} from "@/services/Api";
 import { version as FavorTubeVersion } from '../../package.json'
+import _ from 'lodash'
 
 export default {
   data: () => ({
@@ -471,7 +472,9 @@ export default {
     channelLength: 0,
     channelPage: 1,
     channelList: [],
+    channelListCopy: [],
     loadedAllChannel: false,
+    isHiddenChannel: true,
     isLoadingChannel: false,
     searchText: '',
     // user: null,
@@ -504,7 +507,7 @@ export default {
         query: {'search-query': this.searchText}
       })
     },
-    async getSubscribedChannels() {
+    async getSubscribedChannels(str) {
       this.isLoadingChannel = true;
       const channels = await SubscriptionService.getSubscribedChannels(
           this.currentUser._id,
@@ -515,11 +518,21 @@ export default {
           })
       if (channels.data.count > 0) {
         let data = channels.data.data;
-        this.channelList = this.channelList.concat(data);
+        // this.channelList = this.channelList.concat(data);
+        this.channelList = data;
+        this.channelListCopy = _.cloneDeep(this.channelList);
         this.channelPage++;
       }
-      if (channels.data.count < 12) {
+      if (channels.data.count < 99999) {
         this.loadedAllChannel = true;
+      }
+      if (str === 'update') {
+        if (this.channelList.length > 3) {
+          this.isHiddenChannel = false;
+        }
+      }
+      if (this.isHiddenChannel) {
+        this.channelList = this.channelListCopy.slice(0, 3);
       }
     },
     moreChannels() {
@@ -528,7 +541,12 @@ export default {
         this.channelList = [];
         this.channelPage = 1;
       }
-      this.getSubscribedChannels();
+      if (this.isHiddenChannel) {
+        this.getSubscribedChannels('update');
+      } else {
+        this.channelList = this.channelListCopy.slice(0, 3);
+        this.isHiddenChannel = true;
+      }
     },
     signOut() {
       this.$store.dispatch('signOut');
