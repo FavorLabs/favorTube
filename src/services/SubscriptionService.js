@@ -7,7 +7,7 @@ export default {
         subscriberId,
         select: 'channelId',
         page,
-        limit:12
+        limit: 99999
       }
     })
   },
