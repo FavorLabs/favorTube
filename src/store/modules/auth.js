@@ -150,7 +150,6 @@ const actions = {
     signOut({commit}) {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
-        localStorage.removeItem('walletconnect')
         commit('CLEAR_AUTH')
     }
 }

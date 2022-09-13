@@ -247,6 +247,7 @@
 <script>
 import moment from "moment"
 import {connect} from "@/utils/web3Utils";
+import {disconnect} from "@/utils/util";
 
 export default {
   name: 'SignUp',
@@ -342,7 +343,9 @@ export default {
     },
     async connectWalletConnect() {
       const {err, res} = await connect("walletConnect", () => {
-        this.disconnectWalletConnect();
+        this.address = "";
+        this.connectType = "";
+        disconnect(this);
       });
       if (err) {
         this.$store.dispatch("showTips", {
@@ -370,10 +373,10 @@ export default {
       }
     },
     disconnectWalletConnect() {
-      this.web3?.currentProvider.disconnect();
       this.address = "";
       this.connectType = "";
       this.loading = false;
+      this.web3.currentProvider?.disconnect();
     },
   }
 }

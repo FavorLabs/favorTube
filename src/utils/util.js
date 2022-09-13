@@ -36,10 +36,10 @@ export const stringToBinary = (b, len) => {
 };
 
 export const getDownloadNumber = (b) => {
-  return b.match(/1/g)?.length || 0;
+    return b.match(/1/g)?.length || 0;
 };
 
-export const getProgress = (b,len) => {
+export const getProgress = (b, len) => {
     const oneLen = b.match(/1/g)?.length || 0;
     return (oneLen / len) * 100;
 };
@@ -64,9 +64,9 @@ export const random = (a, b) => {
 
 export const query = (params) => {
     let newParams = {
-        page: JSON.stringify(params.page||{}),
-        sort: JSON.stringify(params.sort||{}),
-        filter: JSON.stringify(params.filter||[]),
+        page: JSON.stringify(params.page || {}),
+        sort: JSON.stringify(params.sort || {}),
+        filter: JSON.stringify(params.filter || []),
     }
     return Object.keys(newParams).map(key => [key, newParams[key]].map(encodeURIComponent).join('=')).join('&');
 }
@@ -97,12 +97,22 @@ export const getSize = (size, level = 0) => {
     let levelList = ['KB', 'MB', 'GB', 'TB'];
     let n = 0;
     while (size >= Math.pow(1024, n + 1)) {
-      n++;
+        n++;
     }
     return (
-      parseFloat((size / Math.pow(1024, n)).toFixed(2)) +
-      ' ' +
-      levelList[level + n]
+        parseFloat((size / Math.pow(1024, n)).toFixed(2)) +
+        ' ' +
+        levelList[level + n]
     );
 };
+
+
+export const disconnect = async (_this) => {
+    if (_this.$store.state.auth.isUserLoggedIn) {
+        await _this.$store.dispatch('signOut');
+        if (_this.$route.name !== "Home") {
+            await _this.$router.push("/");
+        }
+    }
+}
 

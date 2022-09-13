@@ -36,9 +36,9 @@
           <router-view></router-view>
         </vue-pull-refresh> -->
         <vue-loadmore
-          v-if="allowRefresh"
-          :on-refresh="onRefresh"
-          :finished="finished"
+            v-if="allowRefresh"
+            :on-refresh="onRefresh"
+            :finished="finished"
         >
           <router-view></router-view>
         </vue-loadmore>
@@ -50,7 +50,7 @@
 
 <script>
 import {mapGetters} from "vuex";
-import {websocket, getUrlParams} from "@/utils/util";
+import {websocket, getUrlParams, disconnect} from "@/utils/util";
 import FavorService from "@/services/FavorService";
 import {getProxyGroup} from "@/store/modules/auth";
 import {getWeb3} from "@/utils/web3Utils";
@@ -129,13 +129,6 @@ export default {
         }
       });
     },
-    signOut() {
-      this.$store.dispatch('signOut');
-      if (this.$route.name !== "Home") {
-        this.$router.push("/");
-      }
-      this.web3?.currentProvider?.disconnect?.();
-    },
     analyzingUrl() {
       const href = location.href.split('#/')[0];
       const shareParams = location.hash.split('#/')[1];
@@ -193,10 +186,10 @@ export default {
       } else if (this.ws) {
         if (this.isAuthenticated && !this.web3) {
           const {err, res} = await getWeb3(() => {
-            this.signOut();
+            disconnect(this)
           });
           if (err) {
-            this.signOut();
+            await disconnect(this)
           } else {
             const {web3} = res;
             this.$store.commit("SET_WEB3", web3);
@@ -262,19 +255,23 @@ html {
   .vuejs-loading-spinner {
     width: unset;
     height: unset;
+
     svg {
       width: 30px;
       height: 30px;
       color: #f00;
+
       circle {
-         stroke-width: 5;
+        stroke-width: 5;
       }
     }
   }
+
   .vuejs-refresh-text,
   .vuejs-loading-text {
     color: #f00;
   }
+
   .vuejs-loading-text {
     display: none;
   }
