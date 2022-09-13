@@ -562,6 +562,7 @@ export default {
       }
     },
     async getVideo(id) {
+      console.log(id)
       this.errored = false
       this.videoLoading = true
       this.video = {}
@@ -579,9 +580,7 @@ export default {
         this.oracleArrs = oracleArr;
         this.videoURL = `${this.getApi}/file/${this.video.url}?oracles=${oracleArr.join(",")}`;
         this.channelAddress = video.data.data.userId.address;
-        if (this.video.status === 'public') {
-          this.playable = true;
-        }
+        this.playable = this.video.status === 'public';
       } catch (err) {
         this.errored = true
         console.log(err)
