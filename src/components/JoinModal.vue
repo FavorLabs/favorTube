@@ -186,7 +186,7 @@ export default {
         let timer = setInterval(async () => {
           if (lock) return;
           lock = true;
-          const {data} = await SubscriptionService.checkSubscription({channelId: this.video_id});
+          const {data} = await SubscriptionService.checkSubscription({channelId: this.video_id}).catch(console.log);
           if (data.data.tx) {
             clearInterval(timer);
             setTimeout(() => {
@@ -200,7 +200,7 @@ export default {
             }, 3000)
           }
           lock = false;
-        }, 2000)
+        }, 1000)
       })
     },
   }
