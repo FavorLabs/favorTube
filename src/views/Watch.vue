@@ -41,7 +41,7 @@
                           type="video/mp4"
                       />
                     </video>
-                    <div v-else>
+                    <div v-else class="content-bg" style="min-height: 160px;">
                       <div style="position: absolute;z-index: 1;left: 50%;top:50%;transform: translate(-50%,-50%);"
                            id="subscribe-tips">
                         <!-- <img :src="require('@/assets/noPlay.svg')" alt="no-play" width="100px">-->
