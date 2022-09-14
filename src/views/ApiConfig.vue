@@ -180,7 +180,7 @@ export default {
       let ws = websocket(host);
       this.$store.commit("SET_WS", ws);
       this.loading = false;
-      await this.$router.replace({path: routerString ? `/${routerString}` : '/'})
+      await this.$router.replace({path: routerString ? `/${routerString}` : '/'});
     },
     fillInApi() {
       this.api = this.$route.params.api || "";
