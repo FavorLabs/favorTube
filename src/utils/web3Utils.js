@@ -146,8 +146,3 @@ export const disConnect = (provider, cb) => {
         cb();
     });
 }
-
-export const getNodeWeb3 = () => {
-    let api = sessionStorage.getItem("api")
-    return new Web3(api + '/chain');
-}
