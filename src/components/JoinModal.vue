@@ -73,8 +73,6 @@ import {tokenAbi, favorTubeAbi, getContracts} from "@/config/contract";
 import SubscriptionService from "@/services/SubscriptionService";
 
 import {getChainInfo} from "@/utils/web3Utils";
-import {getNodeWeb3} from "@/utils/web3Utils";
-let nodeWeb3 = getNodeWeb3();
 
 export default {
   name: "JoinModal",
@@ -120,7 +118,8 @@ export default {
     ...mapGetters([
       "currentUser",
       "web3",
-      "getApi"
+      "getApi",
+      "nodeWeb3"
     ])
   },
   async created() {
@@ -133,8 +132,8 @@ export default {
         this.closeModal();
       }, 1000 * 10)
       await this.getAmount();
-      const favorTubeContract = new nodeWeb3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
-      const tokenContract = new nodeWeb3.eth.Contract(tokenAbi, this.token.address);
+      const favorTubeContract = new this.nodeWeb3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
+      const tokenContract = new this.nodeWeb3.eth.Contract(tokenAbi, this.token.address);
       this.token.decimal = await tokenContract.methods.decimals().call();
       this.balance = await tokenContract.methods.balanceOf(this.currentUser.address).call();
       this.price = (await favorTubeContract.methods.userConfig().call({from: this.account})).price
@@ -155,8 +154,8 @@ export default {
     },
     async getAmount() {
       this.amountLoading = true;
-      const amount = await nodeWeb3.eth.getBalance(this.currentUser.address);
-      this.amount = Number(nodeWeb3.utils.fromWei(amount, "ether")).toFixed(5);
+      const amount = await this.nodeWeb3.eth.getBalance(this.currentUser.address);
+      this.amount = Number(this.nodeWeb3.utils.fromWei(amount, "ether")).toFixed(5);
       this.amountLoading = false;
     },
     async pay() {
@@ -186,7 +185,7 @@ export default {
         let timer = setInterval(async () => {
           if (lock) return;
           lock = true;
-          const {data} = await SubscriptionService.checkSubscription({channelId: this.video_id}).catch(console.log);
+          const {data} = await SubscriptionService.checkSubscription({channelId: this.video_id}, 2000).catch(console.log);
           if (data.data.tx) {
             clearInterval(timer);
             setTimeout(() => {

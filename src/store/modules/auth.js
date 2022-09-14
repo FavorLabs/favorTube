@@ -1,4 +1,5 @@
 import AuthenticationService from '@/services/AuthenticationService'
+import Web3 from "web3";
 
 export const proxyGroup = "favortube";
 export const domainName = "favortube.com";
@@ -64,6 +65,9 @@ const state = {
 const getters = {
     web3: () => {
         return state.web3;
+    },
+    nodeWeb3: () => {
+        return new Web3(getters.getApi() + '/chain');
     },
     getApi: () => {
         return state.api || sessionStorage.getItem("api");
