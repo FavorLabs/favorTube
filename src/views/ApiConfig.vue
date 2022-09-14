@@ -40,9 +40,9 @@
     </div>
     <v-overlay v-if="isElectron" absolute :value="loading" opacity="1"
                style="justify-content: start;align-items: start;">
-      <div style="padding: 10px 20px 0;height: 90vh;overflow-y: scroll;" id="message-box" >
+      <div style="padding: 10px 20px 0;height: 90vh;overflow-y: scroll;" id="message-box">
         <p v-for="item in logs" :key=item>{{ item }}</p>
-        <div class="spinner" ref="log"  style="height: 10vh">
+        <div class="spinner" ref="log" style="height: 10vh">
           <div class="bounce1"></div>
           <div class="bounce1"></div>
           <div class="bounce2"></div>
@@ -132,7 +132,7 @@ export default {
       if (this.$route.params.api) {
         this.loading = false;
       } else {
-        const { endPoint, shareParams } = this.$route.params;
+        const {endPoint, shareParams} = this.$route.params;
         const {origin} = window.location;
         const api = endPoint || origin;
         this.set(api, shareParams).catch(() => {
@@ -180,7 +180,7 @@ export default {
       let ws = websocket(host);
       this.$store.commit("SET_WS", ws);
       this.loading = false;
-      await this.$router.replace({path: routerString ? `/${routerString}` : '/'});
+      await this.$router.replace({path: !routerString || /config/.test(routerString) ? '/' : `/${routerString}`})
     },
     fillInApi() {
       this.api = this.$route.params.api || "";

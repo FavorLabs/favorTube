@@ -120,9 +120,6 @@ import SecretModal from '@/components/SecretModal'
 import {mapGetters} from "vuex"
 import {favorTubeAbi, getContracts,} from "@/config/contract";
 import AuthenticationService from "@/services/AuthenticationService";
-import {getNodeWeb3} from "@/utils/web3Utils";
-
-let nodeWeb3 = getNodeWeb3();
 
 
 let contractAddress = getContracts();
@@ -149,7 +146,7 @@ export default {
     SecretModal,
   },
   computed: {
-    ...mapGetters(["currentUser", "getApi", "web3"])
+    ...mapGetters(["currentUser", "getApi", "web3","this.nodeWeb3"])
   },
 
   created() {
@@ -159,11 +156,11 @@ export default {
   },
   methods: {
     async getPrice() {
-      const favorTubeContract = new nodeWeb3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
+      const favorTubeContract = new this.nodeWeb3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
       this.userConfig = await favorTubeContract.methods.userConfig().call({from: this.currentUser.address});
     },
     async getAmount() {
-      const favorTubeContract = new nodeWeb3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
+      const favorTubeContract = new this.nodeWeb3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
       let amount = await favorTubeContract.methods.exchangeableAmount().call();
       this.amount = amount / 100;
     },

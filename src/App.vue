@@ -50,7 +50,7 @@
 
 <script>
 import {mapGetters} from "vuex";
-import {websocket, getUrlParams, disconnect} from "@/utils/util";
+import {websocket, disconnect} from "@/utils/util";
 import FavorService from "@/services/FavorService";
 import FavorlabsService from "@/services/favorlabs/FavorlabsService";
 import {getProxyGroup} from "@/store/modules/auth";
@@ -139,10 +139,8 @@ export default {
       });
     },
     analyzingUrl() {
-      const href = location.href.split('#/')[0];
       const shareParams = location.hash.split('#/')[1];
-      const urlParams = getUrlParams(href);
-      const endPoint = urlParams?.endpoint;
+      const endPoint = new URLSearchParams(location.search).get("endpoint")
       this.$router.push({
         name: 'Config',
         params: {

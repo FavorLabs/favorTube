@@ -18,8 +18,8 @@ export default {
             }
         })
     },
-    checkSubscription(data) {
-        return Api().post('subscriptions/check', data, {timeout: 2000})
+    checkSubscription(data,timeout = 0) {
+        return Api().post('subscriptions/check', data, {timeout})
     },
     createSubscription(data) {
         return Api().post('subscriptions', data)

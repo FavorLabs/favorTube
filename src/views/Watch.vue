@@ -378,6 +378,13 @@
         :videoHash="videoHash"
         :oracleArrs="oracleArrs"
     ></SourceInfoModal>
+    <SubscribedTime
+        v-if="memberTime.dialog"
+        :expire="memberTime.expire"
+        :video="video"
+        :dialog="memberTime.dialog"
+        @closeSTModal="memberTime.dialog = false"
+    ></SubscribedTime>
     <v-dialog
         v-model="subscribeDialog"
         persistent
@@ -391,37 +398,6 @@
           <footer style="margin-top: 20px">
             <v-btn @click="subscribeDialog = false" style="margin-right: 20px">Cancel</v-btn>
             <v-btn @click="subscribe" :loading="loading">Confirm</v-btn>
-          </footer>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-    <v-dialog
-        v-model="memberTime.dialog"
-        persistent
-        transition="fab-transition"
-        max-width="500"
-        v-if="video.userId"
-    >
-      <v-card tile>
-        <v-card-title class="py-3">Subscribed "{{ video.userId.channelName }}" Info:</v-card-title>
-        <v-card-text>
-          <div>
-            <span class="key">Current block height:</span>&nbsp;&nbsp;<span class="value">{{
-              memberTime.now
-            }}</span>
-          </div>
-          <div>
-            <span class="key">Expire block height:</span>&nbsp;&nbsp;<span class="value">{{
-              memberTime.expire
-            }}</span>
-          </div>
-          <div>
-            <span class="key">Remain:</span>&nbsp;&nbsp;<span class="value">{{ expireTime }} Days </span>
-          </div>
-        </v-card-text>
-        <v-card-text class="px-3 text-right">
-          <footer>
-            <v-btn @click="memberTime.dialog = false" style="margin-right: 20px">Confirm</v-btn>
           </footer>
         </v-card-text>
       </v-card>
@@ -446,8 +422,8 @@ import AddComment from '@/components/comments/AddComment'
 import CommentList from '@/components/comments/CommentList'
 import Share from "@/components/Share";
 import moment from "moment"
-import {getNodeWeb3} from "@/utils/web3Utils";
-let nodeWeb3 = getNodeWeb3();
+import SubscribedTime from "@/components/SubscribedTime";
+
 export default {
   data: () => ({
     loading: false,
@@ -461,7 +437,6 @@ export default {
     isMember: false,
     memberTime: {
       dialog: false,
-      now: 0,
       expire: 0
     },
     playable: false,
@@ -486,19 +461,7 @@ export default {
     oracleArrs: [],
   }),
   computed: {
-    ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated', "getImgUrl", "getApi", "web3"]),
-    expireTime() {
-      let timeObj = {
-        18: 2,
-        19: 5,
-        20: 7,
-        21: 4
-      }
-      const networkId = sessionStorage.getItem('network_id');
-      let time = timeObj[networkId];
-      let block = (this.memberTime.expire - this.memberTime.now) * time
-      return Math.ceil(block / (60 * 60 * 24))
-    }
+    ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated', "getImgUrl", "getApi", "web3"])
   },
   methods: {
     clickSubBtn() {
@@ -562,7 +525,6 @@ export default {
       }
     },
     async getVideo(id) {
-      console.log(id)
       this.errored = false
       this.videoLoading = true
       this.video = {}
@@ -671,7 +633,6 @@ export default {
         this.isMember = true;
         this.playable = true;
         this.memberTime.expire = sub.data.data.expire;
-        this.memberTime.now = await nodeWeb3.eth.getBlockNumber();
       }
     },
     async checkFeeling(id) {
@@ -916,7 +877,8 @@ export default {
     JoinModal,
     SourceInfoModal,
     InfiniteLoading,
-    Share
+    Share,
+    SubscribedTime
   },
   mounted() {
     this.getVideo(this.$route.params.id)
@@ -993,6 +955,7 @@ button.v-btn.remove-hover-bg {
 .actions-btns {
   justify-content: space-between;
   flex-wrap: nowrap;
+
   #dislike-btn {
     margin-left: 5px;
   }
