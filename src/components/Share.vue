@@ -50,7 +50,17 @@ export default {
   computed: {
     ...mapGetters(["currentUser"]),
     url() {
-      return `https://share.favorlabs.io/share/${this.text}` + (this.currentUser.id ? `?uid=${this.currentUser.id}` : '');
+      const invitationCode = sessionStorage.getItem('invitation');
+      // return `https://share.favorlabs.io/share/${this.text}` + (this.currentUser.id ? `?uid=${this.currentUser.id}` : '');
+      if (this.currentUser.id && invitationCode) {
+        return `https://share.favorlabs.io/share/${this.text}?uid=${this.currentUser.id}&invitation=${invitationCode}`;
+      } else if (this.currentUser.id) {
+        return `https://share.favorlabs.io/share/${this.text}?uid=${this.currentUser.id}`;
+      } else if (invitationCode) {
+        return `https://share.favorlabs.io/share/${this.text}?invitation=${invitationCode}`
+      } else {
+        return `https://share.favorlabs.io/share/${this.text}`;
+      }
     }
   },
   mounted() {
