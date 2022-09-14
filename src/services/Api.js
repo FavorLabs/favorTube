@@ -21,8 +21,7 @@ const removePending = (key, isRequest = false) => {
 export default () => {
     const api = sessionStorage.getItem("api") + group() + "/api/v1";
     const axiosInstance = axios.create({
-        baseURL: api,
-        timeout: 5000
+        baseURL: api
     })
 
     const token = localStorage.getItem('token')
