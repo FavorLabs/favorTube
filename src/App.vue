@@ -52,6 +52,7 @@
 import {mapGetters} from "vuex";
 import {websocket, getUrlParams, disconnect} from "@/utils/util";
 import FavorService from "@/services/FavorService";
+import FavorlabsService from "@/services/favorlabs/FavorlabsService";
 import {getProxyGroup} from "@/store/modules/auth";
 import {getWeb3} from "@/utils/web3Utils";
 import {version as FavorTubeVersion} from '../package.json'
@@ -100,6 +101,14 @@ export default {
       let wsHost = sessionStorage.getItem("ws");
       let api = sessionStorage.getItem("api");
       if (wsHost && api) {
+        let addresses = await FavorService.getAddresses();
+        sessionStorage.setItem("network_id", addresses.data.network_id);
+        try {
+          const {data} = await FavorlabsService.getConfig(addresses.data.network_id);
+          sessionStorage.setItem("current_config", JSON.stringify(data.data));
+        } catch (err) {
+          console.error('err', err);
+        }
         try {
           await FavorService.observe(api);
           let ws = websocket(wsHost);
@@ -154,6 +163,19 @@ export default {
           }
         })
       }, 1500)
+    },
+    setRouterParams(routerParams) {
+      if (JSON.stringify(routerParams) !== '{}') {
+        for (let key in routerParams) {
+          if(['uid', 'invitation'].includes(key)) {
+            if (key === 'invitation' && (routerParams[key].length < 4 || routerParams[key].length > 8)) {
+              sessionStorage.removeItem('invitation');
+              continue;
+            }
+            sessionStorage.setItem(key, routerParams[key]);
+          }
+        }
+      }
     }
   },
   watch: {
@@ -206,6 +228,11 @@ export default {
         } else {
           _this.allowRefresh = false;
         }
+      }
+    },
+    "$route.query": {
+      handler: function(newVal) {
+        this.setRouterParams(newVal);
       }
     }
   }

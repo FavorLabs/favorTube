@@ -43,6 +43,20 @@
                           dense
                       ></v-text-field>
                     </ValidationProvider>
+                    <ValidationProvider
+                        v-slot="{ errors }"
+                        name="Invitation Code"
+                        rules="min:4|max:8"
+                    >
+                      <v-text-field
+                          v-model="invitationCode"
+                          :error-messages="errors"
+                          label="Invitation Code"
+                          outlined
+                          dense
+                          :disabled="!!sessionCode"
+                      ></v-text-field>
+                    </ValidationProvider>
 
                     <v-row>
                       <v-col cols="12" v-if="$store.state.tips.isMobile">
@@ -254,6 +268,8 @@ export default {
   data: () => ({
     email: '',
     channelName: '',
+    invitationCode: '',
+    sessionCode: '',
     loading: false,
     address: "",
     connectType: ""
@@ -289,6 +305,7 @@ export default {
           .dispatch('signUp', {
             email: this.email,
             channelName: this.channelName,
+            invitation: this.invitationCode,
             timespan,
             signature,
             address: this.address
@@ -325,6 +342,9 @@ export default {
 
       if (!user) return
       this.loading = false
+      if (this.invitationCode) {
+        sessionStorage.setItem('invitation', this.invitationCode);
+      }
       await this.$router.push({name: 'Home'})
     },
     async connectMetaMask() {
@@ -378,6 +398,16 @@ export default {
       this.loading = false;
       this.web3.currentProvider?.disconnect();
     },
+    getInvitationCode() {
+      const code = sessionStorage.getItem('invitation');
+      if (code) {
+        this.sessionCode = code;
+        this.invitationCode = this.sessionCode;
+      }
+    }
+  },
+  mounted() {
+    this.getInvitationCode();
   }
 }
 </script>
