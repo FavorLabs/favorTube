@@ -118,11 +118,11 @@ import SubscribersModal from '@/components/SubscribersModal'
 import SetPriceModal from '@/components/SetPriceModal'
 import SecretModal from '@/components/SecretModal'
 import {mapGetters} from "vuex"
-import {favorTubeAbi, getContracts,} from "@/config/contract";
+import getConfigs, {favorTubeAbi} from "@/config/config";
 import AuthenticationService from "@/services/AuthenticationService";
 
 
-let contractAddress = getContracts();
+let contractAddress = getConfigs('favorTubeAddress');
 
 export default {
   data: () => ({
@@ -146,7 +146,7 @@ export default {
     SecretModal,
   },
   computed: {
-    ...mapGetters(["currentUser", "getApi", "web3","this.nodeWeb3"])
+    ...mapGetters(["currentUser", "getApi", "web3","nodeWeb3"])
   },
 
   created() {
@@ -187,10 +187,10 @@ export default {
     async withdrawal() {
       this.loading = true;
       const price = await this.web3.eth.getGasPrice();
-      const favorTubeContract = new this.web3.eth.Contract(favorTubeAbi, this.favorTubeAddress);
+      const favorTubeContract = new this.web3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
       this.web3.eth.sendTransaction({
         from: this.currentUser.address,
-        to: this.favorTubeAddress,
+        to: this.favorTubeCAddress,
         gasPrice: this.web3.utils.toHex(price),
         data: favorTubeContract.methods.exchange().encodeABI()
       }, (error, hash) => {

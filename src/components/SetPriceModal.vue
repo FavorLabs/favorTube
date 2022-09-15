@@ -42,7 +42,7 @@
 <script>
 import {mapGetters} from "vuex";
 
-import {getContracts, favorTubeAbi} from "@/config/contract";
+import getConfigs, {favorTubeAbi} from "@/config/config";
 
 export default {
   name: "SetPrice",
@@ -82,7 +82,7 @@ export default {
       if (this.$refs.form.validate()) {
         this.loading = true;
         const price = await this.web3.eth.getGasPrice();
-        let {favorTubeAddress} = getContracts();
+        let {favorTubeAddress} = getConfigs('favorTubeAddress');
         const favorTubeContract = new this.web3.eth.Contract(favorTubeAbi, favorTubeAddress);
         this.web3.eth.sendTransaction({
           from: this.currentUser.address,

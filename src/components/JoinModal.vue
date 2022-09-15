@@ -69,10 +69,8 @@
 <script>
 import {mapGetters} from "vuex";
 // eslint-disable-next-line no-unused-vars
-import {tokenAbi, favorTubeAbi, getContracts} from "@/config/contract";
+import getConfigs, {tokenAbi, favorTubeAbi} from "@/config/config";
 import SubscriptionService from "@/services/SubscriptionService";
-
-import {getChainInfo} from "@/utils/web3Utils";
 
 export default {
   name: "JoinModal",
@@ -94,7 +92,7 @@ export default {
     }
   },
   data() {
-    let contractAddress = getContracts();
+    let contractAddress = getConfigs('favorTokenAddress', 'favorTubeAddress');
     return {
       balance: 0,
       amount: 0,
@@ -106,12 +104,12 @@ export default {
       token: {
         decimal: 2,
         name: "FAVT",
-        address: contractAddress.tokenAddress
+        address: contractAddress.favorTokenAddress
       },
       favorTubeCAddress: contractAddress.favorTubeAddress,
       favorTubeContract: null,
       tokenContract: null,
-      chainInfo: getChainInfo()
+      chainInfo: getConfigs('chainId', 'chainEndpoint', 'faucet', 'tokenName')
     }
   },
   computed: {

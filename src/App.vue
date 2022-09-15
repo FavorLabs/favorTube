@@ -53,7 +53,7 @@ import {mapGetters} from "vuex";
 import {websocket, disconnect} from "@/utils/util";
 import FavorService from "@/services/FavorService";
 import FavorlabsService from "@/services/favorlabs/FavorlabsService";
-import {getProxyGroup} from "@/store/modules/auth";
+import getConfigs from '@/config/config'
 import {getWeb3} from "@/utils/web3Utils";
 import {version as FavorTubeVersion} from '../package.json'
 // import VuePullRefresh from 'vue-pull-refresh';
@@ -186,7 +186,7 @@ export default {
           "id": 1,
           "jsonrpc": "2.0",
           "method": "group_subscribe",
-          "params": ["peers", getProxyGroup()]
+          "params": ["peers", getConfigs('proxyGroup').proxyGroup]
         }, (err, {result}) => {
           ws.on(result, (res) => {
             console.log(res)
