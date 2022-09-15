@@ -4,8 +4,16 @@
       <v-col cols="12" xs="12" sm="6" md="5" lg="4" class="ma-auto">
         <v-card outlined :loading="loading">
           <div class="px-8 pt-6 pb-12">
-            <v-card-title class="text-center">FavorTube</v-card-title>
+            <v-card-title class="text-center justify-space-between">
+              <div>
+                FavorTube
+              </div>
+              <div>
+                <v-icon @click.stop="$router.push('/')">mdi-home</v-icon>
+              </div>
+            </v-card-title>
             <v-card-subtitle class="mb-5">Sign in</v-card-subtitle>
+
             <v-card-text>
               <ValidationObserver ref="form" v-slot="{ handleSubmit, reset }">
                 <form
@@ -60,37 +68,26 @@
                       {{ address }}
                     </v-col>
                   </v-row>
-                  <v-row class="d-flex flex-wrap bottom-btns">
-                    <v-col cols="12" md="5">
-                      <v-btn
-                          text
-                          class="pl-0 text-capitalize"
-                          color="primary"
-                          router
-                          to="signup"
-                      >Create account
-                      </v-btn
-                      >
-                    </v-col>
-                    <v-col cols="6" md="4">
-                      <v-btn
-                          class="primary to-home-btn"
-                          depressed
-                          @click.stop="$router.push('/')"
-                      >Home
-                      </v-btn>
-                    </v-col>
-                    <v-col cols="6" md="3">
-                      <v-btn
-                          type="submit"
-                          class="primary"
-                          :loading="loading"
-                          depressed
-                      >Sign in
-                      </v-btn
-                      >
-                    </v-col>
-                  </v-row>
+
+                  <div class="mt-6 d-flex justify-space-between">
+                    <v-btn
+                        text
+                        class="pl-0 text-capitalize"
+                        color="primary"
+                        router
+                        to="signup"
+                    >Create account
+                    </v-btn
+                    >
+                    <v-btn
+                        v-if="address"
+                        type="submit"
+                        class="primary"
+                        :loading="loading"
+                        depressed
+                    >Sign in
+                    </v-btn>
+                  </div>
                 </form>
               </ValidationObserver>
             </v-card-text>
