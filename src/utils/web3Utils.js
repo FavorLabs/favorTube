@@ -1,52 +1,6 @@
 import Web3 from "web3";
+import getConfigs from "@/config/config";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-
-export const chains = {
-    18: {
-        chainId: 137,
-        rpc: "https://polygon-rpc.com",
-        tokenName: "MATIC",
-    },
-    19: {
-        chainId: 80001,
-        rpc: "https://polygon-testnet.public.blastapi.io",
-        faucet: "https://faucet.polygon.technology/",
-        tokenName: "MATIC",
-    },
-    20: {
-        chainId: 1088,
-        rpc: "https://andromeda.metis.io/?owner=1088",
-        tokenName: "METIS",
-    },
-    21: {
-        chainId: 66,
-        rpc: "https://exchainrpc.okex.org",
-        tokenName: "OKT",
-    }
-}
-
-export const getChainInfo = () => {
-    const config = sessionStorage.getItem('current_config');
-    const network_id = sessionStorage.getItem("network_id");
-    if (config) {
-        const configObj = JSON.parse(config);
-        const mergeConfig = {
-            chainId: chains[network_id].chainId ?? chains[19].chainId,
-            rpc: chains[network_id].rpc ?? chains[19].rpc,
-            faucet: chains[network_id]?.faucet ?? chains[19]?.faucet,
-            tokenName: chains[network_id].tokenName ?? chains[19].tokenName,
-            ...configObj
-        };
-        return {
-            chainId: mergeConfig.chainId,
-            rpc: mergeConfig.rpc,
-            faucet: mergeConfig.faucet,
-            tokenName: mergeConfig.tokenName,
-        };
-    } else {
-        return chains[network_id] ?? chains[19];
-    }
-}
 
 export const ConnectMetaMask = async (chainInfo) => {
     if (window.ethereum) {
@@ -100,7 +54,7 @@ export const ConnectWalletConnect = async (chainInfo, cb) => {
     try {
         const provider = new WalletConnectProvider({
             rpc: {
-                [chainInfo.chainId]: chainInfo.rpc,
+                [chainInfo.chainId]: chainInfo.chainEndpoint,
             }
         })
         await provider.enable();
@@ -122,7 +76,7 @@ export const ConnectWalletConnect = async (chainInfo, cb) => {
 }
 
 export const connect = (connectType, cb) => {
-    let chainInfo = getChainInfo();
+    let chainInfo = getConfigs('chainId', 'chainEndpoint', 'faucet', 'tokenName');
 
     if (connectType === "metaMask") {
         return ConnectMetaMask(chainInfo);

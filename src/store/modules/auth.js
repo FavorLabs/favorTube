@@ -1,54 +1,16 @@
 import AuthenticationService from '@/services/AuthenticationService'
+import getConfigs from '@/config/config'
 import Web3 from "web3";
 
 export const proxyGroup = "favortube";
 export const domainName = "favortube.com";
 export const storeGroup = "favortube-storage";
 
-export const getProxyGroup = () => {
-    const config = sessionStorage.getItem('current_config');
-    if (config) {
-        const configObj = JSON.parse(config);
-        const mergeConfig = {
-            proxyGroup,
-            ...configObj
-        };
-        return mergeConfig.proxyGroup
-    } else {
-        return proxyGroup;
-    }
-}
-
-export const getDomainName = () => {
-    const config = sessionStorage.getItem('current_config');
-    if (config) {
-        const configObj = JSON.parse(config);
-        const mergeConfig = {
-            domainName,
-            ...configObj
-        };
-        return mergeConfig.domainName
-    } else {
-        return domainName;
-    }
-}
-
-export const getStoreGroup = () => {
-    const config = sessionStorage.getItem('current_config');
-    if (config) {
-        const configObj = JSON.parse(config);
-        const mergeConfig = {
-            storeGroup,
-            ...configObj
-        };
-        return mergeConfig.storeGroup
-    } else {
-        return storeGroup;
-    }
-}
-
 export const group = () => {
-    return `/group/http/${getProxyGroup()}/${getDomainName()}`;
+    const config = getConfigs('proxyGroup', 'domainName');
+    let address = config.proxyGroup ? `/group/http/${config.proxyGroup}/${config.domainName}` : `/group/http/${proxyGroup}/${domainName}`;
+    return address;
+    // return `/group/http/${config.proxyGroup}/${config.domainName}`;
 };
 
 const state = {

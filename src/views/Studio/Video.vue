@@ -168,7 +168,7 @@
 import VideoService from "@/services/VideoService";
 import moment from "moment";
 import {mapGetters} from "vuex";
-import {oracleAbi} from "@/config/contract";
+import {oracleAbi} from "@/config/config";
 
 export default {
   data: () => ({
