@@ -140,7 +140,8 @@ export default {
     },
     analyzingUrl() {
       const shareParams = location.hash.split('#/')[1];
-      const endPoint = new URL(new URLSearchParams(location.search).get("endpoint")).origin
+      let endPoint = new URLSearchParams(location.search).get("endpoint")
+      if(endPoint) endPoint = new URL(endPoint).origin
       this.$router.push({
         name: 'Config',
         params: {
