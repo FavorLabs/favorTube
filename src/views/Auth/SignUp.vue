@@ -5,7 +5,14 @@
         <v-card class="" outlined :loading="loading">
           <v-row class="justify-space-between px-4 pt-6 pb-12">
             <v-col cols="12" sm="12" md="6">
-              <v-card-title class="text-center">FavorTube</v-card-title>
+              <v-card-title class="text-center justify-space-between">
+                <div>
+                  FavorTube
+                </div>
+                <div>
+                  <v-icon @click.stop="$router.push('/')">mdi-home</v-icon>
+                </div>
+              </v-card-title>
               <v-card-subtitle class="mb-5"
               >Create your FavorTube account
               </v-card-subtitle
@@ -117,6 +124,7 @@
                       </v-btn
                       >
                       <v-btn
+                          v-if="address"
                           type="submit"
                           class="primary"
                           :loading="loading"
