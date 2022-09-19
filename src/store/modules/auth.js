@@ -1,5 +1,5 @@
 import AuthenticationService from '@/services/AuthenticationService'
-import getConfigs from '@/config/config'
+import {config} from '@/config/config'
 import Web3 from "web3";
 
 export const proxyGroup = "favortube";
@@ -7,21 +7,17 @@ export const domainName = "favortube.com";
 export const storeGroup = "favortube-storage";
 
 export const group = () => {
-    const config = getConfigs('proxyGroup', 'domainName');
-    let address = config.proxyGroup ? `/group/http/${config.proxyGroup}/${config.domainName}` : `/group/http/${proxyGroup}/${domainName}`;
-    return address;
-    // return `/group/http/${config.proxyGroup}/${config.domainName}`;
+    return `/group/http/${config.proxyGroup}/${config.domainName}`;
 };
 
 const state = {
     api: "",
-    url: "",
-    imgUrl: "",
     ws: null,
     web3: null,
     token: localStorage.getItem('token') || null,
     user: JSON.parse(localStorage.getItem('user')) || {},
     isUserLoggedIn: localStorage.getItem('token') || false,
+    config: {},
 }
 
 const getters = {
@@ -35,10 +31,10 @@ const getters = {
         return state.api || sessionStorage.getItem("api");
     },
     getUrl: () => {
-        return state.url || sessionStorage.getItem("api") + group() + "/api/v1";
+        return getters.getApi() + group() + "/api/v1";
     },
     getImgUrl: () => {
-        return state.imgUrl || sessionStorage.getItem("api") + group()
+        return getters.getApi() + group()
     },
     isAuthenticated: (state) => {
         return state.isUserLoggedIn
@@ -50,6 +46,7 @@ const getters = {
         return state.user
     },
     ws: state => state.ws,
+    config: state => state.config
 }
 
 const mutations = {
@@ -73,8 +70,9 @@ const mutations = {
     },
     SET_URL(state, api) {
         state.api = api;
-        state.url = api + group() + "/api/v1";
-        state.imgUrl = api + group();
+    },
+    SET_CONFIG(state, config) {
+        state.config = config;
     }
 }
 

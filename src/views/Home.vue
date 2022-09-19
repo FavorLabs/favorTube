@@ -80,7 +80,6 @@ import moment from 'moment'
 import VideoCard from '@/components/VideoCard'
 import VideoService from '@/services/VideoService'
 
-
 export default {
   name: 'Home',
   data: () => ({

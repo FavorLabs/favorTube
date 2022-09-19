@@ -1109,7 +1109,6 @@ const configs = {
         chainEndpoint: "https://polygon-testnet.public.blastapi.io",
         tokenName: "MATIC",
         chainId: 80001,
-
         oracleContractAddr: "0x21aC8FE412Fd058eD29a67a69c81EF08fA34f443",
         traffic: false,
         trafficContractAddr: "",
@@ -1189,15 +1188,16 @@ const configs = {
     }
 }
 
-const getConfigs = (...args) => {
-    let current_config = sessionStorage.getItem('current_config');
+export let config = JSON.parse(sessionStorage.getItem("config"));
+
+export const setConfig = (apiConfig) => {
     let networkId = sessionStorage.getItem('network_id');
-    let api_config = current_config ? JSON.parse(current_config) : {};
-    let config = {...configs[networkId], ...api_config};
-    return args.reduce((prev, item) => {
-        prev[item] = config[item]
-        return prev
-    }, {})
+    if (apiConfig) {
+        sessionStorage.setItem("config", JSON.stringify(apiConfig));
+    } else {
+        apiConfig = JSON.parse(sessionStorage.getItem("config")) || {};
+    }
+    config = {...configs[networkId], ...apiConfig};
 }
 
-export default getConfigs;
+

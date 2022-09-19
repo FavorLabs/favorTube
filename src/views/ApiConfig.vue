@@ -67,6 +67,7 @@ import FavorlabsService from "@/services/favorlabs/FavorlabsService";
 import {isElectron, ipc} from "@/utils/util";
 
 import RunNode from "@/components/RunNode";
+import {setConfig} from "@/config/config";
 
 let ipcRenderer = ipc();
 
@@ -150,7 +151,8 @@ export default {
     },
     setting() {
       if (!this.$refs.form.validate()) return;
-      this.set(this.api).catch(() => {
+      this.set(this.api).catch((err) => {
+        console.error(err)
         this.loading = false;
         this.$refs.form.setErrors({
           'Api': "Connection failed"
@@ -170,12 +172,14 @@ export default {
       this.$store.commit("SET_URL", api);
       let addresses = await FavorService.getAddresses();
       sessionStorage.setItem("network_id", addresses.data.network_id);
+      let config;
       try {
         const {data} = await FavorlabsService.getConfig(addresses.data.network_id);
-        sessionStorage.setItem("current_config", JSON.stringify(data.data));
+        config = data.data;
       } catch (err) {
         console.error('err', err);
       }
+      setConfig(config);
       await FavorService.observe(api);
       let ws = websocket(host);
       this.$store.commit("SET_WS", ws);

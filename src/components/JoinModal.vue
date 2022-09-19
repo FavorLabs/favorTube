@@ -69,7 +69,7 @@
 <script>
 import {mapGetters} from "vuex";
 // eslint-disable-next-line no-unused-vars
-import getConfigs, {tokenAbi, favorTubeAbi} from "@/config/config";
+import {tokenAbi, favorTubeAbi, config} from "@/config/config";
 import SubscriptionService from "@/services/SubscriptionService";
 
 export default {
@@ -92,7 +92,6 @@ export default {
     }
   },
   data() {
-    let contractAddress = getConfigs('favorTokenAddress', 'favorTubeAddress');
     return {
       balance: 0,
       amount: 0,
@@ -104,12 +103,12 @@ export default {
       token: {
         decimal: 2,
         name: "FAVT",
-        address: contractAddress.favorTokenAddress
+        address: config.favorTokenAddress
       },
-      favorTubeCAddress: contractAddress.favorTubeAddress,
+      favorTubeCAddress: config.favorTubeAddress,
       favorTubeContract: null,
       tokenContract: null,
-      chainInfo: getConfigs('chainId', 'chainEndpoint', 'faucet', 'tokenName')
+      chainInfo: config
     }
   },
   computed: {

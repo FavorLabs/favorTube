@@ -1,19 +1,19 @@
 import axios from 'axios';
-import getConfigs from '@/config/config'
+import {config} from '@/config/config'
 
 export default {
     getPort(api) {
         return axios.get(api + '/apiPort')
     },
     observe(api) {
-        return axios.post(api + `/group/observe/` + getConfigs('proxyGroup').proxyGroup, {
-            nodes: getConfigs('proxyNodes').proxyNodes,
+        return axios.post(api + `/group/observe/` + config.proxyGroup, {
+            nodes: config.proxyNodes,
             "keep-connected-peers": 1
         })
     },
     observeStorage(api) {
-        return axios.post(api + `/group/observe/` + getConfigs('storeGroup').storeGroup, {
-            nodes: getConfigs('storeNodes').storeNodes,
+        return axios.post(api + `/group/observe/` + config.storeGroup, {
+            nodes: config.storeNodes,
             "keep-connected-peers": 1
         })
     },
@@ -33,7 +33,7 @@ export default {
     async sendMessage(api, overlay, hash) {
         const debugApi = sessionStorage.getItem("debugApi");
         const data = await axios.get(debugApi + "/addresses");
-        return axios.post(api + `/group/send/${getConfigs('storeGroup').storeGroup}/` + overlay, {
+        return axios.post(api + `/group/send/${config.storeGroup}/` + overlay, {
             source: data.data.overlay,
             hash,
         }, {timeout: 30 * 1000})

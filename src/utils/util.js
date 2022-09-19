@@ -1,4 +1,5 @@
 import Web3 from "web3";
+import {config} from "@/config/config";
 
 export const isElectron =
     window.navigator.userAgent.toLowerCase().indexOf('electron') !== -1;
@@ -75,23 +76,8 @@ export const randomHex = () => {
     return `#${Math.floor(Math.random() * 0xffffff).toString(16).padEnd(6, "0")}`;
 }
 
-export const getUrlParams = (url) => {
-    let urlStr = url.split('?')[1];
-    const urlSearchParams = new URLSearchParams(urlStr);
-    const result = Object.fromEntries(urlSearchParams.entries());
-    return result;
-}
 
-export const getVideoLimitSize = () => {
-    const config = sessionStorage.getItem('current_config');
-    const defaultSize = 1024 * 1024;
-    if (config) {
-        const configObj = JSON.parse(config);
-        return configObj?.videoLimitSize ? configObj.videoLimitSize : defaultSize;
-    } else {
-        return defaultSize;
-    }
-}
+export const getVideoLimitSize = () => config.videoLimitSize;
 
 export const getSize = (size, level = 0) => {
     let levelList = ['KB', 'MB', 'GB', 'TB'];

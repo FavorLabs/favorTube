@@ -118,11 +118,9 @@ import SubscribersModal from '@/components/SubscribersModal'
 import SetPriceModal from '@/components/SetPriceModal'
 import SecretModal from '@/components/SecretModal'
 import {mapGetters} from "vuex"
-import getConfigs, {favorTubeAbi} from "@/config/config";
+import {favorTubeAbi, config} from "@/config/config";
 import AuthenticationService from "@/services/AuthenticationService";
 
-
-let contractAddress = getConfigs('favorTubeAddress');
 
 export default {
   data: () => ({
@@ -132,7 +130,7 @@ export default {
     setPriceModal: false,
     secretModal: false,
     secretStatus: false,
-    favorTubeCAddress: contractAddress.favorTubeAddress,
+    favorTubeCAddress: config.favorTubeAddress,
     userConfig: {
       price: 0,
       mode: 0
@@ -146,7 +144,7 @@ export default {
     SecretModal,
   },
   computed: {
-    ...mapGetters(["currentUser", "getApi", "web3","nodeWeb3"])
+    ...mapGetters(["currentUser", "getApi", "web3", "nodeWeb3"])
   },
 
   created() {

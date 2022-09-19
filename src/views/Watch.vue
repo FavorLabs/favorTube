@@ -896,13 +896,12 @@ export default {
     }
   },
   beforeRouteUpdate(to, from, next) {
-    this.page = 1
-    ;(this.loading = false), (this.loaded = false), (this.videos = [])
+    this.page = 1;(this.loading = false), (this.loaded = false), (this.videos = [])
     this.infiniteId += 1
     this.getVideo(to.params.id)
     this.isShowInfinite = false;
     next()
-  },
+  }
 }
 </script>
 
