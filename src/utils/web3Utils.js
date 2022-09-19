@@ -1,5 +1,5 @@
 import Web3 from "web3";
-import getConfigs from "@/config/config";
+import {config} from "@/config/config";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
 export const ConnectMetaMask = async (chainInfo) => {
@@ -76,7 +76,7 @@ export const ConnectWalletConnect = async (chainInfo, cb) => {
 }
 
 export const connect = (connectType, cb) => {
-    let chainInfo = getConfigs('chainId', 'chainEndpoint', 'faucet', 'tokenName');
+    let chainInfo = config;
 
     if (connectType === "metaMask") {
         return ConnectMetaMask(chainInfo);

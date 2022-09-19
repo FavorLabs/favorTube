@@ -17,7 +17,7 @@
       <div style="margin-top: 20px;font-size: 20px">Connecting to a p2p network</div>
     </v-overlay>
     <div class="fill-height"
-         v-if="!loading ||['SignIn','SignUp','Watch'].includes(this.$route.name)"
+         v-if="!dataLoading && (!loading ||['SignIn','SignUp','Watch'].includes(this.$route.name))"
     >
       <router-view name="NavBar"></router-view>
       <router-view name="StudioNavBar"></router-view>
@@ -53,7 +53,7 @@ import {mapGetters} from "vuex";
 import {websocket, disconnect} from "@/utils/util";
 import FavorService from "@/services/FavorService";
 import FavorlabsService from "@/services/favorlabs/FavorlabsService";
-import getConfigs from '@/config/config'
+import {config, setConfig} from '@/config/config'
 import {getWeb3} from "@/utils/web3Utils";
 import {version as FavorTubeVersion} from '../package.json'
 // import VuePullRefresh from 'vue-pull-refresh';
@@ -68,13 +68,14 @@ export default {
       finished: false,
       refreshPage: ['/', '/trending', '/subscriptions'],
       allowRefresh: true,
+      dataLoading: true,
     }
   },
   // components: { VuePullRefresh },
   computed: {
     ...mapGetters(['getList', "getUrl", "ws", "web3", "isAuthenticated"]),
   },
-  mounted() {
+  async created() {
     console.log('version', FavorTubeVersion);
     if (process.env.VUE_APP_MOBILE) {
       document.addEventListener('deviceready', () => {
@@ -83,17 +84,17 @@ export default {
         }, 500);
         this.getWs();
       });
-      document.addEventListener('resume', () => {
+      document.addEventListener('resume', async () => {
         console.log('resume');
         if (sessionStorage.getItem("api")) {
-          FavorService.restore(sessionStorage.getItem("api"));
+          await FavorService.restore(sessionStorage.getItem("api"));
           if (!this.ws.connected) {
-            this.getWs();
+            await this.getWs();
           }
         }
       });
     } else {
-      this.getWs();
+      await this.getWs();
     }
   },
   methods: {
@@ -103,12 +104,14 @@ export default {
       if (wsHost && api) {
         let addresses = await FavorService.getAddresses();
         sessionStorage.setItem("network_id", addresses.data.network_id);
+        let config;
         try {
           const {data} = await FavorlabsService.getConfig(addresses.data.network_id);
-          sessionStorage.setItem("current_config", JSON.stringify(data.data));
+          config = data.data;
         } catch (err) {
           console.error('err', err);
         }
+        setConfig(config);
         try {
           await FavorService.observe(api);
           let ws = websocket(wsHost);
@@ -123,6 +126,7 @@ export default {
         this.loading = false;
         this.analyzingUrl();
       }
+      this.dataLoading = false;
     },
     wsCloseHandle() {
       this.$store.dispatch('showTips', {
@@ -141,7 +145,7 @@ export default {
     analyzingUrl() {
       const shareParams = location.hash.split('#/')[1];
       let endPoint = new URLSearchParams(location.search).get("endpoint")
-      if(endPoint) endPoint = new URL(endPoint).origin
+      if (endPoint) endPoint = new URL(endPoint).origin
       this.$router.push({
         name: 'Config',
         params: {
@@ -166,7 +170,7 @@ export default {
     setRouterParams(routerParams) {
       if (JSON.stringify(routerParams) !== '{}') {
         for (let key in routerParams) {
-          if(['uid', 'invitation'].includes(key)) {
+          if (['uid', 'invitation'].includes(key)) {
             if (key === 'invitation' && (routerParams[key].length < 4 || routerParams[key].length > 8)) {
               sessionStorage.removeItem('invitation');
               continue;
@@ -187,7 +191,7 @@ export default {
           "id": 1,
           "jsonrpc": "2.0",
           "method": "group_subscribe",
-          "params": ["peers", getConfigs('proxyGroup').proxyGroup]
+          "params": ["peers", config.proxyGroup]
         }, (err, {result}) => {
           ws.on(result, (res) => {
             console.log(res)
@@ -222,15 +226,11 @@ export default {
     "$route.path": {
       handler: function (path) {
         let _this = this;
-        if (_this.refreshPage.includes(path)) {
-          _this.allowRefresh = true;
-        } else {
-          _this.allowRefresh = false;
-        }
+        _this.allowRefresh = _this.refreshPage.includes(path);
       }
     },
     "$route.query": {
-      handler: function(newVal) {
+      handler: function (newVal) {
         this.setRouterParams(newVal);
       }
     }

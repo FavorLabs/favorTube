@@ -168,7 +168,7 @@
 import VideoService from "@/services/VideoService";
 import moment from "moment";
 import {mapGetters} from "vuex";
-import {oracleAbi} from "@/config/config";
+import {config, oracleAbi} from "@/config/config";
 
 export default {
   data: () => ({
@@ -204,8 +204,7 @@ export default {
   methods: {
     async register(hash, overlay, id) {
       this.loading = true;
-      let config = sessionStorage.getItem("current_config")
-      let oracleAddress = JSON.parse(config).oracleContractAddr;
+      let oracleAddress = config.oracleContractAddr;
       const oracleContract = new this.web3.eth.Contract(oracleAbi, oracleAddress);
       const price = await this.web3.eth.getGasPrice();
       this.web3.eth.sendTransaction({
