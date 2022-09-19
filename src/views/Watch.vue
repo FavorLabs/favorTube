@@ -535,29 +535,24 @@ export default {
         this.video = video.data.data
         this.videoHash = video.data.data.url;
         let oracleArr = _.cloneDeep(this.video.oracle);
-        if (this.video.overlay) {
-          oracleArr.push(this.video.overlay);
-          oracleArr = _.uniq(oracleArr);
-        }
+        if (this.video.overlay && !oracleArr.includes(this.video.overlay)) oracleArr.push(this.video.overlay);
         this.oracleArrs = oracleArr;
         this.videoURL = `${this.getApi}/file/${this.video.url}?oracles=${oracleArr.join(",")}`;
         this.channelAddress = video.data.data.userId.address;
-        this.playable = this.video.status === 'public';
       } catch (err) {
         this.errored = true
         console.log(err)
       } finally {
+        this.videoLoading = false;
+        this.playable = this.video.status === 'public';
         if (this.channelAddress === this.currentUser?.address) {
-          this.videoLoading = false;
           this.subscribed = true;
           this.isMember = true;
           this.playable = true;
-          // this.bindAutoPlay();
         } else {
           await this.checkSubscription(this.video.userId._id)
         }
         await this.checkFeeling(this.video._id)
-        this.videoLoading = false;
       }
 
       if (!this.isAuthenticated) return
@@ -765,15 +760,6 @@ export default {
 
         let videoRef = this.$refs.videoPlayer;
 
-        const timer = setInterval(() => {
-          if (!videoRef) {
-            videoRef = _this.$refs.videoPlayer;
-          } else {
-            clearInterval(timer);
-            bindVideoEvent();
-          }
-        }, 100);
-
         const bindVideoEvent = () => {
           if (this.watchVideoStatusTimer) {
             clearInterval(this.watchVideoStatusTimer);
@@ -794,6 +780,7 @@ export default {
 
           videoRef.addEventListener('loadeddata', () => {
             if (this.isAuthenticated) _this.updateViews(_this.$route.params.id)
+            videoRef.play();
           })
 
 
@@ -847,6 +834,8 @@ export default {
           //   }
           // }
         }
+
+        bindVideoEvent();
       })
     },
     sourceInfo() {
