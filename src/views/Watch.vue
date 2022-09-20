@@ -479,13 +479,13 @@ export default {
         this.joinDialog = true;
       }
     },
-    joinCallback() {
+    joinCallback(data) {
       this.joinDialog = false;
       this.subscribed = true;
       this.isMember = true;
       this.playable = true;
       this.video.userId.subscribers++;
-      this.checkSubscription(this.video.userId._id);
+      this.memberTime.expire = data.expire;
     },
     subscribeBefore() {
       if (!this.isAuthenticated) {
@@ -787,9 +787,11 @@ export default {
           videoRef.addEventListener('error', () => {
             console.log("error")
             error = true;
-            setTimeout(() => {
-              videoRef.load();
-            }, 3000)
+            clearInterval(_this.watchVideoStatusTimer);
+            this.$store.dispatch("showTips", {
+              type: "error", text: "Blockchain congestion or file format error"
+            });
+            this.retryStatus = true;
           })
 
           videoRef.addEventListener('pause', () => {

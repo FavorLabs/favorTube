@@ -45,7 +45,6 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
-            :disabled="payLoading"
             color="primary"
             text
             @click="closeModal"
@@ -185,15 +184,13 @@ export default {
           const {data} = await SubscriptionService.checkSubscription({channelId: this.video_id}, 2000).catch(console.log);
           if (data.data.tx) {
             clearInterval(timer);
-            setTimeout(() => {
-              this.payLoading = false;
-              this.subLoading = false;
-              this.$store.dispatch("showTips", {
-                type: "success",
-                text: "Subscription Success"
-              });
-              this.$emit("callback");
-            }, 3000)
+            this.payLoading = false;
+            this.subLoading = false;
+            this.$store.dispatch("showTips", {
+              type: "success",
+              text: "Subscription Success"
+            });
+            this.$emit("callback", data.data);
           }
           lock = false;
         }, 1000)
