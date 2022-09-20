@@ -51,10 +51,9 @@ export default {
   computed: {
     ...mapGetters(["currentUser"]),
     url() {
-      const invitationCode = sessionStorage.getItem('invitation');
       return `https://share.favorlabs.io/share/${this.text}` + getQueryString({
         uid: this.currentUser.id,
-        invitation: invitationCode,
+        invitation: this.currentUser.invitation,
       });
     }
   },

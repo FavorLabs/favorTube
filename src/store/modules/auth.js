@@ -105,7 +105,6 @@ const actions = {
             AuthenticationService.me(token)
                 .then(({data}) => {
                     localStorage.setItem('user', JSON.stringify(data.data))
-                    sessionStorage.setItem('invitation', data.data.invitation)
                     commit('SET_USER_DATA', data.data)
                     resolve(data)
                 })
