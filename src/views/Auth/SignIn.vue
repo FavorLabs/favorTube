@@ -76,6 +76,7 @@
                         color="primary"
                         router
                         to="signup"
+                        replace
                     >Create account
                     </v-btn
                     >
@@ -156,7 +157,7 @@ export default {
       if (!user) return
 
       this.loading = false
-      this.$router.push({name: 'Home'})
+      this.$router.go(-1)
     },
     async connectMetaMask() {
       const {err, res} = await connect("metaMask");
