@@ -350,9 +350,6 @@ export default {
 
       if (!user) return
       this.loading = false
-      if (this.invitationCode) {
-        sessionStorage.setItem('invitation', this.invitationCode);
-      }
       await this.$router.push({name: 'Home'})
     },
     async connectMetaMask() {
