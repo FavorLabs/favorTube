@@ -8,7 +8,7 @@
           color="amber"
           rounded
           height="15"
-          style="border-radius: 20px;width: 50vw"
+          style="border-radius: 20px;width: 50vw;margin: 0 auto"
       >
       </v-progress-linear>
       <v-progress-circular
@@ -17,7 +17,7 @@
           size="64"
       ></v-progress-circular>
 
-      <div style="margin-top: 20px;font-size: 20px ">{{ statusTip }}</div>
+      <div style="margin-top: 20px;font-size: 20px;padding: 0 20px ">{{ statusTip }}</div>
     </v-overlay>
     <v-dialog
         v-model="dialog"
