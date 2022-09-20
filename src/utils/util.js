@@ -102,3 +102,13 @@ export const disconnect = async (_this) => {
     }
 }
 
+export const getQueryString = (options) => {
+    const arr = [];
+    for (let key in options) {
+        if (options[key]) {
+            arr.push(`${key}=${options[key]}`);
+        }
+    }
+    return arr.length ? `?${arr.join('&')}` : '';
+}
+
