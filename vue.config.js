@@ -1,4 +1,4 @@
-const TerserPlugin = require('terser-webpack-plugin');
+// const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   "transpileDependencies": [
@@ -10,7 +10,7 @@ module.exports = {
       title: 'FavorTube'
     }
   },
-  productionSourceMap: false,
+  productionSourceMap: process.env.NODE_ENV === 'development',
   configureWebpack: config => {
     config.devtool = false;
     // if (process.env.NODE_ENV === 'production') {
