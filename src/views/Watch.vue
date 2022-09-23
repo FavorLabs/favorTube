@@ -661,37 +661,38 @@ export default {
         }
         return
       }
-      switch (true) {
-        case type === 'like' && this.feeling === '':
-          this.feeling = 'like'
-          this.video.likes++
-          break
-        case type === 'like' && this.feeling === type:
-          this.feeling = ''
-          this.video.likes--
-          break
-        case type === 'like' && this.feeling === 'dislike':
-          this.feeling = 'like'
-          this.video.dislikes--
-          this.video.likes++
-          break
-        case type === 'dislike' && this.feeling === '':
-          this.feeling = 'dislike'
-          this.video.dislikes++
-          break
-        case type === 'dislike' && this.feeling === type:
-          this.feeling = ''
-          this.video.dislikes--
-          break
-        case type === 'dislike' && this.feeling === 'like':
-          this.feeling = 'dislike'
-          this.video.likes--
-          this.video.dislikes++
-      }
 
       const feeling = await FeelingService.createFeeling({
         videoId: this.video._id,
         type
+      }).then(() => {
+        switch (true) {
+          case type === 'like' && this.feeling === '':
+            this.feeling = 'like'
+            this.video.likes++
+            break
+          case type === 'like' && this.feeling === type:
+            this.feeling = ''
+            this.video.likes--
+            break
+          case type === 'like' && this.feeling === 'dislike':
+            this.feeling = 'like'
+            this.video.dislikes--
+            this.video.likes++
+            break
+          case type === 'dislike' && this.feeling === '':
+            this.feeling = 'dislike'
+            this.video.dislikes++
+            break
+          case type === 'dislike' && this.feeling === type:
+            this.feeling = ''
+            this.video.dislikes--
+            break
+          case type === 'dislike' && this.feeling === 'like':
+            this.feeling = 'dislike'
+            this.video.likes--
+            this.video.dislikes++
+        }
       }).catch((err) => {
         console.log(err)
       })
