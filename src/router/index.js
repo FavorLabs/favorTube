@@ -38,7 +38,7 @@ const routes = [
     path: '/signin',
     name: 'SignIn',
     component: () =>
-        import(/* webpackChunkName: "signin" */ '../views/Auth/SignIn.vue'),
+        import(/* webpackChunkName: "signin" */ '../views/Auth/SignUp.vue'),
     meta: {requiresVisitor: true}
   },
   {
@@ -146,7 +146,7 @@ const routes = [
     path: '/refresh',
     name: 'Refresh',
     components: {
-      default: () => 
+      default: () =>
           import(/* webpackChunkName: "video" */ '../views/refresh')
     }
   }

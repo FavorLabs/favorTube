@@ -53,7 +53,7 @@ export default {
     url() {
       return `https://share.favorlabs.io/share/${this.text}` + getQueryString({
         uid: this.currentUser.id,
-        invitation: this.currentUser.invitation,
+        invitation: this.currentUser.code,
       });
     }
   },
