@@ -179,7 +179,14 @@ export default {
           }
         }
       }
-    }
+    },
+    signOut() {
+      this.$store.dispatch('signOut');
+      if (this.$route.name !== "Home") {
+        this.$router.push("/");
+      }
+      this.web3?.currentProvider?.disconnect?.();
+    },
   },
   watch: {
     "ws": {
@@ -214,7 +221,7 @@ export default {
             disconnect(this)
           });
           if (err) {
-            await disconnect(this)
+            this.signOut();
           } else {
             const {web3} = res;
             this.$store.commit("SET_WEB3", web3);
