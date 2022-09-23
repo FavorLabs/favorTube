@@ -34,7 +34,7 @@ export default {
   },
   data() {
     return {
-      isShow: false,
+      isShow: sessionStorage.getItem('network_id') === '18',
       // url: `https://share.favorlabs.io/share/${this.text}`,
       list: [
         {
@@ -57,11 +57,11 @@ export default {
       });
     }
   },
-  mounted() {
-    if (sessionStorage.getItem('network_id') === '18') {
-      this.isShow = true;
-    }
-  }
+  // mounted() {
+  //   if (sessionStorage.getItem('network_id') === '18') {
+  //     this.isShow = true;
+  //   }
+  // }
 }
 </script>
 
