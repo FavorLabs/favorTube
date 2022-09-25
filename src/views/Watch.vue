@@ -242,7 +242,7 @@
               </v-skeleton-loader>
 
               <v-row>
-                <v-col v-if="video && video.status === 'public'">
+                <v-col v-if="video && video.status && playable">
                   <p class="mb-0">{{ video.comments }} Comments</p>
 
                   <AddComment
@@ -888,7 +888,8 @@ export default {
     }
   },
   beforeRouteUpdate(to, from, next) {
-    this.page = 1;(this.loading = false), (this.loaded = false), (this.videos = [])
+    this.page = 1;
+    (this.loading = false), (this.loaded = false), (this.videos = [])
     this.infiniteId += 1
     this.getVideo(to.params.id)
     this.isShowInfinite = false;
