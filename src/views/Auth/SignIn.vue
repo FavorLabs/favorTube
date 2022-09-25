@@ -1,98 +1,148 @@
 <template>
+  <!--  <v-container fluid class="fill-height">-->
   <v-container fluid class="fill-height">
-    <v-row>
-      <v-col cols="12" xs="12" sm="6" md="5" lg="4" class="ma-auto">
-        <v-card outlined :loading="loading">
-          <div class="px-8 pt-6 pb-12">
-            <v-card-title class="text-center justify-space-between">
-              <div>
-                FavorTube
-              </div>
-              <div>
-                <v-icon @click.stop="$router.push('/')">mdi-home</v-icon>
-              </div>
-            </v-card-title>
-            <v-card-subtitle class="mb-5">Sign in</v-card-subtitle>
-
-            <v-card-text>
-              <ValidationObserver ref="form" v-slot="{ handleSubmit, reset }">
-                <form
-                    @submit.prevent="handleSubmit(signIn)"
-                    @reset.prevent="reset"
-                >
-                  <v-row>
-                    <v-col cols="12" v-if="$store.state.tips.isMobile">
-                      <v-btn @click="connectMetaMask">
-                        <img
-                            height="30"
-                            :src="require('@/assets/metamask.png')"
-                            alt="matamask"
-                            class="pr-2"
-                        />
-                        MetaMask
-                      </v-btn>
-                    </v-col>
-                    <v-col cols="12" v-if="$store.state.tips.isMobile">
-                      <v-btn @click="connectOkx">
-                        <img
-                            height="30"
-                            :src="require('@/assets/okx.png')"
-                            alt="okx"
-                            class="pr-2"
-                        />
-                        OKX Wallet
-                      </v-btn>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col>
-                      <v-btn @click="connectWalletConnect">
-                        <img
-                            height="30"
-                            :src="require('@/assets/walletconnect.png')"
-                            alt="walletconnect"
-                            class="pr-2"
-                        />
-                        WalletConnect
-                      </v-btn>
-                    </v-col>
-                    <v-col v-if="connectType === 'walletConnect'">
-                      <v-btn @click="disconnectWalletConnect">
-                        Disconnect
-                      </v-btn>
-                    </v-col>
-                  </v-row>
-
-                  <v-row v-if="address">
-                    <v-col>
-                      {{ address }}
-                    </v-col>
-                  </v-row>
-
-                  <div class="mt-6 d-flex justify-space-between">
-                    <v-btn
-                        text
-                        class="pl-0 text-capitalize"
-                        color="primary"
-                        router
-                        to="signup"
-                        replace
-                    >Create account
-                    </v-btn
-                    >
-                    <v-btn
-                        v-if="address"
-                        type="submit"
-                        class="primary"
-                        :loading="loading"
-                        depressed
-                    >Sign in
-                    </v-btn>
-                  </div>
-                </form>
-              </ValidationObserver>
-            </v-card-text>
-          </div>
+    <v-row no-gutters>
+      <v-col cols="12" xs="12" sm="8" md="8" class="ma-auto">
+        <v-card class="" outlined :loading="loading">
+          <img :src="require('@/assets/goback.png')" width="15" class="back" alt="" @click="()=> $router.go(-1)">
+          <v-row no-gutters>
+            <v-col cols="4" class="hidden-sm-and-down">
+              <img :src="require('@/assets/signIn-left.png')" alt="" style="max-width: 100%;">
+            </v-col>
+            <v-col cols="12" sm="12" md="8">
+              <v-row no-gutters>
+                <v-col cols="12" offset-md="2" md="8">
+                  <v-card-text class="fill-height">
+                    <v-row no-gutters class="fill-height justify-center  align-center">
+                      <v-col cols="12" lg="8" class="align-center">
+                        <template v-if="$store.state.tips.isMobile">
+                          <div class="wallet_btn" v-if="!connectType || connectType==='metamask'"
+                               @click="connectMetaMask">
+                            <div class="wallet_img">
+                              <img
+                                  height="30"
+                                  :src="require('@/assets/metamask.png')"
+                                  alt=""
+                              />
+                            </div>
+                            <div class="wallet_text">MATAMASK</div>
+                          </div>
+                          <div class="wallet_btn" v-if="!connectType || connectType==='okx'" @click="connectOkx">
+                            <div class="wallet_img">
+                              <img
+                                  height="30"
+                                  :src="require('@/assets/okx.png')"
+                                  alt=""
+                              />
+                            </div>
+                            <div class="wallet_text">OKX</div>
+                          </div>
+                        </template>
+                        <div class="wallet_btn" v-if="!connectType || connectType==='walletConnect'"
+                             @click="connectWalletConnect">
+                          <div class="wallet_img">
+                            <img
+                                height="30"
+                                :src="require('@/assets/walletconnect.png')"
+                                alt=""
+                            />
+                          </div>
+                          <div class="wallet_text">WALLETCONNETCT</div>
+                        </div>
+                        <div class="reset" v-if="connectType" @click="reset">RESET</div>
+                        <ValidationObserver ref="form" v-slot="{ handleSubmit, reset }">
+                          <form
+                              @submit.prevent="handleSubmit(signUp)"
+                              @reset.prevent="reset"
+                              class="mt-5"
+                          >
+                            <ValidationProvider
+                                v-slot="{ errors }"
+                                name="Address"
+                                rules="required"
+                                v-if="address"
+                            >
+                              <v-text-field
+                                  v-model="address"
+                                  :error-messages="errors"
+                                  label="Address"
+                                  outlined
+                                  dense
+                                  readonly
+                              ></v-text-field>
+                            </ValidationProvider>
+                            <ValidationProvider
+                                v-slot="{ errors }"
+                                name="Channel Name"
+                                rules="required|min:3"
+                                v-if="channelName || unReg"
+                            >
+                              <v-text-field
+                                  v-model="channelName"
+                                  :error-messages="errors"
+                                  label="Channel Name"
+                                  outlined
+                                  dense
+                                  :readonly="!unReg"
+                              ></v-text-field>
+                            </ValidationProvider>
+                            <ValidationProvider
+                                v-slot="{ errors }"
+                                name="Email"
+                                rules="required|email"
+                                v-if="unReg"
+                            >
+                              <v-text-field
+                                  v-model="email"
+                                  :error-messages="errors"
+                                  label="Email"
+                                  outlined
+                                  dense
+                              ></v-text-field>
+                            </ValidationProvider>
+                            <ValidationProvider
+                                v-slot="{ errors }"
+                                name="Invitation Code"
+                                rules="min:10|max:10"
+                                v-if="unReg"
+                            >
+                              <v-text-field
+                                  v-model="invitationCode"
+                                  :error-messages="errors"
+                                  label="Invitation Code"
+                                  outlined
+                                  dense
+                                  :readonly="codeDisable"
+                              ></v-text-field>
+                            </ValidationProvider>
+                            <div class="mt-3 d-flex justify-space-between">
+                              <v-btn
+                                  height="50"
+                                  v-if="address"
+                                  type="submit"
+                                  class="primary"
+                                  :loading="loading"
+                                  depressed
+                                  block
+                              >
+                                Sign {{ unReg ? 'Up' : 'In' }}
+                              </v-btn>
+                            </div>
+                          </form>
+                        </ValidationObserver>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+                </v-col>
+                <v-col cols="2" class="hidden-sm-and-down">
+                  <v-img
+                      :src="require('@/assets/signIn-right.png')"
+                  >
+                  </v-img>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
         </v-card>
       </v-col>
     </v-row>
@@ -100,16 +150,22 @@
 </template>
 
 <script>
-import moment from "moment";
-import {connect} from "@/utils/web3Utils"
+import moment from "moment"
+import {connect} from "@/utils/web3Utils";
 import {disconnect} from "@/utils/util";
+import AuthenticationService from "@/services/AuthenticationService";
 
 export default {
-  name: 'SignIn',
+  name: 'SignUp',
   data: () => ({
     loading: false,
-    address: "",
     connectType: "",
+    address: "",
+    channelName: '',
+    email: '',
+    invitationCode: '',
+    codeDisable: false,
+    unReg: false,
   }),
   computed: {
     networkId() {
@@ -117,20 +173,18 @@ export default {
     }
   },
   methods: {
-    async signIn() {
+    async signUp() {
       if (!this.address) {
         await this.$store.dispatch("showTips", {
           type: "info", text: "Please connect your wallet"
         })
         return;
       }
-      if (this.loading) return;
-
+      if (this.loading) return
       this.loading = true;
       const timespan = moment().format('x');
 
-      let msg = this.web3.utils.sha3(this.address + timespan);
-
+      let msg = this.web3.utils.sha3(this.address + timespan)
       const signature = await this.web3.eth.personal.sign(msg, this.address).catch(err => {
         this.loading = false;
         this.$store.dispatch("showTips", {
@@ -140,47 +194,68 @@ export default {
 
       if (!signature) return;
 
-      const data = await this.$store
-          .dispatch('signIn', {timespan, signature, address: this.address})
-          .catch((err) => {
-            this.loading = false
-            this.$store.dispatch("showTips", {
-              type: "info", text: err.response.data.error
-            })
-          })
+      const data =
+          this.unReg ?
+              await this.$store
+                  .dispatch('signUp', {
+                    email: this.email,
+                    channelName: this.channelName,
+                    invitation: this.invitationCode,
+                    timespan,
+                    signature,
+                    address: this.address
+                  })
+                  .catch((err) => {
+                    this.loading = false;
+                    const errors = err.response.data.error
+                    this.$refs.form.setErrors({
+                      'Email': this.getError(errors, 'email'),
+                      'Channel Name': this.getError(errors, 'channelName'),
+                      'Address': this.getError(errors, 'address'),
+                    })
+                  }) :
+              await this.$store
+                  .dispatch('signIn', {timespan, signature, address: this.address})
+                  .catch((err) => {
+                    this.loading = false
+                    this.$store.dispatch("showTips", {
+                      type: "info", text: err.response.data.error
+                    })
+                  })
 
       if (!data) return
+
       const user = await this.$store
           .dispatch('getCurrentUser', data.token)
           .catch((err) => console.log(err))
 
       if (!user) return
-
       this.loading = false
+
       this.$router.go(-1)
     },
     async connectMetaMask() {
       const {err, res} = await connect("metaMask");
-      console.log(err)
       if (err) {
-        this.$store.dispatch("showTips", {
+        await this.$store.dispatch("showTips", {
           type: "info", text: err
         })
       } else {
         const {address, web3} = res;
         this.address = address;
         this.web3 = web3;
+        this.connectType = 'metamask';
         this.$store.commit("SET_WEB3", web3);
+        await this.getInfo(address);
       }
     },
     async connectWalletConnect() {
       const {err, res} = await connect("walletConnect", () => {
-        this.address = "";
-        this.connectType = "";
+        this.init();
         disconnect(this);
       });
       if (err) {
-        this.$store.dispatch("showTips", {
+        await this.$store.dispatch("showTips", {
           type: "info", text: err,
         })
       } else {
@@ -189,31 +264,119 @@ export default {
         this.address = address;
         this.web3 = web3;
         this.$store.commit("SET_WEB3", web3);
+        await this.getInfo(address);
       }
     },
     async connectOkx() {
       const {err, res} = await connect("okx");
       if (err) {
-        this.$store.dispatch("showTips", {
+        await this.$store.dispatch("showTips", {
           type: "info", text: err
         })
       } else {
         const {address, web3} = res;
         this.address = address;
         this.web3 = web3;
+        this.connectType = "okx"
         this.$store.commit("SET_WEB3", web3);
+        await this.getInfo(address);
       }
     },
-    disconnectWalletConnect() {
-      this.address = "";
-      this.connectType = "";
+    reset() {
+      this.init();
       this.loading = false;
-      this.web3.currentProvider?.disconnect();
+      this.web3?.currentProvider?.disconnect?.();
     },
+    getInvitationCode() {
+      const code = sessionStorage.getItem('invitation');
+      if (code) {
+        this.codeDisable = true;
+        this.invitationCode = code;
+      }
+    },
+    async getInfo(address) {
+      this.loading = true;
+      const {data: {data}} = await AuthenticationService.getInfo(address);
+      if (data) {
+        this.channelName = data.channelName
+        this.unReg = false;
+      } else {
+        this.unReg = true;
+      }
+      this.loading = false;
+    },
+    getError(errors, field) {
+      let error = errors.find(item => item.field === field);
+      return error?.message
+    },
+    init() {
+      this.address = '';
+      this.channelName = '';
+      this.connectType = '';
+      this.email = '';
+      this.unReg = false;
+    }
+  },
+  created() {
+    this.getInvitationCode();
   }
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
+.back {
+  position: absolute;
+  left: 20px;
+  top: 10px;
+  cursor: pointer;
+  user-select: none;
+}
 
+.wallet_btn {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  background: #F5FAFF;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 15px;
+}
+
+.wallet_img {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #F5FAFF;
+  background: #fff;
+}
+
+.wallet_text {
+  width: 75%;
+  font-size: 16px;
+  font-family: Roboto-Medium, Roboto, serif;
+  font-weight: 500;
+  color: #262626;
+  background: #F5FAFF;
+  display: flex;
+  align-items: center;
+  /*justify-content: center;*/
+  padding: 0 30px;
+}
+
+.reset {
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+  border-radius: 6px;
+  font-family: Roboto-Medium, Roboto, serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: #3B99FD;
+  opacity: 1;
+  border: 1px solid #48A0FD;
+  cursor: pointer;
+  user-select: none;
+}
 </style>

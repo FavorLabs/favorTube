@@ -13,7 +13,7 @@
                   <v-icon @click.stop="$router.push('/')">mdi-home</v-icon>
                 </div>
               </v-card-title>
-<!--              <v-card-subtitle>Create your FavorTube account</v-card-subtitle>-->
+              <!--              <v-card-subtitle>Create your FavorTube account</v-card-subtitle>-->
               <v-card-text>
                 <v-row v-if="$store.state.tips.isMobile">
                   <v-col cols="12">
@@ -51,11 +51,11 @@
                       WalletConnect
                     </v-btn>
                   </v-col>
-                  <v-col v-if="connectType === 'walletConnect'">
-                    <v-btn @click="disconnectWalletConnect">
-                      Disconnect
-                    </v-btn>
-                  </v-col>
+                </v-row>
+                <v-row v-if="connectType">
+                  <v-btn @click="disconnectWalletConnect">
+                    Disconnect
+                  </v-btn>
                 </v-row>
                 <ValidationObserver ref="form" v-slot="{ handleSubmit, reset }">
                   <form
@@ -122,22 +122,14 @@
                           :readonly="codeDisable"
                       ></v-text-field>
                     </ValidationProvider>
-                    <div class="mt-6 d-flex justify-space-between">
-                      <!--                      <v-btn-->
-                      <!--                          text-->
-                      <!--                          class="pl-0 text-capitalize"-->
-                      <!--                          color="primary"-->
-                      <!--                          router-->
-                      <!--                          to="signin"-->
-                      <!--                          replace-->
-                      <!--                      >Sign in instead-->
-                      <!--                      </v-btn>-->
+                    <div class="mt-6">
                       <v-btn
                           v-if="address"
                           type="submit"
                           class="primary"
                           :loading="loading"
                           depressed
+                          block
                       >
                         Sign {{ unReg ? 'Up' : 'In' }}
                       </v-btn>
@@ -389,6 +381,7 @@ export default {
         const {address, web3} = res;
         this.address = address;
         this.web3 = web3;
+        this.connectType = 'metamask';
         this.$store.commit("SET_WEB3", web3);
         await this.getInfo(address);
       }
@@ -422,15 +415,15 @@ export default {
         const {address, web3} = res;
         this.address = address;
         this.web3 = web3;
+        this.connectType = "okx"
         this.$store.commit("SET_WEB3", web3);
         await this.getInfo(address);
       }
     },
     disconnectWalletConnect() {
-      this.address = "";
-      this.connectType = "";
+      this.init();
       this.loading = false;
-      this.web3.currentProvider?.disconnect();
+      this.web3.currentProvider?.disconnect?.();
     },
     getInvitationCode() {
       const code = sessionStorage.getItem('invitation');
@@ -453,6 +446,12 @@ export default {
     getError(errors, field) {
       let error = errors.find(item => item.field === field);
       return error?.message
+    },
+    init() {
+      this.address = '';
+      this.channelName = '';
+      this.connectType = '';
+      this.email = '';
     }
   },
   created() {
