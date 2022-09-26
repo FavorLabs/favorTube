@@ -30,6 +30,7 @@
     "eventemitter3": "^4.0.7",
     "lodash": "^4.17.21",
     "moment": "^2.24.0",
+    "qrcode.vue": "^1.7.0",
     "qrcodejs2": "^0.0.2",
     "vee-validate": "^3.2.5",
     "vue": "^2.6.11",
