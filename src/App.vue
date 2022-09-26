@@ -246,6 +246,19 @@ export default {
 </script>
 
 <style lang="scss">
+@font-face {
+  font-family: 'Impact-Regular';
+  src:url('./assets/font/Impact-Regular.ttf'),
+}
+@font-face {
+  font-family: 'Roboto-Medium';
+  src:url('./assets/font/Roboto-Medium.ttf'),
+}
+@font-face {
+  font-family: 'Roboto-Regular';
+  src:url('./assets/font/Roboto-Regular.ttf'),
+}
+
 .content-bg {
   background-color: #f9f9f9;
 }

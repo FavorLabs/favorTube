@@ -781,7 +781,7 @@ export default {
 
           videoRef.addEventListener('loadeddata', () => {
             if (this.isAuthenticated) _this.updateViews(_this.$route.params.id)
-            videoRef.play();
+            // videoRef.play();
           })
 
 
