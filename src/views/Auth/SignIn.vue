@@ -7,158 +7,158 @@
       </div>
     </div>
     <div class="bg-white-m">
-      <div class="signin-header-text">
-        <p class="title">{{signStatus}}</p>
-        <p class="desc">You just need to {{signStatus}} with your wallet</p>
+      <div class="signin-header-text" style="position: absolute;text-align: center;width: 100%;">
+        <p class="title">{{ signStatus }}</p>
+        <p class="desc">You just need to {{ signStatus }} with your wallet</p>
       </div>
-      <v-row no-gutters class="btns-list">
-      <v-col cols="12" xs="12" sm="8" md="8" class="ma-auto">
-        <v-card outlined :loading="loading">
-          <img :src="require('@/assets/goback.png')" width="15" class="back" alt="" @click="goBack">
-          <v-row no-gutters class="bg-pc">
-            <div class="signIn-left">
-              <p class="title">{{signStatus}}</p>
-              <p class="desc">You just need to {{signStatus}} with your wallet</p>
-            </div>
-            <img class="human-pc" :src="require('@/assets/human_m.png')" alt="">
-            <img class="ball-pc" :src="require('@/assets/ball.png')" alt="">
-            <v-col cols="12" sm="12" md="8" offset="0" offset-md="4">
-              <v-row no-gutters>
-                <v-col cols="12" offset-md="2" md="8">
-                  <v-card-text class="fill-height">
-                    <v-row no-gutters class="fill-height justify-center  align-center">
-                      <v-col cols="12" lg="8" class="align-center">
-                        <template v-if="$store.state.tips.isMobile">
-                          <div class="wallet_btn" v-if="!connectType || connectType==='metamask'"
-                               @click="connectMetaMask">
+      <v-row no-gutters class="btns-list fill-height">
+        <v-col cols="12" xs="12" sm="8" md="8" class="ma-auto">
+          <v-card outlined :loading="loading">
+            <img :src="require('@/assets/goback.png')" width="15" class="back" alt="" @click="goBack">
+            <v-row no-gutters class="bg-pc">
+              <div class="signIn-left">
+                <p class="title">{{ signStatus }}</p>
+                <p class="desc">You just need to {{ signStatus }} with your wallet</p>
+              </div>
+              <img class="human-pc" :src="require('@/assets/human_m.png')" alt="">
+              <img class="ball-pc" :src="require('@/assets/ball.png')" alt="">
+              <v-col cols="12" sm="12" md="8" offset="0" offset-md="4">
+                <v-row no-gutters>
+                  <v-col cols="12" offset-md="2" md="8">
+                    <v-card-text class="fill-height">
+                      <v-row no-gutters class="fill-height justify-center align-center">
+                        <v-col cols="12" lg="8" class="align-center">
+                          <template v-if="$store.state.tips.isMobile">
+                            <div class="wallet_btn" v-if="!connectType || connectType==='metamask'"
+                                 @click="connectMetaMask">
+                              <div class="wallet_img">
+                                <img
+                                    height="30"
+                                    :src="require('@/assets/metamask.png')"
+                                    alt=""
+                                />
+                              </div>
+                              <div class="wallet_text">MATAMASK</div>
+                            </div>
+                            <div class="wallet_btn" v-if="!connectType || connectType==='okx'" @click="connectOkx">
+                              <div class="wallet_img">
+                                <img
+                                    height="30"
+                                    :src="require('@/assets/okx.png')"
+                                    alt=""
+                                />
+                              </div>
+                              <div class="wallet_text">OKX</div>
+                            </div>
+                          </template>
+                          <div class="wallet_btn" v-if="!connectType || connectType==='walletConnect'"
+                               @click="connectWalletConnect">
                             <div class="wallet_img">
                               <img
                                   height="30"
-                                  :src="require('@/assets/metamask.png')"
+                                  :src="require('@/assets/walletconnect.png')"
                                   alt=""
                               />
                             </div>
-                            <div class="wallet_text">MATAMASK</div>
+                            <div class="wallet_text">WALLETCONNETCT</div>
                           </div>
-                          <div class="wallet_btn" v-if="!connectType || connectType==='okx'" @click="connectOkx">
-                            <div class="wallet_img">
-                              <img
-                                  height="30"
-                                  :src="require('@/assets/okx.png')"
-                                  alt=""
-                              />
-                            </div>
-                            <div class="wallet_text">OKX</div>
-                          </div>
-                        </template>
-                        <div class="wallet_btn" v-if="!connectType || connectType==='walletConnect'"
-                             @click="connectWalletConnect">
-                          <div class="wallet_img">
-                            <img
-                                height="30"
-                                :src="require('@/assets/walletconnect.png')"
-                                alt=""
-                            />
-                          </div>
-                          <div class="wallet_text">WALLETCONNETCT</div>
-                        </div>
-                        <div class="reset" v-if="connectType" @click="reset">RESET</div>
-                        <ValidationObserver ref="form" v-slot="{ handleSubmit, reset }">
-                          <form
-                              @submit.prevent="handleSubmit(signUp)"
-                              @reset.prevent="reset"
-                              class="mt-5"
-                          >
-                            <ValidationProvider
-                                v-slot="{ errors }"
-                                name="Address"
-                                rules="required"
-                                v-if="address"
+                          <div class="reset" v-if="connectType" @click="reset">RESET</div>
+                          <ValidationObserver ref="form" v-slot="{ handleSubmit, reset }">
+                            <form
+                                @submit.prevent="handleSubmit(signUp)"
+                                @reset.prevent="reset"
+                                class="mt-5"
                             >
-                              <v-text-field
-                                  v-model="address"
-                                  :error-messages="errors"
-                                  label="Address"
-                                  outlined
-                                  dense
-                                  readonly
-                              ></v-text-field>
-                            </ValidationProvider>
-                            <ValidationProvider
-                                v-slot="{ errors }"
-                                name="Channel Name"
-                                rules="required|min:3"
-                                v-if="channelName || unReg"
-                            >
-                              <v-text-field
-                                  v-model="channelName"
-                                  :error-messages="errors"
-                                  label="Channel Name"
-                                  outlined
-                                  dense
-                                  :readonly="!unReg"
-                              ></v-text-field>
-                            </ValidationProvider>
-                            <ValidationProvider
-                                v-slot="{ errors }"
-                                name="Email"
-                                rules="required|email"
-                                v-if="unReg"
-                            >
-                              <v-text-field
-                                  v-model="email"
-                                  :error-messages="errors"
-                                  label="Email"
-                                  outlined
-                                  dense
-                              ></v-text-field>
-                            </ValidationProvider>
-                            <ValidationProvider
-                                v-slot="{ errors }"
-                                name="Invitation Code"
-                                rules="min:10|max:10"
-                                v-if="unReg"
-                            >
-                              <v-text-field
-                                  v-model="invitationCode"
-                                  :error-messages="errors"
-                                  label="Invitation Code"
-                                  outlined
-                                  dense
-                                  :readonly="codeDisable"
-                              ></v-text-field>
-                            </ValidationProvider>
-                            <div class="mt-3 d-flex justify-space-between">
-                              <v-btn
-                                  height="50"
+                              <ValidationProvider
+                                  v-slot="{ errors }"
+                                  name="Address"
+                                  rules="required"
                                   v-if="address"
-                                  type="submit"
-                                  class="primary"
-                                  :loading="loading"
-                                  depressed
-                                  block
-                                  style="position: relative;z-index: 1"
                               >
-                                Sign {{ unReg ? 'Up' : 'In' }}
-                              </v-btn>
-                            </div>
-                          </form>
-                        </ValidationObserver>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-col>
-                <v-col cols="2" class="hidden-sm-and-down">
-                  <v-img
-                      :src="require('@/assets/signIn-right.png')"
-                  >
-                  </v-img>
-                </v-col>
-              </v-row>
-            </v-col>
-          </v-row>
-        </v-card>
-      </v-col>
+                                <v-text-field
+                                    v-model="address"
+                                    :error-messages="errors"
+                                    label="Address"
+                                    outlined
+                                    dense
+                                    readonly
+                                ></v-text-field>
+                              </ValidationProvider>
+                              <ValidationProvider
+                                  v-slot="{ errors }"
+                                  name="Channel Name"
+                                  rules="required|min:3"
+                                  v-if="channelName || unReg"
+                              >
+                                <v-text-field
+                                    v-model="channelName"
+                                    :error-messages="errors"
+                                    label="Channel Name"
+                                    outlined
+                                    dense
+                                    :readonly="!unReg"
+                                ></v-text-field>
+                              </ValidationProvider>
+                              <ValidationProvider
+                                  v-slot="{ errors }"
+                                  name="Email"
+                                  rules="required|email"
+                                  v-if="unReg"
+                              >
+                                <v-text-field
+                                    v-model="email"
+                                    :error-messages="errors"
+                                    label="Email"
+                                    outlined
+                                    dense
+                                ></v-text-field>
+                              </ValidationProvider>
+                              <ValidationProvider
+                                  v-slot="{ errors }"
+                                  name="Invitation Code"
+                                  rules="min:10|max:10"
+                                  v-if="unReg"
+                              >
+                                <v-text-field
+                                    v-model="invitationCode"
+                                    :error-messages="errors"
+                                    label="Invitation Code"
+                                    outlined
+                                    dense
+                                    :readonly="codeDisable"
+                                ></v-text-field>
+                              </ValidationProvider>
+                              <div class="mt-3 d-flex justify-space-between">
+                                <v-btn
+                                    height="50"
+                                    v-if="address"
+                                    type="submit"
+                                    class="primary"
+                                    :loading="loading"
+                                    depressed
+                                    block
+                                    style="position: relative;z-index: 1"
+                                >
+                                  Sign {{ unReg ? 'Up' : 'In' }}
+                                </v-btn>
+                              </div>
+                            </form>
+                          </ValidationObserver>
+                        </v-col>
+                      </v-row>
+                    </v-card-text>
+                  </v-col>
+                  <v-col cols="2" class="hidden-sm-and-down">
+                    <v-img
+                        :src="require('@/assets/signIn-right.png')"
+                    >
+                    </v-img>
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
       </v-row>
     </div>
     <img class="bg-color-m" :src="require('@/assets/bg_color_m.png')"/>
@@ -306,6 +306,7 @@ export default {
     reset() {
       this.init();
       this.loading = false;
+      localStorage.removeItem("walletconnect");
       this.web3?.currentProvider?.disconnect?.();
     },
     getInvitationCode() {
@@ -364,13 +365,16 @@ export default {
   display: none;
   width: 100vw;
   padding: 2vmin;
+
   .back-m {
     display: flex;
     justify-content: flex-start;
     align-items: center;
+
     img {
       width: 3vmin;
     }
+
     span {
       margin-left: 10px;
       font-family: Roboto-Medium;
@@ -382,14 +386,17 @@ export default {
   display: none;
   margin: 0 auto;
   text-align: center;
+
   p {
     margin-bottom: 0;
   }
+
   .title {
-    font-size: 32px!important;
+    font-size: 32px !important;
     color: #262626;
-    font-family: Impact-Regular!important;
+    font-family: Impact-Regular !important;
   }
+
   .desc {
     font-size: 12px;
     color: #808080;
@@ -476,32 +483,38 @@ export default {
   position: absolute;
   top: 5vw;
   left: 5vw;
+
   p {
     margin-bottom: 0;
   }
+
   .title {
-    font-size: 32px!important;
+    font-size: 32px !important;
     color: #262626;
-    font-family: Impact-Regular!important;
+    font-family: Impact-Regular !important;
   }
+
   .desc {
     font-size: 12px;
     color: #808080;
     font-family: Roboto-Regular;
   }
 }
+
 .human-pc {
   position: absolute;
   bottom: 5vw;
   left: 6vw;
   width: 160px;
 }
+
 .ball-pc {
   position: absolute;
   bottom: 1.5vw;
   left: 2vw;
   width: 70px;
 }
+
 .bg-white-m {
   width: 100%;
 }
@@ -544,7 +557,7 @@ export default {
   }
   .btns-list {
     width: 100%;
-    margin-top: 68px;
+    //margin-top: 68px;
     padding: 0 3vmin;
   }
   .theme--light.v-card.v-card--outlined {

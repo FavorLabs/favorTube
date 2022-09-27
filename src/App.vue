@@ -40,9 +40,9 @@
             :on-refresh="onRefresh"
             :finished="finished"
         >
-          <router-view></router-view>
+          <router-view :key="$route.fullPath"></router-view>
         </vue-loadmore>
-        <router-view v-else></router-view>
+        <router-view :key="$route.fullPath" v-else></router-view>
       </v-content>
     </div>
   </v-app>
@@ -66,7 +66,7 @@ export default {
       timer: null,
       refreshTimer: null,
       finished: false,
-      refreshPage: ['/', '/trending', '/subscriptions'],
+      refreshPage: ['/', '/videos', '/trending', '/subscriptions'],
       allowRefresh: true,
       dataLoading: true,
     }
@@ -248,15 +248,17 @@ export default {
 <style lang="scss">
 @font-face {
   font-family: 'Impact-Regular';
-  src:url('./assets/font/Impact-Regular.ttf'),
+  src: url('./assets/font/Impact-Regular.ttf'),
 }
+
 @font-face {
   font-family: 'Roboto-Medium';
-  src:url('./assets/font/Roboto-Medium.ttf'),
+  src: url('./assets/font/Roboto-Medium.ttf'),
 }
+
 @font-face {
   font-family: 'Roboto-Regular';
-  src:url('./assets/font/Roboto-Regular.ttf'),
+  src: url('./assets/font/Roboto-Regular.ttf'),
 }
 
 .content-bg {
