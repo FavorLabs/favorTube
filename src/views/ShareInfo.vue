@@ -13,6 +13,7 @@
             <qrcode-vue
                 size="150"
                 :value="url"
+                foreground="#4A56BB"
             >
             </qrcode-vue>
           </div>
@@ -70,12 +71,12 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 
 .share {
   min-width: 300px;
   padding: 5px;
-  background-image: url('../assets/share_bg.png');
+  background: url('../assets/share_bg.png');
 }
 
 .card {
@@ -119,11 +120,16 @@ export default {
 }
 
 .code_info {
-  margin: 20px 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: 50px 0;
+  margin: 15px 0;
+  background: url('../assets/share_bg_m.png') 100%/cover no-repeat;
+  >div {
+    transform: translateY(20px);
+  }
 }
 
 .btn {
