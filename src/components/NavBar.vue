@@ -381,11 +381,11 @@ export default {
               link: '/liked-videos',
               icon: 'mdi-thumb-up'
             },
-            {
-              title: 'Share',
-              link: '/share',
-              icon: 'mdi-share'
-            }
+            // {
+            //   title: 'Share',
+            //   link: '/share',
+            //   icon: 'mdi-share'
+            // }
           ]
         },
         // {
