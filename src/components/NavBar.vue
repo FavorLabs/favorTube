@@ -358,7 +358,8 @@ export default {
         {
           header: null,
           pages: [
-            {title: 'Home', link: '/', icon: 'mdi-home', show: true},
+            {title: 'Home Featured', link: '/', icon: 'mdi-home', show: true},
+            {title: 'New Videos', link: '/videos', icon: 'mdi-video-box'},
             {title: 'Trending', link: '/trending', icon: 'mdi-fire', show: true},
             {
               title: 'Subscriptions',

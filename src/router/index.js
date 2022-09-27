@@ -15,6 +15,14 @@ const routes = [
         }
     },
     {
+        path: '/videos',
+        name: 'Videos',
+        components: {
+            NavBar,
+            default: () => import(/* webpackChunkName: "Home" */ '../views/Home.vue')
+        }
+    },
+    {
         path: '/share',
         name: 'Share',
         components: {

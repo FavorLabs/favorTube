@@ -95,8 +95,8 @@ export default {
       if (!this.loaded) {
         this.loading = true
       }
-
-      const videos = await VideoService.getAll('public', {page: this.page})
+      let data = this.$route.name === 'Home' ? 'featured' : "public";
+      const videos = await VideoService.getAll(data, {page: this.page})
           .catch((err) => {
             console.log(err)
             this.errored = true
