@@ -235,15 +235,13 @@
 
           <v-divider class="hidden-lg-and-up"></v-divider>
           <div v-for="parentItem in items" :key="parentItem.header">
-            <div
-            >
+            <div v-for="(item) in parentItem.pages" :key="item.title">
               <v-list-item
-                  v-for="(item) in parentItem.pages"
-                  :key="item.title"
                   class="mb-0"
                   :to="item.link"
                   exact
                   active-class="active-item"
+                  v-if="item.title==='Share'? is18 ? isAuthenticated || item.show:false:isAuthenticated || item.show"
               >
                 <v-list-item-icon v-if="parentItem.header !== 'Subscriptions'">
                   <v-icon>{{ item.icon }}</v-icon>
@@ -254,14 +252,10 @@
               </v-list-item>
             </div>
 
-            <v-divider
-                class="mt-2 mb-2"
-            ></v-divider>
+            <v-divider class="mt-2 mb-2"></v-divider>
           </div>
           <div v-if="isAuthenticated">
-            <v-subheader
-                class="pl-3 py-4 subtitle-1 font-weight-bold text-uppercase"
-            >
+            <v-subheader class="pl-3 py-4 subtitle-1 font-weight-bold text-uppercase">
               Favorites
             </v-subheader>
             <div class="Subscriptions-box">
@@ -312,14 +306,16 @@
                 text
                 class="text-none"
             >
-              <v-icon>{{ isLoadingChannel ? 'mdi-loading' : (isHiddenChannel ? 'mdi-chevron-down' : 'mdi-chevron-up') }}</v-icon>
+              <v-icon>{{
+                  isLoadingChannel ? 'mdi-loading' : (isHiddenChannel ? 'mdi-chevron-down' : 'mdi-chevron-up')
+                }}
+              </v-icon>
               {{ !isHiddenChannel ? 'Show less' : `Show more` }}
             </v-btn
             >
+            <v-divider class="mt-2 mb-2"></v-divider>
           </div>
-          <v-divider
-              class="mt-2 mb-2"
-          ></v-divider>
+
           <span v-for="link in links" :key="link.text">
             <span v-if="link.text === 'Terms'" class="mb-2 d-block"> </span>
             <v-btn
@@ -334,9 +330,9 @@
           </span>
           <div class="connecting">
             <span
-            :class="'connecting-status ' + (peersNum > 5 ? (peersNum > 10 ? 'peers-many' : 'peers-normal') : '')">
+                :class="'connecting-status ' + (peersNum > 5 ? (peersNum > 10 ? 'peers-many' : 'peers-normal') : '')">
             </span>
-            peers: {{peersNum}}
+            peers: {{ peersNum }}
           </div>
           <p style="margin: 10px">Version: {{ FavorTubeVersion }}</p>
         </v-list>
@@ -351,141 +347,151 @@ import SubscriptionService from '@/services/SubscriptionService'
 import FavorService from '@/services/FavorService'
 import HistoryService from '@/services/HistoryService'
 import {removeAllPendingRequestsRecord} from "@/services/Api";
-import { version as FavorTubeVersion } from '../../package.json'
+import {version as FavorTubeVersion} from '../../package.json'
 import _ from 'lodash'
 
 export default {
-  data: () => ({
-    drawer: false,
-    items: [
-      {
-        header: null,
-        pages: [
-          {title: 'Home', link: '/', icon: 'mdi-home'},
-          {title: 'Trending', link: '/trending', icon: 'mdi-fire'},
-          {
-            title: 'Subscriptions',
-            link: '/subscriptions',
-            icon: 'mdi-youtube-subscription'
-          }
-        ]
-      },
-      {
-        header: null,
-        pages: [
-          {
-            title: 'History',
-            link: '/history',
-            icon: 'mdi-history'
-          },
-          {
-            title: 'Liked videos',
-            link: '/liked-videos',
-            icon: 'mdi-thumb-up'
-          }
-        ]
-      },
-      // {
-      //   header: 'Subscriptions',
-      //   pages: [
-      //     // {
-      //     //   title: 'Traversy Media',
-      //     //   link: '#tm',
-      //     //   icon: 'mdi-badge-account'
-      //     // },
-      //     // {
-      //     //   title: 'The New Boston',
-      //     //   link: '#tn',
-      //     //   icon: 'mdi-badge-account'
-      //     // },
-      //     // {
-      //     //   title: 'Net Ninija',
-      //     //   link: '#nn',
-      //     //   icon: 'mdi-badge-account'
-      //     // },
-      //     // {
-      //     //   title: 'Chris Hawks',
-      //     //   link: '#ch',
-      //     //   icon: 'mdi-badge-account'
-      //     // }
-      //   ]
-      // },
-      // {
-      //   header: 'MORE FROM VUETUBE',
-      //   pages: [
-      //     {
-      //       title: 'VueTube Premium',
-      //       link: '#vp',
-      //       icon: 'mdi-youtube'
-      //     },
-      //     {
-      //       title: 'Gaming',
-      //       link: '#g',
-      //       icon: 'mdi-youtube-gaming'
-      //     },
-      //     {
-      //       title: 'Live',
-      //       link: '#li',
-      //       icon: 'mdi-access-point'
-      //     }
-      //   ]
-      // },
-      // {
-      //   header: null,
-      //   pages: [
-      //     {
-      //       title: 'Setting',
-      //       link: '#sg',
-      //       icon: 'mdi-cog'
-      //     },
-      //     {
-      //       title: 'Report history',
-      //       link: '#rh',
-      //       icon: 'mdi-flag'
-      //     },
-      //     {
-      //       title: 'Help',
-      //       link: '#hp',
-      //       icon: 'mdi-help-circle'
-      //     },
-      //     {
-      //       title: 'Send feedback',
-      //       link: '#f',
-      //       icon: 'mdi-message-alert'
-      //     }
-      //   ]
-      // }
-    ],
-    links: [
-      // { text: 'About', link: '#' },
-      // { text: 'Press', link: '#' },
-      // { text: 'Copyrignt', link: '#' },
-      // { text: 'Contact us', link: '#' },
-      // { text: 'Creators', link: '#' },
-      // { text: 'Advertise', link: '#' },
-      // { text: 'Developers', link: '#' },
-      // { text: 'Terms', link: '#' },
-      // { text: 'Privacy', link: '#' },
-      // { text: 'Policy & Safety', link: '#' },
-      // { text: 'Test new features', link: '#' }
-    ],
-    channelLength: 0,
-    channelPage: 1,
-    channelList: [],
-    channelListCopy: [],
-    loadedAllChannel: false,
-    isHiddenChannel: true,
-    isLoadingChannel: false,
-    searchText: '',
-    // user: null,
-    goBackClickStatus: false,
-    FavorTubeVersion: FavorTubeVersion,
-    peersNum: 0,
-  }),
+  data() {
+    return {
+      drawer: false,
+      items: [
+        {
+          header: null,
+          pages: [
+            {title: 'Home', link: '/', icon: 'mdi-home', show: true},
+            {title: 'Trending', link: '/trending', icon: 'mdi-fire', show: true},
+            {
+              title: 'Subscriptions',
+              link: '/subscriptions',
+              icon: 'mdi-youtube-subscription',
+            }
+          ]
+        },
+        {
+          header: null,
+          pages: [
+            {
+              title: 'History',
+              link: '/history',
+              icon: 'mdi-history'
+            },
+            {
+              title: 'Liked videos',
+              link: '/liked-videos',
+              icon: 'mdi-thumb-up'
+            },
+            {
+              title: 'Share',
+              link: '/share',
+              icon: 'mdi-share'
+            }
+          ]
+        },
+        // {
+        //   header: 'Subscriptions',
+        //   pages: [
+        //     // {
+        //     //   title: 'Traversy Media',
+        //     //   link: '#tm',
+        //     //   icon: 'mdi-badge-account'
+        //     // },
+        //     // {
+        //     //   title: 'The New Boston',
+        //     //   link: '#tn',
+        //     //   icon: 'mdi-badge-account'
+        //     // },
+        //     // {
+        //     //   title: 'Net Ninija',
+        //     //   link: '#nn',
+        //     //   icon: 'mdi-badge-account'
+        //     // },
+        //     // {
+        //     //   title: 'Chris Hawks',
+        //     //   link: '#ch',
+        //     //   icon: 'mdi-badge-account'
+        //     // }
+        //   ]
+        // },
+        // {
+        //   header: 'MORE FROM VUETUBE',
+        //   pages: [
+        //     {
+        //       title: 'VueTube Premium',
+        //       link: '#vp',
+        //       icon: 'mdi-youtube'
+        //     },
+        //     {
+        //       title: 'Gaming',
+        //       link: '#g',
+        //       icon: 'mdi-youtube-gaming'
+        //     },
+        //     {
+        //       title: 'Live',
+        //       link: '#li',
+        //       icon: 'mdi-access-point'
+        //     }
+        //   ]
+        // },
+        // {
+        //   header: null,
+        //   pages: [
+        //     {
+        //       title: 'Setting',
+        //       link: '#sg',
+        //       icon: 'mdi-cog'
+        //     },
+        //     {
+        //       title: 'Report history',
+        //       link: '#rh',
+        //       icon: 'mdi-flag'
+        //     },
+        //     {
+        //       title: 'Help',
+        //       link: '#hp',
+        //       icon: 'mdi-help-circle'
+        //     },
+        //     {
+        //       title: 'Send feedback',
+        //       link: '#f',
+        //       icon: 'mdi-message-alert'
+        //     }
+        //   ]
+        // }
+      ],
+      links: [
+        // { text: 'About', link: '#' },
+        // { text: 'Press', link: '#' },
+        // { text: 'Copyrignt', link: '#' },
+        // { text: 'Contact us', link: '#' },
+        // { text: 'Creators', link: '#' },
+        // { text: 'Advertise', link: '#' },
+        // { text: 'Developers', link: '#' },
+        // { text: 'Terms', link: '#' },
+        // { text: 'Privacy', link: '#' },
+        // { text: 'Policy & Safety', link: '#' },
+        // { text: 'Test new features', link: '#' }
+      ],
+      channelLength: 0,
+      channelPage: 1,
+      channelList: [],
+      channelListCopy: [],
+      loadedAllChannel: false,
+      isHiddenChannel: true,
+      isLoadingChannel: false,
+      searchText: '',
+      // user: null,
+      goBackClickStatus: false,
+      FavorTubeVersion: FavorTubeVersion,
+      peersNum: 0,
+    }
+  },
   computed: {
     ...mapGetters(['currentUser', 'isAuthenticated', "getImgUrl", "getApi", "web3", "ws"]),
     getUrl() {
       return this.getImgUrl
+    },
+    is18() {
+      return sessionStorage.getItem("network_id") === '18';
     }
   },
   methods: {
@@ -560,25 +566,25 @@ export default {
       this.$router.back(-1);
     },
     async getTopology() {
-      const { data } = await FavorService.getTopology();
+      const {data} = await FavorService.getTopology();
       this.peersNum = (data?.connected || 0) + (data?.bootNodes?.connected || 0);
 
       let _this = this;
       _this.ws?.send(
-        {
-          "id": 3,
-          "jsonrpc": '2.0',
-          "method": 'p2p_subscribe',
-          "params": ['kadInfo'],
-        },
-        (err, res) => {
-          if (err || res?.error) {
-            console.error(err || res?.error);
-          }
-          _this.ws?.on(res?.result, (res) => {
-            _this.peersNum = res?.connected?.full_nodes;
-          });
-        },
+          {
+            "id": 3,
+            "jsonrpc": '2.0',
+            "method": 'p2p_subscribe',
+            "params": ['kadInfo'],
+          },
+          (err, res) => {
+            if (err || res?.error) {
+              console.error(err || res?.error);
+            }
+            _this.ws?.on(res?.result, (res) => {
+              _this.peersNum = res?.connected?.full_nodes;
+            });
+          },
       );
     },
   },
@@ -621,15 +627,15 @@ export default {
     this.drawer = this.$route.name === 'Watch' ? false : this.drawer
 
     if (!this.isAuthenticated) {
-      this.items[0].pages.pop();
-      this.items.splice(1, 1)
+      // this.items[0].pages.pop();
+      // this.items.splice(1, 1)
     }
   },
   watch: {
     isAuthenticated(newV) {
       if (!newV) {
-        this.items[0].pages.pop();
-        this.items.splice(1, 1);
+        // this.items[0].pages.pop();
+        // this.items.splice(1, 1);
       }
     },
     $route: {
@@ -760,6 +766,7 @@ export default {
 
 .connecting {
   margin: 10px;
+
   .connecting-status {
     display: inline-block;
     width: 10px;
@@ -768,9 +775,11 @@ export default {
     border-radius: 50%;
     background: #f00;
   }
+
   .peers-normal {
     background: rgb(255, 255, 83);
   }
+
   .peers-many {
     background: rgb(69, 202, 69);
   }

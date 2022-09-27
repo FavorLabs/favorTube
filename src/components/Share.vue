@@ -52,7 +52,6 @@ export default {
     ...mapGetters(["currentUser"]),
     url() {
       return `https://share.favorlabs.io/share/${this.text}` + getQueryString({
-        uid: this.currentUser.id,
         invitation: this.currentUser.code,
       });
     }
