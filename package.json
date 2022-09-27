@@ -102,7 +102,12 @@
       "public",
       "favor"
     ],
-    "extraFiles": [],
+    "extraResources": [
+      {
+        "from": "thirdparty",
+	    "to": "app/thirdparty"
+      }
+    ],
     "productName": "FavorTube",
     "appId": "com.favorTube.app",
     "dmg": {
