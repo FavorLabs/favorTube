@@ -2,6 +2,7 @@
 node_modules
 /dist
 /favor
+/thirdparty
 /build
 
 # local env files
