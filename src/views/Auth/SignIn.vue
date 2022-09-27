@@ -306,6 +306,7 @@ export default {
     reset() {
       this.init();
       this.loading = false;
+      localStorage.removeItem("walletconnect");
       this.web3?.currentProvider?.disconnect?.();
     },
     getInvitationCode() {
