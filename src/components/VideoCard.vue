@@ -9,14 +9,14 @@
       style="height: 300px"
   >
     <!-- :to="`/watch/${video._id}`" -->
-    <div style="flex: 1;background-color:#ccc;position: relative">
+    <div style="flex: 2 1 0%;background-color:#ccc;position: relative">
       <v-img
           v-if="video.thumbnailUrl !== 'no-photo.jpg'"
           :src="`${getImgUrl}/uploads/thumbnails/${video.thumbnailUrl}`"
           height="200px"
       ></v-img>
     </div>
-    <v-row style="flex: 0">
+    <v-row style="flex: 1 1 0%">
       <v-col cols="2" v-if="card.type != 'noAvatar'">
         <v-list-item class="pl-0 pt-3" router :to="`/channels/${channel._id}`">
           <v-list-item-avatar :class="{ mode: video.userId.mode == 1}">

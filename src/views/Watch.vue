@@ -694,7 +694,11 @@ export default {
             this.video.dislikes++
         }
       }).catch((err) => {
-        console.log(err)
+        console.log(err);
+        this.$store.dispatch('showTips', {
+          type: "error",
+          text: JSON.stringify(err.response.data.error),
+        });
       })
 
       if (!feeling) return
@@ -893,6 +897,7 @@ export default {
     this.infiniteId += 1
     this.getVideo(to.params.id)
     this.isShowInfinite = false;
+    this.retryStatus = false;
     next()
   }
 }
