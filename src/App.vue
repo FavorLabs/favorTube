@@ -170,8 +170,8 @@ export default {
     setRouterParams(routerParams) {
       if (JSON.stringify(routerParams) !== '{}') {
         for (let key in routerParams) {
-          if (['uid', 'invitation'].includes(key)) {
-            if (key === 'invitation' && (routerParams[key].length < 4 || routerParams[key].length > 8)) {
+          if (['invitation'].includes(key)) {
+            if (key === 'invitation' && (routerParams[key].length !== 10)) {
               sessionStorage.removeItem('invitation');
               continue;
             }
