@@ -7,12 +7,12 @@
       </div>
     </div>
     <div class="bg-white-m">
-      <div class="signin-header-text" style="position: absolute;text-align: center;width: 100%;">
+      <div class="signin-header-text" style="position: absolute;text-align: center;width: calc(100% - 6vmin);">
         <p class="title">{{ signStatus }}</p>
         <p class="desc">You just need to {{ signStatus }} with your wallet</p>
       </div>
       <v-row no-gutters class="btns-list fill-height">
-        <v-col cols="12" xs="12" sm="8" md="8" class="ma-auto">
+        <v-col cols="12" xs="12" sm="8" md="8" class="ma-auto" style="max-width: 1250px;">
           <v-card outlined :loading="loading">
             <img :src="require('@/assets/goback.png')" width="15" class="back" alt="" @click="goBack">
             <v-row no-gutters class="bg-pc">
@@ -489,15 +489,16 @@ export default {
   }
 
   .title {
-    font-size: 32px !important;
+    font-size: 4.5vmin !important;
     color: #262626;
     font-family: Impact-Regular !important;
   }
 
   .desc {
-    font-size: 12px;
+    font-size: 1.6vmin;
     color: #808080;
     font-family: Roboto-Regular;
+    margin-top: 5px;
   }
 }
 
