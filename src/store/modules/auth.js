@@ -15,7 +15,7 @@ const state = {
     ws: null,
     web3: null,
     token: localStorage.getItem('token') || null,
-    user: JSON.parse(localStorage.getItem('user')) || {},
+    user: JSON.parse(sessionStorage.getItem('user')) || {},
     isUserLoggedIn: localStorage.getItem('token') || false,
     config: {},
 }
@@ -104,7 +104,7 @@ const actions = {
         return new Promise((resolve, reject) => {
             AuthenticationService.me(token)
                 .then(({data}) => {
-                    localStorage.setItem('user', JSON.stringify(data.data))
+                    sessionStorage.setItem('user', JSON.stringify(data.data))
                     commit('SET_USER_DATA', data.data)
                     resolve(data)
                 })
@@ -113,7 +113,7 @@ const actions = {
     },
     signOut({commit}) {
         localStorage.removeItem('token')
-        localStorage.removeItem('user')
+        sessionStorage.removeItem('user')
         commit('CLEAR_AUTH')
     }
 }

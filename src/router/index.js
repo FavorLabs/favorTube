@@ -20,7 +20,8 @@ const routes = [
         components: {
             NavBar,
             default: () => import(/* webpackChunkName: "Home" */ '../views/Home.vue')
-        }
+        },
+        meta: {requiresAuth: true}
     },
     {
         path: '/share',

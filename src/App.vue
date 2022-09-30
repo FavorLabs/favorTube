@@ -73,7 +73,7 @@ export default {
   },
   // components: { VuePullRefresh },
   computed: {
-    ...mapGetters(['getList', "getUrl", "ws", "web3", "isAuthenticated"]),
+    ...mapGetters(['getList', "getUrl", "ws", "web3", "isAuthenticated", "getToken"]),
   },
   async created() {
     console.log('version', FavorTubeVersion);
@@ -215,8 +215,11 @@ export default {
           let api = sessionStorage.getItem("api");
           FavorService.observe(api);
         }, 2000)
-      } else if (this.ws) {
-        if (this.isAuthenticated && !this.web3) {
+      } else if (this.ws && this.isAuthenticated) {
+        if (this.getToken) {
+          await this.$store.dispatch('getCurrentUser', this.getToken);
+        }
+        if (!this.web3) {
           const {err, res} = await getWeb3(() => {
             disconnect(this)
           });
