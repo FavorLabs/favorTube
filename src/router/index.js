@@ -20,7 +20,8 @@ const routes = [
         components: {
             NavBar,
             default: () => import(/* webpackChunkName: "Home" */ '../views/Home.vue')
-        }
+        },
+        meta: {requiresAuth: true}
     },
     {
         path: '/share',
@@ -183,7 +184,7 @@ function SignInTips() {
 }
 
 router.beforeEach((to, from, next) => {
-    const loggedIn = localStorage.getItem('user')
+    const loggedIn = localStorage.getItem('token');
 
     if (to.matched.some((record) => record.meta.requiresAuth) && !loggedIn) {
         if (to.path === '/studio') {
