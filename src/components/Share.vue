@@ -1,20 +1,27 @@
 <template>
-  <span class="container" v-if="isShow">
+  <div class="container" v-if="isShow">
     <template
         v-for="item in list"
     >
-          <ShareNetwork
-              :key="item.network"
-              :network="item.network"
-              :url="url"
-              title=""
-              class="share-item"
-          >
-          <img width="22" style="vertical-align: middle" :src="item.img"
-               :alt="item.network"/>
-        </ShareNetwork>
+      <ShareNetwork
+          :key="item.network"
+          :network="item.network"
+          :url="url"
+          title=""
+          class="share-item"
+      >
+        <img width="22" style="vertical-align: middle" :src="item.img"
+             :alt="item.network"/>
+      </ShareNetwork>
     </template>
-  </span>
+    <v-icon
+        v-if="isNativeShare || isAndroid"
+        style="margin-left: 20px"
+        color="#179bFa"
+        @click="()=>share()">
+      mdi-share-variant-outline
+    </v-icon>
+  </div>
 </template>
 
 <script>
@@ -22,7 +29,8 @@
 import TGImg from '@/assets/TG.png'
 import TWImg from '@/assets/TW.png'
 import {mapGetters} from "vuex";
-import { getQueryString } from '@/utils/util'
+import {getQueryString} from '@/utils/util';
+import NativeShare from 'nativeshare'
 
 export default {
   name: "share",
@@ -45,7 +53,9 @@ export default {
           network: "twitter",
           img: TWImg,
         }
-      ]
+      ],
+      isNativeShare: window.location.protocol === 'https:' && /Chrome|Safari|iphone|Mac OS/i.test(window.navigator.userAgent),
+      isAndroid: /Android|Adr/i.test(window.navigator.userAgent) && /Favor/i.test(window.navigator.userAgent)
     }
   },
   computed: {
@@ -56,11 +66,39 @@ export default {
       });
     }
   },
-  // mounted() {
-  //   if (sessionStorage.getItem('network_id') === '18') {
-  //     this.isShow = true;
-  //   }
-  // }
+  methods: {
+    share() {
+      if (this.isAndroid) {
+        this.shareHandle();
+      } else if (this.isNativeShare) {
+        this.nativeShare();
+      }
+    },
+    nativeShare() {
+      const _this = this;
+      const nativeShare = new NativeShare();
+      nativeShare.setShareData({
+        link: _this.url,
+        title: 'FavorTube',
+        desc: 'FavorTube',
+        icon: 'https://favortube.favorlabs.io/favicon.ico',
+        syncDescToTag: false,
+        syncIconToTag: false,
+        syncTitleToTag: false,
+      })
+      try {
+        nativeShare.call()
+      } catch (err) {
+        this.$store.dispatch('showTips', {
+          type: "error",
+          text: err.message
+        });
+      }
+    },
+    shareHandle() {
+      window.flutter_inappwebview?.callHandler?.('share', this.url)
+    }
+  }
 }
 </script>
 
@@ -69,8 +107,9 @@ export default {
   display: flex;
   flex-wrap: nowrap;
   margin-left: 0;
+
   .share-item:nth-child(1) {
-    margin-right: 33px;
+    margin-right: 20px;
   }
 }
 </style>
