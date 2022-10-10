@@ -1,6 +1,6 @@
 {
   "name": "favortube",
-  "version": "1.2.11",
+  "version": "1.2.12",
   "author": {
     "name": "favortube",
     "email": "**"
@@ -30,6 +30,7 @@
     "eventemitter3": "^4.0.7",
     "lodash": "^4.17.21",
     "moment": "^2.24.0",
+    "nativeshare": "^2.1.5",
     "qrcode.vue": "^1.7.0",
     "qrcodejs2": "^0.0.2",
     "vee-validate": "^3.2.5",
@@ -105,7 +106,7 @@
     "extraResources": [
       {
         "from": "thirdparty",
-	    "to": "app/thirdparty"
+        "to": "app/thirdparty"
       }
     ],
     "productName": "FavorTube",
