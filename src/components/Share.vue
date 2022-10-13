@@ -80,11 +80,7 @@ export default {
       nativeShare.setShareData({
         link: _this.url,
         title: 'FavorTube',
-        desc: 'FavorTube',
-        icon: 'https://favortube.favorlabs.io/favicon.ico',
-        syncDescToTag: false,
-        syncIconToTag: false,
-        syncTitleToTag: false,
+        desc: _this.url,
       })
       try {
         nativeShare.call()
