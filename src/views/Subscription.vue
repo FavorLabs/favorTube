@@ -18,7 +18,7 @@
       <main v-else>
         <v-row>
           <v-col
-            cols="12"
+            cols="6"
             sm="6"
             md="4"
             lg="3"

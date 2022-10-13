@@ -50,12 +50,13 @@
           <v-card class="mx-auto fill-height" outlined
                   style="display: flex;flex-direction: column;justify-content: space-between">
             <v-card-title class="pl-5">Secret Channel</v-card-title>
-            <v-card-actions class="d-block ml-2" style="height: 52px">
+            <v-card-actions class="d-block ml-2" style="height: 52px" @click="tip">
               <v-switch
                   style="margin-top: 0;padding: 0;display: flex;align-items: center;height: 36px"
                   color="#F44336"
                   v-model="currentUser.secret"
                   hide-details
+                  :disabled="currentUser.secret"
                   @change="setSecret"
               ></v-switch>
             </v-card-actions>
@@ -169,6 +170,14 @@ export default {
     async setSecret(secret) {
       this.secretStatus = secret;
       this.secretModal = true;
+    },
+    tip() {
+      if (this.currentUser.secret) {
+        this.$store.dispatch("showTips", {
+          type: "error",
+          text: "Cannot set secret channel as public"
+        })
+      }
     },
     canceSecret() {
       this.secretModal = false;
