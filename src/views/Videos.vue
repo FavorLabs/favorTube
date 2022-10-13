@@ -1,12 +1,12 @@
 <template>
-  <video-list request-type="featured"></video-list>
+  <video-list request-type="public"></video-list>
 </template>
 
 <script>
 import VideoList from "@/components/VideoList";
 
 export default {
-  name: 'Home',
+  name: 'Videos',
   components: {
     VideoList
   }
