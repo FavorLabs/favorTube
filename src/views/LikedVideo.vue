@@ -19,7 +19,7 @@
         <!-- <h3 class="headline font-weight-medium">Recommended</h3> -->
         <v-row>
           <v-col
-            cols="12"
+            cols="6"
             sm="6"
             md="4"
             lg="3"
@@ -31,6 +31,7 @@
               <video-card
                 :card="{ maxWidth: 350 }"
                 :video="video"
+                :index="0"
                 :channel="video.userId"
               ></video-card>
             </v-skeleton-loader>

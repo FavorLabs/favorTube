@@ -19,13 +19,13 @@
         <!-- <h3 class="headline font-weight-medium">Recommended</h3> -->
         <v-row>
           <v-col
-              cols="12"
+              cols="6"
               sm="6"
               md="4"
               lg="3"
               v-for="(video, i) in loading ? pageSize : videos"
               :key="i"
-              class="mx-xs-auto"
+              class="mx-xs-auto video-card-wrap"
           >
             <v-skeleton-loader type="card-avatar" :loading="loading">
               <video-card
@@ -132,5 +132,12 @@ export default {
 <style lang="scss">
 .card {
   background: #f9f9f9 !important;
+}
+
+@media screen and (max-width: 600px) {
+  .video-card-wrap {
+    padding-left: 6px!important;
+    padding-right: 6px!important;
+  }
 }
 </style>

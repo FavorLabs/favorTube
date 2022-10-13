@@ -11,7 +11,7 @@
         </v-card-title>
 
         <v-card-text>
-          <div style="overflow-y: scroll;max-height: 500px;padding-top: 10px">
+          <div style="overflow-y: scroll;max-height: 50vh;padding-top: 10px">
             <div :class="'chunkInfo-item' + getOracleClass(item)" v-for="(item, index) in chunkArr" :key="'chunkArr' + index">
               <span class="chunk-color" :style="`background-color: ${getRandomHex()}`"></span>
               <span class="chunk-overlay">{{ item.overlay }}</span>

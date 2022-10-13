@@ -1,6 +1,6 @@
 <template>
   <v-card
-      class="content-bg card mx-auto d-flex flex-column justify-space-between"
+      class="content-bg card mx-auto d-flex flex-column justify-space-between video-card"
       :max-width="card.maxWidth"
       flat
       tile
@@ -9,23 +9,24 @@
       style="height: 300px"
   >
     <!-- :to="`/watch/${video._id}`" -->
-    <div style="flex: 2 1 0%;background-color:#ccc;position: relative">
+    <div style="flex: 2 1 0%;background-color:#ccc;position: relative" class="video-card-img-out">
       <v-img
           v-if="video.thumbnailUrl !== 'no-photo.jpg'"
           :src="`${getImgUrl}/uploads/thumbnails/${video.thumbnailUrl}`"
           height="200px"
+          class="video-card-img"
       ></v-img>
     </div>
-    <v-row style="flex: 1 1 0%">
-      <v-col cols="2" v-if="card.type != 'noAvatar'">
+    <v-row style="flex: 1 1 0%" class="video-avatars">
+      <v-col cols="2" v-if="card.type != 'noAvatar'" class="video-avatars-col-1">
         <v-list-item class="pl-0 pt-3" router :to="`/channels/${channel._id}`">
-          <v-list-item-avatar :class="{ mode: video.userId.mode == 1}">
+          <v-list-item-avatar :class="{ mode: video.userId.mode == 1}" class="video-avatars-img-out">
             <v-img
                 v-if="channel.photoUrl !== 'no-photo.jpg'"
-                class="elevation-6"
+                class="elevation-6 video-avatars-img"
                 :src="`${getImgUrl}/uploads/avatars/${channel.photoUrl}`"
             ></v-img>
-            <v-avatar v-else color="red">
+            <v-avatar v-else color="red" class="video-avatars-default">
               <span class="white--text headline">
                 {{ channel.channelName.split('')[0].toUpperCase() }}
               </span
@@ -36,16 +37,16 @@
       </v-col>
       <v-col>
         <v-card-title
-            class="pl-2 pt-3 subtitle-1 font-weight-bold video-title-format"
+            class="pl-2 pt-3 subtitle-1 font-weight-bold video-title-format video-title"
             style="line-height: 1.2rem;"
         >
           {{ video.title }}
         </v-card-title>
 
-        <v-card-subtitle class="pl-2 pb-0">
+        <v-card-subtitle class="pl-2 pb-0 video-subtitle">
           {{ channel.name }}
         </v-card-subtitle>
-        <v-card-subtitle class="pl-2 pt-0"
+        <v-card-subtitle class="pl-2 pt-0 video-subtitle video-views-date"
                          style="display: flex;justify-content: space-between;align-items: center;padding-right: 0px">
             <span>{{ video.views }} views
               <v-icon>mdi-circle-small
@@ -149,5 +150,67 @@ export default {
 
 .mode {
   border: 3px solid #FFD700;
+}
+
+@media screen and (max-width: 600px) {
+  .video-card {
+    height: unset!important;
+    // height: calc(50vw * .6)!important;
+  }
+  .video-card-img {
+    height: calc(50vw * (.6 * (2 / 3)))!important;
+  }
+
+  .video-title,
+  .video-title *,
+  .video-subtitle,
+  .video-subtitle * {
+    margin: 0!important;
+    padding: 0!important;
+  }
+
+  .video-title {
+    // font-size: 2.4vmin!important;
+    font-size: 12px!important;
+  }
+
+  .video-subtitle {
+    // font-size: 2.2vmin!important;
+    font-size: 10px!important;
+  }
+
+  .video-card-img-out,
+  .video-avatars {
+    flex: unset!important;
+  }
+
+  .video-avatars > .col {
+    padding-bottom: 0;
+  }
+
+  .video-avatars-col-1 {
+    margin: -10px 5px 0 0;
+  }
+
+  .video-avatars-img-out {
+    height: auto!important;
+    min-width: unset!important;
+    margin: unset!important;
+  }
+
+  .video-avatars-img,
+  .video-avatars-default {
+    width: 28px!important;
+    height: 28px!important;
+    min-width: unset!important;
+  }
+
+  .video-views-date {
+    display: -webkit-box!important;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 </style>
