@@ -12,16 +12,17 @@ const routes = [
         components: {
             NavBar,
             default: () => import(/* webpackChunkName: "Home" */ '../views/Home.vue')
-        }
+        },
+        meta: {keepAlive: true}
     },
     {
         path: '/videos',
         name: 'Videos',
         components: {
             NavBar,
-            default: () => import(/* webpackChunkName: "Home" */ '../views/Home.vue')
+            default: () => import(/* webpackChunkName: "Home" */ '../views/Videos.vue')
         },
-        meta: {requiresAuth: true}
+        meta: {requiresAuth: true, keepAlive: true}
     },
     {
         path: '/share',
@@ -74,7 +75,8 @@ const routes = [
             NavBar,
             default: () =>
                 import(/* webpackChunkName: "Trending" */ '../views/Trending.vue')
-        }
+        },
+        meta: {keepAlive: true}
     },
     {
         path: '/studio',
@@ -167,7 +169,8 @@ const routes = [
         components: {
             default: () =>
                 import(/* webpackChunkName: "Refresh" */ '../views/refresh')
-        }
+        },
+        meta: {keepAlive: true}
     }
 ]
 
