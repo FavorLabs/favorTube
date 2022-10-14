@@ -35,6 +35,7 @@
         <vue-loadmore
             v-show="allowRefresh"
             :on-refresh="onRefresh"
+            :show-success-text="false"
         >
           <keep-alive :include="keepList">
             <router-view v-if="allowRefresh" :key="$route.fullPath"></router-view>
@@ -63,7 +64,7 @@ export default {
       timer: null,
       refreshPage: ['/', '/videos', '/trending', '/subscriptions'],
       dataLoading: true,
-      keepList: ['Home', 'Videos','Trending','Subscriptions']
+      keepList: ['Home', 'Videos', 'Trending', 'Subscriptions']
     }
   },
   // components: { VuePullRefresh },
@@ -306,7 +307,7 @@ html {
     svg {
       width: 30px;
       height: 30px;
-      color: #f00;
+      color: rgba(7, 193, 26, 0.97);
 
       circle {
         stroke-width: 5;
@@ -316,7 +317,7 @@ html {
 
   .vuejs-refresh-text,
   .vuejs-loading-text {
-    color: #f00;
+    color: rgba(7, 193, 26, 0.97);
   }
 
   .vuejs-loading-text {
