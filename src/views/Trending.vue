@@ -3,13 +3,13 @@
     <v-container fluid>
       <v-row>
         <v-col
-            cols="11"
+            cols="6"
             sm="8"
             md="10"
             lg="10"
             v-for="(video, i) in loading ? 12 : videos"
             :key="i"
-            class="mx-lg-0 mx-md-0 mx-sm-auto mx-auto"
+            class="mx-lg-0 mx-md-0 mx-sm-auto mx-auto trend-wrap"
         >
           <v-skeleton-loader
               class="mx-auto"
@@ -32,18 +32,18 @@
                 </v-col>
                 <!-- hidden-sm-and-down -->
                 <v-col class="mx-auto" cols="12" sm="9" md="6" lg="8">
-                  <div class="ml-4 ">
-                    <v-card-title class="pl-2 pt-0 subtitle-1 font-weight-bold text-ellipsis">
+                  <div class="trend-total">
+                    <v-card-title class="pl-2 pt-0 subtitle-1 font-weight-bold text-ellipsis trend-title">
                       {{ video.title }}
                     </v-card-title>
 
-                    <v-card-subtitle class="pl-2 pb-0 text-ellipsis-center" v-if="video.userId">
+                    <v-card-subtitle class="pl-2 pb-0 text-ellipsis-center trend-channel-views-date" v-if="video.userId">
                       {{ video.userId.channelName }}
                       <v-icon>mdi-circle-small</v-icon
                       >{{ video.views }} views<v-icon>mdi-circle-small</v-icon
                     >{{ dateFormatter(video.createdAt) }}
                     </v-card-subtitle>
-                    <v-card-subtitle class="pl-2 pt-0 text-ellipsis">
+                    <v-card-subtitle class="pl-2 pt-0 text-ellipsis trend-desc">
                       {{ truncateText(video.description, 200) }}
                     </v-card-subtitle>
                   </div>
@@ -154,6 +154,10 @@ export default {
 </script>
 
 <style lang="scss">
+.trend-total {
+  margin-left: 16px;
+}
+
 .v-skeleton-loader__list-item-avatar-three-line {
   height: 250px;
   .v-skeleton-loader__paragraph.v-skeleton-loader__bone {
@@ -185,6 +189,43 @@ export default {
 
   .text-ellipsis-center {
     margin-top: 0px!important;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .trend-total {
+    margin-left: 0;
+  }
+
+  .trend-title {
+    font-size: 12px!important;
+  }
+
+  .trend-channel-views-date {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    >i {
+      font-size: 10px!important;
+    }
+  }
+
+  .trend-desc,
+  .trend-channel-views-date {
+    font-size: 10px!important;
+  }
+}
+</style>
+
+<style lang="scss" scoped>
+@media screen and (max-width: 600px) {
+  .trend-wrap:nth-child(2n + 1) {
+    padding-right: 6px!important;
+  }
+  .trend-wrap:nth-child(2n) {
+    padding-left: 6px!important;
   }
 }
 </style>

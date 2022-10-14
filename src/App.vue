@@ -76,6 +76,7 @@ export default {
     ...mapGetters(['getList', "getUrl", "ws", "web3", "isAuthenticated", "getToken"]),
   },
   async created() {
+    this.hidePercent();
     console.log('version', FavorTubeVersion);
     if (process.env.VUE_APP_MOBILE) {
       document.addEventListener('deviceready', () => {
@@ -187,6 +188,14 @@ export default {
       }
       this.web3?.currentProvider?.disconnect?.();
     },
+    hidePercent() {
+      let percentMask = document.querySelector('#loading-mask');
+      let percent = document.querySelector('#loading-percent-num');
+      percent.innerHTML = 100;
+      setTimeout(() => {
+        percentMask.style.display = 'none';
+      }, 50);
+    }
   },
   watch: {
     "ws": {
@@ -325,6 +334,17 @@ html {
 
   .vuejs-loading-text {
     display: none;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .video-card-wrap:nth-child(2n + 1) {
+    padding-left: 0px!important;
+    padding-right: 6px!important;
+  }
+  .video-card-wrap:nth-child(2n) {
+    padding-left: 6px!important;
+    padding-right: 0px!important;
   }
 }
 </style>

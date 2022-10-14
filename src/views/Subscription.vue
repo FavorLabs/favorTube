@@ -24,7 +24,7 @@
             lg="3"
             v-for="(video, i) in loading ? 12 : videos"
             :key="i"
-            class="mx-xs-auto"
+            class="mx-xs-auto video-card-wrap"
           >
             <v-skeleton-loader type="card-avatar" :loading="loading">
               <video-card

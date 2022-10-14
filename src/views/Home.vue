@@ -133,11 +133,4 @@ export default {
 .card {
   background: #f9f9f9 !important;
 }
-
-@media screen and (max-width: 600px) {
-  .video-card-wrap {
-    padding-left: 6px!important;
-    padding-right: 6px!important;
-  }
-}
 </style>
