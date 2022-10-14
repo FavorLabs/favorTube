@@ -54,7 +54,7 @@ export default {
           img: TWImg,
         }
       ],
-      isNativeShare: window.location.protocol === 'https:' && /Chrome|Safari|iphone|Mac OS/i.test(window.navigator.userAgent),
+      isNativeShare: window.location.protocol === 'https:' && /Chrome|Safari|Favor/i.test(window.navigator.userAgent) && /iphone|Mac OS/i.test(window.navigator.userAgent),
       isAndroid: /Android|Adr/i.test(window.navigator.userAgent) && /Favor/i.test(window.navigator.userAgent)
     }
   },
@@ -80,11 +80,7 @@ export default {
       nativeShare.setShareData({
         link: _this.url,
         title: 'FavorTube',
-        desc: 'FavorTube',
-        icon: 'https://favortube.favorlabs.io/favicon.ico',
-        syncDescToTag: false,
-        syncIconToTag: false,
-        syncTitleToTag: false,
+        desc: _this.url,
       })
       try {
         nativeShare.call()

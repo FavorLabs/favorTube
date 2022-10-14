@@ -11,7 +11,7 @@ module.exports = {
       title: 'FavorTube'
     }
   },
-  devServer: { https: true },
+  // devServer: { https: true },
   productionSourceMap: isDev,
   configureWebpack: config => {
     config.devtool = isDev ? 'cheap-module-eval-source-map' : false;

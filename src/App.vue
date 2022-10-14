@@ -32,17 +32,16 @@
         ].includes(this.$route.name)
       }"
       >
-        <!-- <vue-pull-refresh :on-refresh="onRefresh">
-          <router-view></router-view>
-        </vue-pull-refresh> -->
         <vue-loadmore
-            v-if="allowRefresh"
+            v-show="allowRefresh"
             :on-refresh="onRefresh"
-            :finished="finished"
+            :show-success-text="false"
         >
-          <router-view :key="$route.fullPath"></router-view>
+          <keep-alive :include="keepList">
+            <router-view v-if="allowRefresh" :key="$route.fullPath"></router-view>
+          </keep-alive>
         </vue-loadmore>
-        <router-view :key="$route.fullPath" v-else></router-view>
+        <router-view v-if="!allowRefresh" :key="$route.fullPath"></router-view>
       </v-content>
     </div>
   </v-app>
@@ -56,7 +55,6 @@ import FavorlabsService from "@/services/favorlabs/FavorlabsService";
 import {config, setConfig} from '@/config/config'
 import {getWeb3} from "@/utils/web3Utils";
 import {version as FavorTubeVersion} from '../package.json'
-// import VuePullRefresh from 'vue-pull-refresh';
 
 export default {
   name: 'App',
@@ -64,16 +62,17 @@ export default {
     return {
       loading: true,
       timer: null,
-      refreshTimer: null,
-      finished: false,
       refreshPage: ['/', '/videos', '/trending', '/subscriptions'],
-      allowRefresh: true,
       dataLoading: true,
+      keepList: ['Home', 'Videos', 'Trending', 'Subscriptions']
     }
   },
   // components: { VuePullRefresh },
   computed: {
     ...mapGetters(['getList', "getUrl", "ws", "web3", "isAuthenticated", "getToken"]),
+    allowRefresh() {
+      return this.refreshPage.includes(this.$route.path);
+    }
   },
   async created() {
     this.hidePercent();
@@ -156,9 +155,7 @@ export default {
       });
     },
     onRefresh(done) {
-      this.finished = false;
-      this.refreshTimer = setTimeout(() => {
-        clearTimeout(this.refreshTimer);
+      setTimeout(() => {
         done();
         this.$router.replace({
           path: '/refresh',
@@ -242,15 +239,14 @@ export default {
         clearInterval(this.timer);
       }
     },
-    "$route.path": {
-      handler: function (path) {
-        let _this = this;
-        _this.allowRefresh = _this.refreshPage.includes(path);
-      }
-    },
     "$route.query": {
       handler: function (newVal) {
         this.setRouterParams(newVal);
+      }
+    },
+    "$route": function (to, from) {
+      if (to.meta.keepAlive && from.meta.keepAlive) {
+        this.keepList = [to.name];
       }
     }
   }
@@ -319,7 +315,7 @@ html {
     svg {
       width: 30px;
       height: 30px;
-      color: #f00;
+      color: rgba(7, 193, 26, 0.97);
 
       circle {
         stroke-width: 5;
@@ -329,7 +325,7 @@ html {
 
   .vuejs-refresh-text,
   .vuejs-loading-text {
-    color: #f00;
+    color: rgba(7, 193, 26, 0.97);
   }
 
   .vuejs-loading-text {
