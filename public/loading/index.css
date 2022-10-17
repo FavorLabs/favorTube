@@ -1,3 +1,6 @@
+#loading-wrap {
+  display: none;
+}
 #loading-mask {
   position: fixed;
   left: 0;

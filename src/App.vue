@@ -188,10 +188,12 @@ export default {
     hidePercent() {
       let percentMask = document.querySelector('#loading-mask');
       let percent = document.querySelector('#loading-percent-num');
-      percent.innerHTML = 100;
-      setTimeout(() => {
-        percentMask.style.display = 'none';
-      }, 50);
+      if (percentMask) {
+        percent.innerHTML = 100;
+        setTimeout(() => {
+          percentMask.style.display = 'none';
+        }, 50);
+      }
     }
   },
   watch: {

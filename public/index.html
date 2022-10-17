@@ -14,17 +14,26 @@
     <noscript>
       <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
-    <div id="loading-mask">
-      <div class="loading-wrapper">
-          <span id="loading-percent"><span id="loading-percent-num">0</span>%</span>
-          <span class="loading-dot loading-dot-spin">
-            <i></i><i></i><i></i><i></i>
-          </span>
+    <div id="loading-wrap">
+      <div id="loading-mask">
+        <div class="loading-wrapper">
+            <span id="loading-percent"><span id="loading-percent-num">0</span>%</span>
+            <span class="loading-dot loading-dot-spin">
+              <i></i><i></i><i></i><i></i>
+            </span>
+        </div>
       </div>
     </div>
     <div id="app"></div>
     <%=process.env.VUE_APP_MOBILE && '<script src="cordova.js"></script>' %>
     <!-- built files will be auto injected -->
+    <script>
+      let loadWrap = document.querySelector('#loading-wrap');
+      let ua = navigator.userAgent;
+      if (!/Favor/i.test(ua)) {
+        loadWrap.style.display = 'block';
+      }
+    </script>
     <script src="./loading/index.js"></script>
   </body>
 </html>
