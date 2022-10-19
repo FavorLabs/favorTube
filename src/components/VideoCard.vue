@@ -38,7 +38,7 @@
       <v-col class="video-avatars-col-2">
         <v-card-title
             class="pl-2 pt-3 subtitle-1 font-weight-bold video-title-format video-title"
-            style="line-height: 1.2rem;"
+            style="line-height: 1.2rem;word-break: break-word;"
         >
           {{ video.title }}
         </v-card-title>
@@ -159,7 +159,8 @@ export default {
     // height: calc(50vw * .6)!important;
   }
   .video-card-img {
-    height: calc(50vw * (.6 * (2 / 3)))!important;
+    // height: calc(50vw * (.6 * (2 / 3)))!important;
+    height: calc((100vw - 44px) / 4 ) !important;
   }
 
   .video-title,
@@ -173,6 +174,7 @@ export default {
   .video-title {
     // font-size: 2.4vmin!important;
     font-size: 12px!important;
+    line-height: 1rem!important;
   }
 
   .video-subtitle {
@@ -190,7 +192,7 @@ export default {
   }
 
   .video-avatars-col-1 {
-    margin: -10px 5px 0 0;
+    margin: -12px 5px 0 0;
   }
 
   .video-avatars-img-out {
@@ -223,6 +225,7 @@ export default {
     -webkit-line-clamp: 1;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1rem;
     >span{
       >i {
         font-size: 10px!important;

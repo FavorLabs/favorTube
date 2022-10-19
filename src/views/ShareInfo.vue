@@ -1,28 +1,44 @@
 <template>
   <div class="main">
     <div class="share">
-      <v-card class="card">
-        <div class="share_info">
-          <div class="info_box">
-            <div class="key">TOTAL</div>
-            <div class="value">{{ currentUser.invitations }}</div>
-          </div>
-        </div>
-        <div class="code_info">
-          <div class="code">
-            <qrcode-vue
-                size="150"
-                :value="url"
-                foreground="#4A56BB"
+      <div class="share-card">
+        <v-list-item-avatar size="80" class="avatar">
+          <v-img
+              v-if="currentUser.photoUrl !== 'no-photo.jpg'"
+              :src="`${url}/uploads/avatars/${currentUser.photoUrl}`"
+          ></v-img>
+          <!-- :src="'http://192.168.100.54:1633/group/http/favortube/favortube.com/uploads/avatars/avatar-62be605e27e954ecaff238cd.jpg'" -->
+
+          <v-avatar v-else color="red" size="80">
+            <span class="white--text headline" style="font-size: 18px">
+              {{
+                currentUser.channelName.split('')[0].toUpperCase()
+              }}</span
             >
-            </qrcode-vue>
+          </v-avatar>
+        </v-list-item-avatar>
+        <qrcode-vue
+          size="220"
+          :value="url"
+          foreground="#000"
+          class="qrcode"
+        >
+        </qrcode-vue>
+        <div style="font-size: 18px;text-align: center;margin-top: 3px;color: #bbb">
+          <span style="margin-right: 10px">invate code:</span><span>{{ currentUser.code }}</span>
+        </div>
+        <div class="dividing-line"></div>
+        <div class="share-data">
+          <div class="item">
+            <div class="label">Total</div>
+            <div class="num">68</div>
           </div>
-          <div style="font-size: 12px;text-align: center;margin-top: 3px">
-            <span style="color: #707070">Invitation code:</span><span
-              style="color: #404040;font-weight: 500">{{ currentUser.code }}</span>
+          <div class="item">
+            <div class="label">Valid</div>
+            <div class="num">68</div>
           </div>
         </div>
-        <div class="d-flex justify-space-between">
+        <div class="d-flex justify-space-between btns">
           <v-btn
               depressed
               class="btn"
@@ -45,7 +61,10 @@
             Copy
           </v-btn>
         </div>
-      </v-card>
+      </div>
+      <div class="share-table">
+        table
+      </div>
     </div>
   </div>
 </template>
@@ -72,73 +91,109 @@ export default {
 </script>
 
 <style scoped lang="scss">
-
-.share {
-  min-width: 300px;
-  padding: 5px;
-  background: url('../assets/share_bg.png');
-}
-
-.card {
-  overflow: hidden;
-  padding: 20px;
-}
-
-.key {
-  font-size: 14px;
-  font-family: Roboto-Medium, Roboto, serif;
-  font-weight: 500;
-  color: #ADADAD;
-  /*line-height: 0;*/
-}
-
-.value {
-  font-size: 16px;
-  font-family: DIN-Medium, DIN, serif;
-  font-weight: 500;
-  color: #1F1F1F;
-  text-align: center;
-}
-
 .main {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
-}
-
-.share_info {
-  border-radius: 0 !important;
-  padding: 16px 0;
-  border: 1px solid #707070;
-  display: flex;
-  justify-content: center;
-}
-
-.info_box {
-  padding: 0 16px;
-}
-
-.code_info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 50px 0;
-  margin: 15px 0;
-  background: url('../assets/share_bg_m.png') 100%/cover no-repeat;
-  >div {
-    transform: translateY(20px);
+  background: url('../assets/share-bg.png') 0px 0px/cover repeat-x;
+  .share {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 1400px;
+    .share-card,
+    .share-table {
+      border-radius: 10px;
+      box-shadow: 0 0 10px 0px rgb(0,0,0,.3);
+    }
+    .share-card {
+      position: relative;
+      min-width: 300px;
+      // height: 500px;
+      background-color: #fff;
+      margin-right: 50px;
+      .avatar {
+        position: absolute;
+        top: -40px;
+        left: 50%;
+        margin: 0;
+        transform: translateX(-50%);
+      }
+      .qrcode {
+        text-align: center;
+        margin-top: 60px;
+      }
+      .dividing-line {
+        position: relative;
+        height: 2px;
+        margin: 24px;
+        background: linear-gradient(90deg, rgb(160,56,239), rgb(24,192,220));
+      }
+      .dividing-line::before {
+        left: 0;
+        transform: translate(-100%, -40%);
+        background: rgb(160,56,239);
+      }
+      .dividing-line::after {
+        right: 0;
+        transform: translate(100%, -40%);
+        background: rgb(24,192,220);
+      }
+      .dividing-line::before,
+      .dividing-line::after {
+        position: absolute;
+        top: 0;
+        display: block;
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+      .share-data {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 20px;
+        margin-bottom: 20px;
+        .item {
+          text-align: center;
+          margin-right: 25px;
+          // font-family: "Roboto", sans-serif !important;
+          .label {
+            font-size: 18px;
+            font-weight: 500;
+          }
+        }
+      }
+      .share-data:last-child {
+        margin-right: 0;
+      }
+      .btns {
+        position: absolute;
+        left: 50%;
+        bottom: -60px;
+        transform: translateX(-50%);
+      }
+    }
+    .share-table {
+      height: 650px;
+      background-color: #fff;
+      flex-grow: 1;
+    }
   }
 }
-
-.btn {
-  flex: 1;
-  height: 32px !important;
-  background-image: url('../assets/btn_bg.png');
-  background-size: 100% 100%;
-  color: #5D718B;
-  letter-spacing: 0;
-  overflow: hidden;
+@media screen and (max-width: 1500px) {
+  .main {
+    .share {
+      min-width: unset;
+      .share-card {
+        margin-right: 0;
+      }
+      .share-table {
+        display: none;
+      }
+    }
+  }
 }
 </style>

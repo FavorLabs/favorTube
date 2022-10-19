@@ -344,5 +344,8 @@ html {
     padding-left: 6px!important;
     padding-right: 0px!important;
   }
+  .v-tooltip__content {
+    display: none!important;
+  }
 }
 </style>
