@@ -26,5 +26,8 @@ export default {
   },
   getUndone(){
     return Api().get('videos/undone')
+  },
+  uploadable() {
+    return Api().get('videos/uploadable')
   }
 }

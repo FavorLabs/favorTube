@@ -27,18 +27,18 @@
                 :src="`${getImgUrl}/uploads/avatars/${channel.photoUrl}`"
             ></v-img>
             <v-avatar v-else color="red" class="video-avatars-default">
-              <span class="white--text headline">
-                {{ channel.channelName.split('')[0].toUpperCase() }}
+              <span class="white--text headline channel-name">
+                {{ channel.channelName.trim().split('')[0].toUpperCase() }}
               </span
               >
             </v-avatar>
           </v-list-item-avatar>
         </v-list-item>
       </v-col>
-      <v-col>
+      <v-col class="video-avatars-col-2">
         <v-card-title
             class="pl-2 pt-3 subtitle-1 font-weight-bold video-title-format video-title"
-            style="line-height: 1.2rem;"
+            style="line-height: 1.2rem;word-break: break-word;"
         >
           {{ video.title }}
         </v-card-title>
@@ -48,14 +48,15 @@
         </v-card-subtitle>
         <v-card-subtitle class="pl-2 pt-0 video-subtitle video-views-date"
                          style="display: flex;justify-content: space-between;align-items: center;padding-right: 0px">
-            <span>{{ video.views }} views
+            <span>
+              {{ dateFormatter(video.createdAt) }}
               <v-icon>mdi-circle-small
               </v-icon
               >
-              {{ dateFormatter(video.createdAt) }}
+              {{ video.views }} views
             </span>
           <div v-if="video.status ==='member'"
-               style="display: inline-block;padding: 0 5px;font-size: 12px;width: 38px;margin-left: 5px">
+               style="display: inline-block;padding: 0 5px;font-size: 12px;width: 38px;margin-left: 5px" class="is-member">
             <!-- Members Only -->
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
@@ -158,7 +159,8 @@ export default {
     // height: calc(50vw * .6)!important;
   }
   .video-card-img {
-    height: calc(50vw * (.6 * (2 / 3)))!important;
+    // height: calc(50vw * (.6 * (2 / 3)))!important;
+    height: calc((100vw - 44px) / 4 ) !important;
   }
 
   .video-title,
@@ -172,6 +174,7 @@ export default {
   .video-title {
     // font-size: 2.4vmin!important;
     font-size: 12px!important;
+    line-height: 1rem!important;
   }
 
   .video-subtitle {
@@ -189,13 +192,19 @@ export default {
   }
 
   .video-avatars-col-1 {
-    margin: -10px 5px 0 0;
+    margin: -12px 5px 0 0;
   }
 
   .video-avatars-img-out {
     height: auto!important;
     min-width: unset!important;
     margin: unset!important;
+  }
+
+  .video-avatars-default {
+    span {
+      font-size: 1rem!important;
+    }
   }
 
   .video-avatars-img,
@@ -205,12 +214,29 @@ export default {
     min-width: unset!important;
   }
 
+  .video-avatars-col-2 {
+    position: relative;
+    .is-member {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 15px!important;
+      transform: translate(-100%, 50%);
+    }
+  }
+
   .video-views-date {
     display: -webkit-box!important;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1rem;
+    >span{
+      >i {
+        font-size: 10px!important;
+      }
+    }
   }
 }
 </style>

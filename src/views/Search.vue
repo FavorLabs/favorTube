@@ -53,7 +53,7 @@
                       <template v-else color="red">
                         <span class="white--text display-1">
                           {{
-                            result.channelName.split('')[0].toUpperCase()
+                            result.channelName.trim().split('')[0].toUpperCase()
                           }}</span
                         >
                       </template>

@@ -37,7 +37,7 @@
                   </template>
                   <span v-else class="headline">
                     {{
-                      item.subscriberId.channelName.split('')[0].toUpperCase()
+                      item.subscriberId.channelName.trim().split('')[0].toUpperCase()
                     }}
                   </span>
                 </v-avatar>

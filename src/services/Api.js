@@ -20,6 +20,7 @@ const removePending = (key, isRequest = false) => {
 
 export default () => {
     const api = sessionStorage.getItem("api") + group() + "/api/v1";
+    // const api = 'http://192.168.100.7:1888' + "/api/v1";
     const axiosInstance = axios.create({
         baseURL: api
     })

@@ -76,7 +76,7 @@
             </v-avatar>
             <template v-else>
               <span class="headline">
-                {{ currentUser.channelName.split('')[0].toUpperCase() }}
+                {{ currentUser.channelName.trim().split('')[0].toUpperCase() }}
               </span>
             </template>
           </v-btn>
@@ -96,7 +96,7 @@
                   <v-avatar color="red">
                     <span class="white--text headline ">
                       {{
-                        currentUser.channelName.split('')[0].toUpperCase()
+                        currentUser.channelName.trim().split('')[0].toUpperCase()
                       }}</span
                     >
                   </v-avatar>
@@ -226,11 +226,11 @@
                 </v-avatar>
                 <!-- <template > -->
                 <span v-else class="display-3">
-                  {{ currentUser.channelName.split('')[0].toUpperCase() }}
+                  {{ currentUser.channelName.trim().split('')[0].toUpperCase() }}
                 </span>
                 <!-- </template> -->
                 <!-- <span class="display-3" v-if="currentUser.photoUrl === 'no-photo.jpg'">
-                  {{ currentUser.channelName.split('')[0].toUpperCase() }}
+                  {{ currentUser.channelName.trim().split('')[0].toUpperCase() }}
                 </span> -->
               </v-btn>
             </v-list-item>
