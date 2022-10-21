@@ -250,7 +250,7 @@ export default {
     showTips(err) {
       this.$store.dispatch('showTips', {
         type: "error",
-        text: err.response.data.error
+        text: err.response.data.error || err
       });
     }
   },
@@ -505,7 +505,7 @@ export default {
           display:-webkit-box;
           overflow: hidden;
           text-overflow: ellipsis;
-          -webkit-box-orient:vertical; 
+          -webkit-box-orient:vertical;
           -webkit-line-clamp:2;
         }
       }

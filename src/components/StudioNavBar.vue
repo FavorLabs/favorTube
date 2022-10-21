@@ -372,7 +372,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 #studioBar {
   .active-item {
     // border-radius: 0 !important;

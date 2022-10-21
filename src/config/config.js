@@ -397,13 +397,13 @@ export const tokenAbi = [
     }
 ];
 
-export const favorTubeAbi = [
+export const favorTubeAbi =  [
     {
         "inputs": [
             {
-                "internalType": "uint8",
+                "internalType": "uint8[5]",
                 "name": "taxRate",
-                "type": "uint8"
+                "type": "uint8[5]"
             },
             {
                 "internalType": "uint256",
@@ -453,6 +453,12 @@ export const favorTubeAbi = [
         "inputs": [
             {
                 "indexed": false,
+                "internalType": "address",
+                "name": "channel",
+                "type": "address"
+            },
+            {
+                "indexed": false,
                 "internalType": "uint256",
                 "name": "price",
                 "type": "uint256"
@@ -472,8 +478,56 @@ export const favorTubeAbi = [
         "inputs": [
             {
                 "indexed": false,
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
                 "internalType": "address",
-                "name": "owner",
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint32",
+                "name": "expire",
+                "type": "uint32"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "account",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "rate",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "indexed": false,
+                "internalType": "struct FavorTube.PayInfo[3]",
+                "name": "subInfo",
+                "type": "tuple[3]"
+            }
+        ],
+        "name": "$subInfo",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "channel",
                 "type": "address"
             },
             {
@@ -532,40 +586,12 @@ export const favorTubeAbi = [
     },
     {
         "inputs": [],
-        "name": "_taxRate",
-        "outputs": [
-            {
-                "internalType": "uint8",
-                "name": "",
-                "type": "uint8"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function",
-        "constant": true
-    },
-    {
-        "inputs": [],
         "name": "_token",
         "outputs": [
             {
                 "internalType": "address",
                 "name": "",
                 "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function",
-        "constant": true
-    },
-    {
-        "inputs": [],
-        "name": "_totalTaxes",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
             }
         ],
         "stateMutability": "view",
@@ -589,6 +615,60 @@ export const favorTubeAbi = [
     {
         "inputs": [],
         "name": "getCurrentRound",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "mode",
+                "type": "uint256"
+            }
+        ],
+        "name": "getTaxRate",
+        "outputs": [
+            {
+                "internalType": "uint8[5]",
+                "name": "",
+                "type": "uint8[5]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true
+    },
+    {
+        "inputs": [],
+        "name": "getTaxRateKey",
+        "outputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "",
+                "type": "uint256[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "lockTotal",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -696,7 +776,7 @@ export const favorTubeAbi = [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_from",
+                "name": "_sender",
                 "type": "address"
             },
             {
@@ -793,9 +873,14 @@ export const favorTubeAbi = [
     {
         "inputs": [
             {
-                "internalType": "uint8",
-                "name": "newRate",
-                "type": "uint8"
+                "internalType": "uint256",
+                "name": "mode",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint8[5]",
+                "name": "taxRate_",
+                "type": "uint8[5]"
             }
         ],
         "name": "setTaxRate",
@@ -832,6 +917,49 @@ export const favorTubeAbi = [
         ],
         "stateMutability": "nonpayable",
         "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "transferToken",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "success",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "transferChain",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function",
+        "payable": true
     }
 ];
 
