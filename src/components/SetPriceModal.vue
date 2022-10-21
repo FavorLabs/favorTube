@@ -1,84 +1,131 @@
 <template>
-  <v-dialog
-      v-model="dialog"
-      persistent
-      transition="fab-transition"
-      max-width="500"
-  >
-    <v-card tile>
-      <v-card-title class="py-3">Set Channel Price</v-card-title>
-      <v-card-text class="px-3">
-        <v-form
-            ref="form"
-            v-model="valid"
-            lazy-validation
-        >
+  <div>
+    <div class="price_info">Set your pricing, such as $20.And you can choose your profit distribution.</div>
+    <v-form
+        ref="form"
+        v-model="valid"
+        lazy-validation
+        class="d-flex align-center"
+    >
+      <v-row no-gutters>
+        <v-col cols="4">
           <v-text-field
               label="Price"
-              dense
               :rules="rules"
-              hide-details="auto"
-              type="number"
               v-model="price"
-              min="0"
+              type="number"
+              :min="1"
           ></v-text-field>
+        </v-col>
+        <v-col cols="8">
           <v-select
+              style="margin-left: 20px"
               v-model="mode"
               label="Mode"
               :items="items"
           ></v-select>
-        </v-form>
-        <footer style="margin-top: 20px">
-          <v-btn @click="closeModal" style="margin-right: 20px">cancel</v-btn>
-          <v-btn @click="set" :loading="loading">set</v-btn>
-        </footer>
-      </v-card-text>
-
-
-    </v-card>
-  </v-dialog>
+        </v-col>
+      </v-row>
+    </v-form>
+    <footer style="margin-top: 5px">
+      <v-btn
+          @click="set"
+          :loading="loading"
+          depressed
+          block
+          color="#218CFF"
+          style="color: #fff"
+      >
+        OK→
+      </v-btn>
+    </footer>
+  </div>
+  <!--    <v-card tile>-->
+  <!--      <v-card-text class="px-3">-->
+  <!--        <v-form-->
+  <!--            ref="form"-->
+  <!--            v-model="valid"-->
+  <!--            lazy-validation-->
+  <!--        >-->
+  <!--          <v-text-field-->
+  <!--              label="Price"-->
+  <!--              dense-->
+  <!--              :rules="rules"-->
+  <!--              hide-details="auto"-->
+  <!--              type="number"-->
+  <!--              v-model="price"-->
+  <!--              min="0"-->
+  <!--          ></v-text-field>-->
+  <!--          <v-select-->
+  <!--              v-model="mode"-->
+  <!--              label="Mode"-->
+  <!--              :items="items"-->
+  <!--          ></v-select>-->
+  <!--        </v-form>-->
+  <!--        <footer style="margin-top: 20px">-->
+  <!--          <v-btn @click="closeModal" style="margin-right: 20px">cancel</v-btn>-->
+  <!--          <v-btn @click="set" :loading="loading">set</v-btn>-->
+  <!--        </footer>-->
+  <!--      </v-card-text>-->
+  <!--    </v-card>-->
 </template>
 
 <script>
 import {mapGetters} from "vuex";
 
-import {favorTubeAbi, config} from "@/config/config";
+import {favorTubeAbi, config, tokenAbi} from "@/config/config";
 
 export default {
   name: "SetPrice",
-  props: ["dialog", "userConfig"],
   data() {
     return {
       loading: false,
       valid: true,
-      price: this.userConfig.price / 100,
-      mode: this.userConfig.mode,
+      price: 1,
+      mode: 0,
       rules: [
         value => !!value || 'Required',
         value => Number.isInteger(value * 100) || 'Maximum two decimal places',
-        value => value >= 0 || 'Price cannot be less than 0'
+        value => value >= 1 || 'Price cannot be less than 1'
       ],
-      items: [
-        {
-          text: "normal",
-          value: "0",
-        },
-        {
-          text: "promotion",
-          value: "1",
-        }
-      ],
+      items: [],
+      decimals: 2
     }
   },
   computed: {
-    ...mapGetters(["web3", "currentUser"]),
+    ...mapGetters(["web3", "currentUser", "nodeWeb3"]),
+  },
+  async created() {
+    await this.getDecimals();
+    this.getUserConfig()
+    this.getMode();
   },
   methods: {
-    closeModal() {
-      this.$emit('closeDialog')
+    async getDecimals() {
+      let contract = new this.nodeWeb3.eth.Contract(tokenAbi, config.favorTokenAddress);
+      this.decimals = await contract.methods.decimals().call();
+    },
+    async getUserConfig() {
+      const favorTubeContract = new this.nodeWeb3.eth.Contract(favorTubeAbi, config.favorTubeAddress);
+      let userConfig = await favorTubeContract.methods.userConfig().call({from: this.currentUser.address});
+      this.price = userConfig.price / (10 ** this.decimals);
+      this.mode = userConfig.mode;
+    },
+    async getMode() {
+      const favorTubeContract = new this.nodeWeb3.eth.Contract(favorTubeAbi, config.favorTubeAddress);
+      let modeArr = await favorTubeContract.methods.getTaxRateKey().call();
+      let items = [];
+      for (let i = 0; i < modeArr.length; i++) {
+        let item = modeArr[i];
+        const rate = await favorTubeContract.methods.getTaxRate(item).call();
+        items.push({
+          text: rate.slice(2).join("-"),
+          value: item
+        })
+      }
+      this.items = items;
     },
     async set() {
-      console.log(this.$refs.form.validate())
       if (this.$refs.form.validate()) {
         this.loading = true;
         const price = await this.web3.eth.getGasPrice();
@@ -104,17 +151,16 @@ export default {
     },
     async receipt(hash) {
       const data = await this.web3.eth.getTransactionReceipt(hash);
-      console.log(data)
       if (data) {
         this.loading = false;
         if (data.status) {
-          this.$store.dispatch('showTips', {
+          await this.$store.dispatch('showTips', {
             type: "success",
             text: "Setup successful"
           });
-          this.$emit('success');
+          await this.getUserConfig();
         } else {
-          this.$store.dispatch('showTips', {
+          await this.$store.dispatch('showTips', {
             type: "info",
             text: "Setup failed"
           });
@@ -130,5 +176,11 @@ export default {
 </script>
 
 <style scoped>
+
+.price_info {
+  font-size: 12px;
+  color: #3B99FD;
+  margin-bottom: 5px;
+}
 
 </style>

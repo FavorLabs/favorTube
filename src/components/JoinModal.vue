@@ -156,6 +156,7 @@ export default {
     },
     async pay() {
       this.subLoading = true;
+      const zeroAddress = "0x" + "0".repeat(40);
       const price = await this.web3.eth.getGasPrice();
       this.web3.eth.sendTransaction({
         from: this.currentUser.address,
@@ -164,7 +165,7 @@ export default {
         data: this.tokenContract.methods.transfer(
             this.favorTubeCAddress,
             this.price,
-            this.web3.eth.abi.encodeParameter('address', this.account)
+            this.web3.eth.abi.encodeParameters(['address', 'address', 'address'], [this.account, this.currentUser.address, zeroAddress])
         ).encodeABI()
       }, (err) => {
         this.payLoading = true;
