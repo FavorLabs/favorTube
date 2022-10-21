@@ -46,17 +46,17 @@ module.exports = {
       name:"img/[name].[ext]"
     })
     .end()
-    imagesRule
-    .use('image-webpack-loader')
-    .loader('image-webpack-loader')
-    .options({
-        bypassOnDebug: true,
-        mozjpeg: { progressive: true, quality: 90 },
-        optipng: { enabled: true },
-        pngquant: { quality: [0.6, 0.65], speed: 4 },
-        gifsicle: { interlaced: false }
-    })
-    .end()
+    // imagesRule
+    // .use('image-webpack-loader')
+    // .loader('image-webpack-loader')
+    // .options({
+    //     bypassOnDebug: true,
+    //     mozjpeg: { progressive: true, quality: 90 },
+    //     optipng: { enabled: true },
+    //     pngquant: { quality: [0.6, 0.65], speed: 4 },
+    //     gifsicle: { interlaced: false }
+    // })
+    // .end()
   },
   publicPath: process.env.NODE_ENV === 'production'
       ? './'

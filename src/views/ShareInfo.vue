@@ -5,7 +5,7 @@
         <v-list-item-avatar size="80" class="avatar">
           <v-img
               v-if="currentUser.photoUrl !== 'no-photo.jpg'"
-              :src="`${url}/uploads/avatars/${currentUser.photoUrl}`"
+              :src="`${imgUrl}/uploads/avatars/${currentUser.photoUrl}`"
           ></v-img>
           <v-avatar v-else color="red" size="80">
             <span class="white--text headline" style="font-size: 2rem!important;">
@@ -84,7 +84,7 @@
             <v-list-item-avatar size="30" class="avatar" style="margin: 0;">
               <v-img
                   v-if="item.photoUrl !== 'no-photo.jpg'"
-                  :src="`${url}/uploads/avatars/${item.photoUrl}`"
+                  :src="`${imgUrl}/uploads/avatars/${item.photoUrl}`"
               ></v-img>
               <v-avatar v-else color="red" size="30">
                 <span class="white--text headline" style="font-size: 18px!important">
@@ -182,9 +182,12 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(["currentUser"]),
+    ...mapGetters(["currentUser", "getImgUrl"]),
     url() {
       return `https://share.favorlabs.io/share/signin?invitation=${this.currentUser.code}`
+    },
+    imgUrl() {
+      return this.getImgUrl;
     }
   },
   components: {
@@ -433,6 +436,7 @@ export default {
     }
     .rank-table {
       height: calc(100vh - 295px);
+      overflow-y: scroll;
       th,td {
         text-align: center!important;
       }
@@ -510,7 +514,6 @@ export default {
       .rank-table {
         height: auto;
         max-height: 500px;
-        overflow-y: scroll;
       }
     }
   }
