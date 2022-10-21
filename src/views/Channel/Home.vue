@@ -25,7 +25,7 @@
                       <v-avatar v-else color="red" size="60">
                         <span class="white--text headline ">
                           {{
-                            channel.channelName.split('')[0].toUpperCase()
+                            channel.channelName.trim().split('')[0].toUpperCase()
                           }}</span
                         >
                       </v-avatar>
@@ -126,13 +126,13 @@
                 <v-card-title>Videos</v-card-title>
                 <v-row>
                   <v-col
-                      cols="12"
+                      cols="6"
                       sm="6"
                       md="4"
                       lg="3"
                       v-for="(video, i) in loading ? 10 : videos"
                       :key="i"
-                      class="mx-xs-auto"
+                      class="mx-xs-auto video-card-wrap"
                   >
                     <v-skeleton-loader type="card-avatar" :loading="loading">
                       <video-card
@@ -364,5 +364,18 @@ export default {
 
 #channel-home .v-list-item--link:before {
   background-color: transparent;
+}
+</style>
+
+<style scoped>
+@media screen and (max-width: 600px) {
+  .video-card-wrap:nth-child(2n + 1) {
+    padding-left: 12px!important;
+    padding-right: 6px!important;
+  }
+  .video-card-wrap:nth-child(2n) {
+    padding-left: 6px!important;
+    padding-right: 12px!important;
+  }
 }
 </style>

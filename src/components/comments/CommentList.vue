@@ -19,7 +19,7 @@
               <v-avatar v-else color="red">
                 <span class="white--text headline ">
                   {{
-                    comment.userId.channelName.split('')[0].toUpperCase()
+                    comment.userId.channelName.trim().split('')[0].toUpperCase()
                   }}</span
                 >
               </v-avatar>
@@ -83,7 +83,7 @@
                       <v-avatar v-else color="red">
                         <span class="white--text headline ">
                           {{
-                            currentUser.channelName.split('')[0].toUpperCase()
+                            currentUser.channelName.trim().split('')[0].toUpperCase()
                           }}</span
                         >
                       </v-avatar>

@@ -42,13 +42,14 @@
             v-if="!uploaded"
             class="d-flex flex-column align-center my-md-12 py-md-12 my-sm-8 py-sm-8 my-xs-0 py-xs-0 my-12 py-12"
         >
-          <div class="text-center">
+          <div class="text-center" @click="tips">
             <div>
               <v-btn
                   icon
                   class="grey lighten-2 mb-4"
                   style="height: 104px;width: 104px;"
                   @click="selectFile"
+                  :disabled="!allowUpload"
               >
                 <v-icon x-large class="grey--text text--darken-1"
                 >mdi-upload
@@ -71,12 +72,14 @@
                   prepend-icon="mdi-video"
                   :error-messages="errors"
                   ref="fileInput"
+                  :disabled="!allowUpload"
               ></v-file-input>
             </ValidationProvider>
             <v-btn
                 type="submit"
                 depressed
                 @click="$refs.fileInput.$refs.input.click()"
+                :disabled="!allowUpload"
                 class="blue darken-3 flat white--text mt-4"
             >Select File
             </v-btn
@@ -279,6 +282,8 @@ export default {
       imgDataUrl: "",
       // url: "",
       headers: {Authorization: `Bearer ${this.$store.getters.getToken}`},
+      allowUpload: true,
+      tipText: '',
     };
   },
   computed: {
@@ -607,12 +612,30 @@ export default {
       fmData.append("thumbnail", data2blob(this.imgDataUrl, ["image/jpeg"]), "thumbnail.jpg");
       let img = await VideoService.uploadThumbnail(id, fmData);
       console.log(img);
+    },
+    tips() {
+      if (!this.allowUpload) {
+        this.$store.dispatch('showTips', {
+          type: "error",
+          text: this.tipText
+        });
+      }
+    },
+    async checkUploadLimit() {
+      try {
+        await VideoService.uploadable();
+      } catch (err) {
+        this.allowUpload = false;
+        // console.log('err', err.response);
+        this.tipText = err.response.data.error;
+      }
     }
   },
   components: {
     myUpload,
   },
   async mounted() {
+    this.checkUploadLimit();
     VideoService.getUndone().then((data) => {
       console.log(data)
       if (data.data.data) {

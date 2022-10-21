@@ -12,7 +12,7 @@
 
         <v-avatar v-else color="red">
           <span class="white--text headline ">
-            {{ currentUser.channelName.split('')[0].toUpperCase() }}</span
+            {{ currentUser.channelName.trim().split('')[0].toUpperCase() }}</span
           >
         </v-avatar>
       </v-list-item-avatar>

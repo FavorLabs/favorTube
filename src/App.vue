@@ -75,6 +75,7 @@ export default {
     }
   },
   async created() {
+    this.hidePercent();
     console.log('version', FavorTubeVersion);
     if (process.env.VUE_APP_MOBILE) {
       document.addEventListener('deviceready', () => {
@@ -184,6 +185,16 @@ export default {
       }
       this.web3?.currentProvider?.disconnect?.();
     },
+    hidePercent() {
+      let percentMask = document.querySelector('#loading-mask');
+      let percent = document.querySelector('#loading-percent-num');
+      if (percentMask) {
+        percent.innerHTML = 100;
+        setTimeout(() => {
+          percentMask.style.display = 'none';
+        }, 50);
+      }
+    }
   },
   watch: {
     "ws": {
@@ -236,7 +247,6 @@ export default {
       }
     },
     "$route": function (to, from) {
-      console.log(to, from)
       if (to.meta.keepAlive && from.meta.keepAlive) {
         this.keepList = [to.name];
       }
@@ -322,6 +332,20 @@ html {
 
   .vuejs-loading-text {
     display: none;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .video-card-wrap:nth-child(2n + 1) {
+    padding-left: 0px!important;
+    padding-right: 6px!important;
+  }
+  .video-card-wrap:nth-child(2n) {
+    padding-left: 6px!important;
+    padding-right: 0px!important;
+  }
+  .v-tooltip__content {
+    display: none!important;
   }
 }
 </style>

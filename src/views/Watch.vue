@@ -225,7 +225,7 @@
                       </div>
                     </v-col>
                     <v-col class="pl-11" offset="1" cols="11" md="11">
-                      <p>
+                      <p style="word-break: break-word">
                         {{
                           truncate
                               ? truncateText(video.description, 150)
