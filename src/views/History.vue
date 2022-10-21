@@ -45,7 +45,7 @@
                         >
                         </v-img>
                       </v-col>
-                      <v-col>
+                      <v-col style="max-width: 70%;">
                         <div class="ml-2">
                           <v-card-title
                               class="pl-2 pt-0 subtitle-1 font-weight-bold d-flex justify-space-between"
@@ -66,7 +66,7 @@
                             }}<v-icon>mdi-circle-small</v-icon
                           >{{ history.videoId.views }} views
                           </v-card-subtitle>
-                          <v-card-subtitle class="pl-2 pt-2 pb-0">
+                          <v-card-subtitle class="pl-2 pt-2 pb-0" style="display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 4;overflow: hidden;">
                             {{ history.videoId.description }}
                           </v-card-subtitle>
                         </div>
