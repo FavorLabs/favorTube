@@ -143,7 +143,7 @@
             </v-avatar>
             <template v-else>
               <span class="headline">
-                {{ currentUser.channelName.split('')[0].toUpperCase() }}
+                {{ currentUser.channelName.trim().split('')[0].toUpperCase() }}
               </span>
             </template>
           </v-btn>
@@ -163,7 +163,7 @@
                   <v-avatar color="red">
                     <span class="white--text headline ">
                       {{
-                        currentUser.channelName.split('')[0].toUpperCase()
+                        currentUser.channelName.trim().split('')[0].toUpperCase()
                       }}</span
                     >
                   </v-avatar>
@@ -284,7 +284,7 @@
                     <v-avatar color="red">
                     <span class="white--text headline ">
                       {{
-                        item.channelId.channelName.split('')[0].toUpperCase()
+                        item.channelId.channelName.trim().split('')[0].toUpperCase()
                       }}</span
                     >
                     </v-avatar>

@@ -60,7 +60,7 @@
                                   alt=""
                               />
                             </div>
-                            <div class="wallet_text">WALLETCONNETCT</div>
+                            <div class="wallet_text">WALLETCONNECT</div>
                           </div>
                           <div class="reset" v-if="connectType" @click="reset">RESET</div>
                           <ValidationObserver ref="form" v-slot="{ handleSubmit, reset }">

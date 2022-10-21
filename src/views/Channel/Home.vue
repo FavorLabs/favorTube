@@ -25,7 +25,7 @@
                       <v-avatar v-else color="red" size="60">
                         <span class="white--text headline ">
                           {{
-                            channel.channelName.split('')[0].toUpperCase()
+                            channel.channelName.trim().split('')[0].toUpperCase()
                           }}</span
                         >
                       </v-avatar>

@@ -27,8 +27,8 @@
                 :src="`${getImgUrl}/uploads/avatars/${channel.photoUrl}`"
             ></v-img>
             <v-avatar v-else color="red" class="video-avatars-default">
-              <span class="white--text headline">
-                {{ channel.channelName.split('')[0].toUpperCase() }}
+              <span class="white--text headline channel-name">
+                {{ channel.channelName.trim().split('')[0].toUpperCase() }}
               </span
               >
             </v-avatar>
@@ -199,6 +199,12 @@ export default {
     height: auto!important;
     min-width: unset!important;
     margin: unset!important;
+  }
+
+  .video-avatars-default {
+    span {
+      font-size: 1rem!important;
+    }
   }
 
   .video-avatars-img,

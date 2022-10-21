@@ -1,69 +1,145 @@
 <template>
   <div class="main">
-    <div class="share">
+    <div class="share-card-wrap">
       <div class="share-card">
         <v-list-item-avatar size="80" class="avatar">
           <v-img
               v-if="currentUser.photoUrl !== 'no-photo.jpg'"
               :src="`${url}/uploads/avatars/${currentUser.photoUrl}`"
           ></v-img>
-          <!-- :src="'http://192.168.100.54:1633/group/http/favortube/favortube.com/uploads/avatars/avatar-62be605e27e954ecaff238cd.jpg'" -->
-
           <v-avatar v-else color="red" size="80">
-            <span class="white--text headline" style="font-size: 18px">
+            <span class="white--text headline" style="font-size: 2rem!important;">
               {{
-                currentUser.channelName.split('')[0].toUpperCase()
+                currentUser.channelName.trim().split('')[0].toUpperCase()
               }}</span
             >
           </v-avatar>
         </v-list-item-avatar>
         <qrcode-vue
-          size="220"
-          :value="url"
-          foreground="#000"
-          class="qrcode"
-        >
+            size="220"
+            :value="url"
+            foreground="#000"
+            class="qrcode"
+          >
         </qrcode-vue>
         <div style="font-size: 18px;text-align: center;margin-top: 3px;color: #bbb">
-          <span style="margin-right: 10px">invate code:</span><span>{{ currentUser.code }}</span>
+            <span style="margin-right: 10px">invate code:</span><span>{{ currentUser.code }}</span>
         </div>
         <div class="dividing-line"></div>
         <div class="share-data">
-          <div class="item">
-            <div class="label">Total</div>
-            <div class="num">68</div>
-          </div>
-          <div class="item">
-            <div class="label">Valid</div>
-            <div class="num">68</div>
-          </div>
+            <div class="item">
+              <div class="label">Total</div>
+              <div class="num">{{ total }}</div>
+            </div>
+            <div class="item">
+              <div class="label">Valid</div>
+              <div class="num">{{ valid }}</div>
+            </div>
+            <div class="item">
+              <div class="label">Activity</div>
+              <div class="num">{{ score }}</div>
+            </div>
         </div>
         <div class="d-flex justify-space-between btns">
-          <v-btn
-              depressed
-              class="btn"
-              style="margin-right: 20px"
-          >
-            <ShareNetwork
-                network="telegram"
-                :url="url"
-                title=""
-                style=" color: #5D718B;text-decoration: none"
+            <v-btn
+                class="btn"
+                style="margin-right: 20px"
             >
-              Share
-            </ShareNetwork>
-          </v-btn>
-          <v-btn
-              depressed
-              class="btn"
-              v-clipboard:copy="currentUser.code"
-          >
-            Copy
-          </v-btn>
+              <ShareNetwork
+                  network="telegram"
+                  :url="url"
+                  title=""
+                  style=" color: #5D718B;text-decoration: none"
+              >
+                Share
+              </ShareNetwork>
+            </v-btn>
+            <v-btn
+                class="btn"
+                v-clipboard:copy="currentUser.code"
+            >
+              Copy
+            </v-btn>
         </div>
       </div>
-      <div class="share-table">
-        table
+    </div>
+    <div :class="currentRank !== 0 ? 'share-table-1-wrap' : 'share-table-1-wrap only-show-table-1'">
+      <div class="share-table-1">
+        <div style="font-size: 2rem;color: #888;">Inviter</div>
+        <v-data-table
+          :fixed-header="true"
+          :headers="invitedHeader"
+          :items="invitedData"
+          :options.sync="invitedOptions"
+          :server-items-length="invitedDataTotal"
+          :loading="invitedLoading"
+          loading-text="Loading... Please wait"
+          :footer-props="invitedFotter"
+          class="invited-table"
+        >
+          <template v-slot:item.id="{ item }">
+            <span>{{ ((invitedOptions.page - 1) * invitedOptions.itemsPerPage) + invitedData.indexOf(item) + 1 }}</span>
+          </template>
+          <template v-slot:item.photoUrl="{ item }">
+            <v-list-item-avatar size="30" class="avatar" style="margin: 0;">
+              <v-img
+                  v-if="item.photoUrl !== 'no-photo.jpg'"
+                  :src="`${url}/uploads/avatars/${item.photoUrl}`"
+              ></v-img>
+              <v-avatar v-else color="red" size="30">
+                <span class="white--text headline" style="font-size: 18px!important">
+                  {{
+                    item.channelName.trim().split('')[0].toUpperCase()
+                  }}</span
+                >
+              </v-avatar>
+            </v-list-item-avatar>
+          </template>
+          <template v-slot:item.channelName="{ item }">
+            <div class="channel-name-text">{{ item.channelName }}</div>
+          </template>
+          <template v-slot:item.activation="{ item }">
+            <div class="activation-text">{{ item.activation }}</div>
+          </template>
+        </v-data-table>
+      </div>
+    </div>
+    <div class="share-table-2-wrap" v-if="currentRank !== 0">
+      <div class="share-table-2">
+        <div
+          class="d-flex"
+          style="justify-content: space-between;margin-bottom: -10px;"
+        >
+          <p style="font-size: 2rem;color: #888;white-space: nowrap;">Ranking</p>
+          <v-select
+            :items="rankItems"
+            @change="changeRank"
+            :value="currentRank"
+            style="padding-top: 0;width: 120px;"
+            class="table-selete"
+          ></v-select>
+        </div>
+        <v-simple-table fixed-header class="rank-table">
+          <template v-slot:default>
+            <thead>
+              <tr>
+                <th class="th">Index</th>
+                <th class="th">ChannelName</th>
+                <th class="th">Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(item) in rankData"
+                :key="item.name"
+              >
+                <td class="index">{{ rankData.indexOf(item) + 1 }}</td>
+                <td class="channel-name-text">{{ item.channelName }}</td>
+                <td class="score activation-text">{{ item.activation }}</td>
+              </tr>
+            </tbody>
+          </template>
+        </v-simple-table>
       </div>
     </div>
   </div>
@@ -71,12 +147,39 @@
 
 <script>
 import {mapGetters} from "vuex";
-import QrcodeVue from 'qrcode.vue'
+import QrcodeVue from 'qrcode.vue';
+import ActivationService from '@/services/ActivationService';
 
 export default {
   name: "ShareInfo",
   data: function () {
-    return {}
+    return {
+      total: 0,
+      valid: 0,
+      score: 0,
+      invitedHeader: [{
+        text: 'Index', align: 'center', width: '20px', sortable: false, value: 'id',
+      },{
+        text: 'Avatar', align: 'center', width: '20px', sortable: false, value: 'photoUrl',
+      },{
+        text: 'ChannelName', align: 'center', width: '150px', sortable: false, value: 'channelName',
+      },{
+        text: 'Score', align: 'center', width: '100px', sortable: false, value: 'activation',
+      }],
+      invitedData: [],
+      invitedDataTotal: 0,
+      invitedOptions: {
+        page: 1,
+        itemsPerPage: 10,
+      },
+      invitedFotter: {
+        itemsPerPageOptions: [10,20,50]
+      },
+      invitedLoading: false,
+      rankData: [],
+      currentRank: 1,
+      rankItems: [],
+    }
   },
   computed: {
     ...mapGetters(["currentUser"]),
@@ -86,112 +189,328 @@ export default {
   },
   components: {
     QrcodeVue
-  }
+  },
+  created() {
+    this.getInfo();
+    this.getInvitedList();
+    this.getRank();
+  },
+  methods: {
+    async getInfo() {
+      try {
+        const { data } = await ActivationService.getInfo();
+        this.total = data.data.invitations;
+        this.valid = data.data.vilad;
+        this.score = data.data.activation;
+      } catch (err) {
+        this.showTips(err);
+      }
+    },
+    async getInvitedList() {
+      try {
+        this.invitedLoading = true;
+        const { data } = await ActivationService.getList({
+          page: this.invitedOptions.page,
+          limit: this.invitedOptions.itemsPerPage
+        });
+        this.invitedData = data.data;
+        this.invitedDataTotal = data.count;
+        this.invitedLoading = false;
+      } catch (err) {
+        this.showTips(err);
+      }
+    },
+    async getRank() {
+      try {
+        const { data } = await ActivationService.getRank();
+        this.rankData = data.data;
+        this.currentRank = data.round;
+        for (let i = 1; i <= data.round; i++) {
+          this.rankItems.push({
+            text: "Round" + i,
+            value: i,
+          })
+        }
+      } catch (err) {
+        this.showTips(err);
+      }
+    },
+    async changeRank(value) {
+      try {
+        this.currentRank = value;
+        const { data } = await ActivationService.getRank(value);
+        this.rankData = data.data;
+      } catch (err) {
+        this.showTips(err);
+      }
+    },
+    showTips(err) {
+      this.$store.dispatch('showTips', {
+        type: "error",
+        text: err.response.data.error
+      });
+    }
+  },
+  watch: {
+    invitedOptions: {
+      handler () {
+        this.getInvitedList()
+      },
+      deep: true,
+    },
+  },
 }
 </script>
 
 <style scoped lang="scss">
 .main {
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
   height: 100%;
   background: url('../assets/share-bg.png') 0px 0px/cover repeat-x;
-  .share {
+  .share-card-wrap,
+  .share-table-1-wrap,
+  .share-table-2-wrap {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    min-width: 1400px;
-    .share-card,
-    .share-table {
-      border-radius: 10px;
-      box-shadow: 0 0 10px 0px rgb(0,0,0,.3);
+    // width: 33.33%;
+    padding: 0 25px;
+  }
+  .share-card-wrap {
+    width: 24%;
+  }
+  .share-table-1-wrap,
+  .share-table-2-wrap {
+    width: 38%;
+  }
+  .only-show-table-1 {
+    width: 70%;
+    .share-table-1 {
+      width: 100%;
     }
-    .share-card {
+  }
+  .share-card,
+  .share-table-1,
+  .share-table-2 {
+    border-radius: 10px;
+    box-shadow: 0 0 10px 0px rgb(0,0,0,.3);
+  }
+  .share-card {
+    position: relative;
+    min-width: 300px;
+    // height: 500px;
+    background-color: #fff;
+    .avatar {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      margin: 0;
+      transform: translateX(-50%);
+    }
+    .qrcode {
+      text-align: center;
+      margin-top: 60px;
+    }
+    .dividing-line {
       position: relative;
-      min-width: 300px;
-      // height: 500px;
-      background-color: #fff;
-      margin-right: 50px;
-      .avatar {
-        position: absolute;
-        top: -40px;
-        left: 50%;
-        margin: 0;
-        transform: translateX(-50%);
-      }
-      .qrcode {
+      height: 2px;
+      margin: 24px;
+      background: linear-gradient(90deg, rgb(160,56,239), rgb(24,192,220));
+    }
+    .dividing-line::before {
+      left: 0;
+      transform: translate(-100%, -40%);
+      background: rgb(160,56,239);
+    }
+    .dividing-line::after {
+      right: 0;
+      transform: translate(100%, -40%);
+      background: rgb(24,192,220);
+    }
+    .dividing-line::before,
+    .dividing-line::after {
+      position: absolute;
+      top: 0;
+      display: block;
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .share-data {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      margin: 0 20px;
+      margin-bottom: 20px;
+      .item {
         text-align: center;
-        margin-top: 60px;
-      }
-      .dividing-line {
-        position: relative;
-        height: 2px;
-        margin: 24px;
-        background: linear-gradient(90deg, rgb(160,56,239), rgb(24,192,220));
-      }
-      .dividing-line::before {
-        left: 0;
-        transform: translate(-100%, -40%);
-        background: rgb(160,56,239);
-      }
-      .dividing-line::after {
-        right: 0;
-        transform: translate(100%, -40%);
-        background: rgb(24,192,220);
-      }
-      .dividing-line::before,
-      .dividing-line::after {
-        position: absolute;
-        top: 0;
-        display: block;
-        content: '';
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-      }
-      .share-data {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 0 20px;
-        margin-bottom: 20px;
-        .item {
-          text-align: center;
-          margin-right: 25px;
-          // font-family: "Roboto", sans-serif !important;
-          .label {
-            font-size: 18px;
-            font-weight: 500;
-          }
+        margin-right: 25px;
+        // font-family: "Roboto", sans-serif !important;
+        .label {
+          font-size: 18px;
+          font-weight: 500;
+        }
+        .num {
+          word-break: break-all;
         }
       }
-      .share-data:last-child {
-        margin-right: 0;
-      }
-      .btns {
-        position: absolute;
-        left: 50%;
-        bottom: -60px;
-        transform: translateX(-50%);
+    }
+    .share-data .item:last-child {
+      margin-right: 0;
+    }
+    .btns {
+      position: absolute;
+      left: 50%;
+      bottom: -60px;
+      transform: translateX(-50%);
+      .btn {
+        box-shadow: 0 0 10px 0px rgb(0,0,0,.3);
       }
     }
-    .share-table {
-      height: 650px;
-      background-color: #fff;
+  }
+  .share-table-1,
+  .share-table-2 {
+    display: flex;
+    flex-direction: column;
+    padding: 25px;
+    width: 90%;
+    background-color: #fff;
+    // overflow-y: scroll;
+    box-sizing: border-box;
+  }
+  ::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+  ::-webkit-scrollbar-track {
+    border-radius: 5px;
+  }
+  ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+  }
+  .share-table-1:hover,
+  .share-table-2:hover {
+    ::-webkit-scrollbar-track {
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+    }
+    ::-webkit-scrollbar-track {
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+      background: #ededed;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: rgba(0,0,0,0.3);
+    }
+  }
+  .share-table-1 {
+    .invited-table {
       flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 295px);
+      .channel-name-text,
+      .activation-text {
+        word-break: break-all;
+      }
+    }
+    .invited-table::v-deep {
+      .v-data-table__wrapper {
+        flex-grow: 1;
+      }
+    }
+  }
+  .share-table-2 {
+    .table-selete {
+      flex: 0;
+    }
+    .table-selete::v-deep {
+      .v-input__control {
+        width: 150px;
+        flex-grow: unset;
+      }
+    }
+    .rank-table {
+      height: calc(100vh - 295px);
+      th,td {
+        text-align: center!important;
+      }
+      .channel-name-text,
+      .activation-text {
+        width: 300px;
+        word-break: break-all;
+      }
+      .index {
+        width: 90px;
+      }
+      .score {
+        width: 100px;
+      }
     }
   }
 }
 @media screen and (max-width: 1500px) {
   .main {
-    .share {
-      min-width: unset;
-      .share-card {
-        margin-right: 0;
+    flex-direction: column;
+    .share-card-wrap,
+    .share-table-1-wrap,
+    .share-table-2-wrap {
+      width: 95%;
+      margin-bottom: 80px;
+    }
+    .share-card-wrap {
+      margin-top: 80px;
+      margin-bottom: 140px;
+    }
+    .share-table-2 {
+      .rank-table {
+        .channel-name-text {
+          width: 340px;
+        }
+        .index {
+          width: 130px;
+        }
+        .score {
+          width: 140px;
+        }
       }
-      .share-table {
-        display: none;
+    }
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .main {
+    .share-table-1,
+    .share-table-2 {
+      width: 100%;
+    }
+    .share-table-1 {
+      .invited-table {
+        height: auto;
+        max-height: 500px;
+      }
+      .invited-table::v-deep {
+        .v-data-table__mobile-table-row {
+          // display: table-row!important;
+        }
+        .v-data-table__mobile-row__cell {
+          margin-left: 15px;
+          max-width: 160px;
+          height: auto;
+          display:-webkit-box;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          -webkit-box-orient:vertical; 
+          -webkit-line-clamp:2;
+        }
+      }
+    }
+    .share-table-2 {
+      .rank-table {
+        height: auto;
+        max-height: 500px;
+        overflow-y: scroll;
       }
     }
   }
