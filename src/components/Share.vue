@@ -43,7 +43,6 @@ export default {
   data() {
     return {
       isShow: sessionStorage.getItem('network_id') === '18',
-      // url: `https://share.favorlabs.io/share/${this.text}`,
       list: [
         {
           network: "telegram",
@@ -54,7 +53,7 @@ export default {
           img: TWImg,
         }
       ],
-      isNativeShare: window.location.protocol === 'https:' && /Chrome|Safari|Favor/i.test(window.navigator.userAgent) && /iphone|Mac OS/i.test(window.navigator.userAgent),
+      isNativeShare: window.location.protocol === 'https:' && /iphone|Mac OS/i.test(window.navigator.userAgent),
       isAndroid: /Android|Adr/i.test(window.navigator.userAgent) && /Favor/i.test(window.navigator.userAgent)
     }
   },
