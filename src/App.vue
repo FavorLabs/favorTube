@@ -55,6 +55,7 @@ import FavorlabsService from "@/services/favorlabs/FavorlabsService";
 import {config, setConfig} from '@/config/config'
 import {getWeb3} from "@/utils/web3Utils";
 import {version as FavorTubeVersion} from '../package.json'
+import {removeAllPendingRequestsRecord} from "@/services/Api";
 
 export default {
   name: 'App',
@@ -67,7 +68,6 @@ export default {
       keepList: ['Home', 'Videos', 'Trending', 'Subscriptions']
     }
   },
-  // components: { VuePullRefresh },
   computed: {
     ...mapGetters(['getList', "getUrl", "ws", "web3", "isAuthenticated", "getToken"]),
     allowRefresh() {
@@ -165,16 +165,17 @@ export default {
         })
       }, 1500)
     },
-    setRouterParams(routerParams) {
-      if (JSON.stringify(routerParams) !== '{}') {
-        for (let key in routerParams) {
-          if (['invitation'].includes(key)) {
-            if (key === 'invitation' && (routerParams[key].length !== 10)) {
-              sessionStorage.removeItem('invitation');
-              continue;
-            }
-            sessionStorage.setItem(key, routerParams[key]);
-          }
+    async setRouterParams(query) {
+      let id = this.$route.params.id;
+      let invitation = query.invitation
+      if (invitation) {
+        sessionStorage.setItem("invitation", invitation);
+        console.log(invitation)
+        if (id) {
+          sessionStorage.setItem("invitation_videoId", id);
+          console.log(id)
+          // const user = await UserService.getById(invitation);
+          // const video = await VideoService.getById(id);
         }
       }
     },
@@ -247,6 +248,9 @@ export default {
       }
     },
     "$route": function (to, from) {
+      if (from.path !== "/") {
+        removeAllPendingRequestsRecord();
+      }
       if (to.meta.keepAlive && from.meta.keepAlive) {
         this.keepList = [to.name];
       }
@@ -337,15 +341,15 @@ html {
 
 @media screen and (max-width: 600px) {
   .video-card-wrap:nth-child(2n + 1) {
-    padding-left: 0px!important;
-    padding-right: 6px!important;
+    padding-left: 0px !important;
+    padding-right: 6px !important;
   }
   .video-card-wrap:nth-child(2n) {
-    padding-left: 6px!important;
-    padding-right: 0px!important;
+    padding-left: 6px !important;
+    padding-right: 0px !important;
   }
   .v-tooltip__content {
-    display: none!important;
+    display: none !important;
   }
 }
 </style>

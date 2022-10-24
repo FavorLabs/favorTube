@@ -1,6 +1,6 @@
 <template>
-  <v-card style="padding: 20px 30px;height: 100%">
-    <v-card-title style="padding: 0">
+  <v-card :loading="dataLoading" style="padding: 0 30px 20px;height: 100%">
+    <v-card-title style="padding: 20px 0 0;">
       <span class="header">
         PROFIT
       </span>
@@ -52,7 +52,8 @@ export default {
   name: "Profit",
   data() {
     return {
-      loading:false,
+      dataLoading: false,
+      loading: false,
       amount: 0,
       total: 0,
       decimals: 2,
@@ -66,9 +67,11 @@ export default {
     ...mapGetters(["nodeWeb3", "web3", "currentUser"]),
   },
   async created() {
+    this.dataLoading = true;
     await this.getDecimals();
-    this.getAmount();
-    this.getSubscriptionRevenue();
+    await this.getAmount();
+    await this.getSubscriptionRevenue();
+    this.dataLoading = false;
   },
   methods: {
     async getDecimals() {

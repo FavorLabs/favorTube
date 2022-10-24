@@ -62,7 +62,7 @@
                             </div>
                             <div class="wallet_text">WALLETCONNECT</div>
                           </div>
-                          <div class="reset" v-if="connectType" @click="reset">RESET</div>
+                          <div class="reset" v-if="address" @click="reset">RESET</div>
                           <ValidationObserver ref="form" v-slot="{ handleSubmit, reset }">
                             <form
                                 @submit.prevent="handleSubmit(signUp)"
@@ -263,7 +263,6 @@ export default {
         })
       } else {
         const {address, web3} = res;
-        this.address = address;
         this.web3 = web3;
         this.connectType = 'metamask';
         this.$store.commit("SET_WEB3", web3);
@@ -282,7 +281,6 @@ export default {
       } else {
         const {address, web3} = res;
         this.connectType = "walletConnect";
-        this.address = address;
         this.web3 = web3;
         this.$store.commit("SET_WEB3", web3);
         await this.getInfo(address);
@@ -296,7 +294,6 @@ export default {
         })
       } else {
         const {address, web3} = res;
-        this.address = address;
         this.web3 = web3;
         this.connectType = "okx"
         this.$store.commit("SET_WEB3", web3);
@@ -317,6 +314,8 @@ export default {
       }
     },
     async getInfo(address) {
+      this.init();
+      this.address = address;
       this.loading = true;
       const {data: {data}} = await AuthenticationService.getInfo(address);
       if (data) {

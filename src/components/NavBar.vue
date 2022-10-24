@@ -346,7 +346,7 @@ import {mapGetters} from 'vuex'
 import SubscriptionService from '@/services/SubscriptionService'
 import FavorService from '@/services/FavorService'
 import HistoryService from '@/services/HistoryService'
-import {removeAllPendingRequestsRecord} from "@/services/Api";
+
 import {version as FavorTubeVersion} from '../../package.json'
 import _ from 'lodash'
 
@@ -624,27 +624,7 @@ export default {
 
   },
   created() {
-
     this.drawer = this.$route.name === 'Watch' ? false : this.drawer
-
-    if (!this.isAuthenticated) {
-      // this.items[0].pages.pop();
-      // this.items.splice(1, 1)
-    }
-  },
-  watch: {
-    isAuthenticated(newV) {
-      if (!newV) {
-        // this.items[0].pages.pop();
-        // this.items.splice(1, 1);
-      }
-    },
-    $route: {
-      handler: function () {
-        removeAllPendingRequestsRecord();
-      },
-      deep: true
-    }
   }
 }
 </script>
