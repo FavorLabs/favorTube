@@ -2,7 +2,7 @@
   <v-dialog v-model="openModal" width="600" persistent>
     <v-card>
       <v-card-title class="text-h5 grey lighten-2">
-        Subscribe {{ channelName }}
+        Subscribe {{ video.userId.channelName }}
       </v-card-title>
       <v-card-text class="text" style="color: #000">
         <p>
@@ -38,7 +38,7 @@
         </p>
         <p>
           <span class="key">Channel Account:</span>
-          <span class="value">{{ account }}</span>
+          <span class="value">{{ video.userId.address }}</span>
         </p>
       </v-card-text>
       <v-divider></v-divider>
@@ -70,6 +70,7 @@ import {mapGetters} from "vuex";
 // eslint-disable-next-line no-unused-vars
 import {tokenAbi, favorTubeAbi, config} from "@/config/config";
 import SubscriptionService from "@/services/SubscriptionService";
+import UserService from "@/services/UserService";
 
 export default {
   name: "JoinModal",
@@ -78,16 +79,9 @@ export default {
       type: Boolean,
       required: true
     },
-    channelName: {
-      type: String,
+    video: {
+      type: Object,
       required: true
-    },
-    account: {
-      type: String,
-      required: true
-    },
-    video_id: {
-      type: String
     }
   },
   data() {
@@ -119,8 +113,9 @@ export default {
     ])
   },
   async created() {
+    let timer = null;
     try {
-      let timer = setTimeout(() => {
+      timer = setTimeout(() => {
         this.$store.dispatch("showTips", {
           type: "info",
           text: "Chain query failure"
@@ -132,12 +127,13 @@ export default {
       const tokenContract = new this.nodeWeb3.eth.Contract(tokenAbi, this.token.address);
       this.token.decimal = await tokenContract.methods.decimals().call();
       this.balance = await tokenContract.methods.balanceOf(this.currentUser.address).call();
-      this.price = (await favorTubeContract.methods.userConfig().call({from: this.account})).price
+      this.price = (await favorTubeContract.methods.userConfig().call({from: this.video.userId.address})).price
       clearTimeout(timer);
       this.favorTubeContract = favorTubeContract;
       this.tokenContract = tokenContract;
       this.payDisabled = false;
     } catch (e) {
+      clearTimeout(timer);
       this.$store.dispatch("showTips", {
         type: "info",
         text: e.message || e
@@ -156,7 +152,15 @@ export default {
     },
     async pay() {
       this.subLoading = true;
-      const zeroAddress = "0x" + "0".repeat(40);
+      let sharer = "0x" + "0".repeat(40);
+      let invitation_videoId = sessionStorage.getItem("invitation_videoId");
+      let invitation = sessionStorage.getItem("invitation");
+      if (invitation_videoId && invitation && invitation_videoId === this.video._id) {
+        await UserService.getById(invitation).then((user) => {
+          sharer = user.data.data.address;
+        }).catch(console.log);
+      }
+      console.log(sharer)
       const price = await this.web3.eth.getGasPrice();
       this.web3.eth.sendTransaction({
         from: this.currentUser.address,
@@ -165,7 +169,7 @@ export default {
         data: this.tokenContract.methods.transfer(
             this.favorTubeCAddress,
             this.price,
-            this.web3.eth.abi.encodeParameters(['address', 'address', 'address'], [this.account, this.currentUser.address, zeroAddress])
+            this.web3.eth.abi.encodeParameters(['address', 'address', 'address'], [this.video.userId.address, this.currentUser.address, sharer])
         ).encodeABI()
       }, (err) => {
         this.payLoading = true;
@@ -182,7 +186,7 @@ export default {
         let timer = setInterval(async () => {
           if (lock) return;
           lock = true;
-          const {data} = await SubscriptionService.checkSubscription({channelId: this.video_id}, 2000).catch(console.log);
+          const {data} = await SubscriptionService.checkSubscription({channelId: this.video._id}, 2000).catch(console.log);
           if (data.data.tx) {
             clearInterval(timer);
             this.payLoading = false;
