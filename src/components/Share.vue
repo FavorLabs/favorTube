@@ -1,26 +1,31 @@
 <template>
-  <div class="container" v-if="isShow">
-    <template
-        v-for="item in list"
-    >
-      <ShareNetwork
-          :key="item.network"
-          :network="item.network"
-          :url="url"
-          title=""
-          class="share-item"
+  <div class="container">
+    <div class="container-default" v-if="isShow">
+      <template
+          v-for="item in list"
       >
-        <img width="22" style="vertical-align: middle" :src="item.img"
-             :alt="item.network"/>
-      </ShareNetwork>
-    </template>
-    <v-icon
-        v-if="isNativeShare || isAndroid"
-        style="margin-left: 20px"
-        color="#179bFa"
-        @click="()=>share()">
-      mdi-share-variant-outline
-    </v-icon>
+        <ShareNetwork
+            :key="item.network"
+            :network="item.network"
+            :url="url"
+            title=""
+            class="share-item"
+        >
+          <img width="22" style="vertical-align: middle" :src="item.img"
+               :alt="item.network"/>
+        </ShareNetwork>
+      </template>
+      <v-icon
+          v-if="isNativeShare || isAndroid"
+          style="margin-left: 20px"
+          color="#179bFa"
+          @click="()=>share()">
+        mdi-share-variant-outline
+      </v-icon>
+    </div>
+    <div class="container-slot">
+      <slot name="invite-slot" :isNativeShare="isNativeShare" :isAndroid="isAndroid" :share="share"></slot>
+    </div>
   </div>
 </template>
 
@@ -42,7 +47,7 @@ export default {
   },
   data() {
     return {
-      isShow: sessionStorage.getItem('network_id') === '18',
+      isShow: false,
       list: [
         {
           network: "telegram",
@@ -54,7 +59,8 @@ export default {
         }
       ],
       isNativeShare: window.location.protocol === 'https:' && /iphone|Mac OS/i.test(window.navigator.userAgent),
-      isAndroid: /Android|Adr/i.test(window.navigator.userAgent) && /Favor/i.test(window.navigator.userAgent)
+      isAndroid: /Android|Adr/i.test(window.navigator.userAgent) && /Favor/i.test(window.navigator.userAgent),
+      inviteSlot: null,
     }
   },
   computed: {
@@ -63,6 +69,15 @@ export default {
       return `https://share.favorlabs.io/share/${this.text}` + getQueryString({
         invitation: this.currentUser.code,
       });
+    },
+    signInUrl() {
+      return `https://share.favorlabs.io/share/signin?invitation=${this.currentUser.code}`;
+    }
+  },
+  mounted() {
+    this.inviteSlot = !!this.$scopedSlots['invite-slot'];
+    if (sessionStorage.getItem('network_id') === '18' && !this.inviteSlot) {
+      this.isShow = true;
     }
   },
   methods: {
@@ -75,11 +90,12 @@ export default {
     },
     nativeShare() {
       const _this = this;
+      const url = this.inviteSlot ? _this.signInUrl : _this.url;
       const nativeShare = new NativeShare();
       nativeShare.setShareData({
-        link: _this.url,
+        link: url,
         title: 'FavorTube',
-        desc: _this.url,
+        desc: url,
       })
       try {
         nativeShare.call()
@@ -91,7 +107,8 @@ export default {
       }
     },
     shareHandle() {
-      window.flutter_inappwebview?.callHandler?.('share', this.url)
+      const url = this.inviteSlot ? this.signInUrl : this.url;
+      window.flutter_inappwebview?.callHandler?.('share', url);
     }
   }
 }
