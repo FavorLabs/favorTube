@@ -366,10 +366,8 @@
         v-if="joinDialog"
         :openModal="joinDialog"
         @closeJoinModal="joinDialog = false"
-        :account="video.userId.address"
-        :channelName="video.userId.channelName"
+        :video="video"
         @callback="joinCallback"
-        :video_id="video.userId._id"
     ></JoinModal>
     <SourceInfoModal
         v-if="sourceInfoDialog"
