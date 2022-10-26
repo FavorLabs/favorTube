@@ -13,7 +13,7 @@ let workerProcess;
 function run({win, logs, data}) {
 
     win.once("kill", () => {
-        workerProcess.kill();
+        workerProcess.kill("SIGINT");
     });
 
     return runExec();
