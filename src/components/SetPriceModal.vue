@@ -119,7 +119,7 @@ export default {
         let item = modeArr[i];
         const rate = await favorTubeContract.methods.getTaxRate(item).call();
         items.push({
-          text: rate.slice(2).join("-"),
+          text: `Type: ${item} | Percentage: (${rate.slice(2).join("-")})`,
           value: item
         })
       }
@@ -135,7 +135,7 @@ export default {
           from: this.currentUser.address,
           to: favorTubeAddress,
           gasPrice: this.web3.utils.toHex(price),
-          data: favorTubeContract.methods.setUserConfig(this.price * 100, this.mode).encodeABI()
+          data: favorTubeContract.methods.setUserConfig(this.price * (10 ** this.decimals), this.mode).encodeABI()
         }, (error, hash) => {
           if (error) {
             this.$store.dispatch('showTips', {
