@@ -6,11 +6,24 @@
       </span>
     </v-card-title>
     <div style="margin-top: 40px">
-      <div class="key">Total:</div>
+      <div class="key">Contract Balance:</div>
       <div class="value">{{ total }}</div>
     </div>
     <div style="margin-top: 20px">
-      <div class="key">Withdrawable amount:</div>
+      <div class="key" style="display: flex; align-items: center;flex-wrap: wrap">
+        <span style="margin-right: 20px">Withdrawable amount:</span>
+        <v-btn
+            :loading="loading"
+            depressed
+            small
+            color="#3B99FD"
+            style="color: #fff;border: 1px solid #DDEDFD;"
+            @click="withdrawal"
+            :disabled="amount <= 0"
+        >
+          Withdrawal→
+        </v-btn>
+      </div>
       <div class="value">{{ amount }}</div>
     </div>
     <div style="margin-top: 20px">
@@ -26,20 +39,9 @@
       <div class="value">{{ subscriptionExpenses }}</div>
     </div>
     <div style="margin-top: 20px">
-      <div class="key">Rebate:</div>
+      <div class="key">Subscription Rebate:</div>
       <div class="value">{{ rebate }}</div>
     </div>
-    <v-btn
-        :loading="loading"
-        depressed
-        block
-        color="#fff"
-        style="color: #3B99FD;margin-top: 30px;border: 1px solid #DDEDFD;padding: 19px"
-        @click="withdrawal"
-        :disabled="amount <= 0"
-    >
-      Withdrawal→
-    </v-btn>
   </v-card>
 </template>
 
