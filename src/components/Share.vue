@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div :class="!!inviteSlot ? 'container container-slot' : 'container'">
     <div class="container-default" v-if="isShow">
       <template
           v-for="item in list"
@@ -115,7 +115,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.container {
+.container-slot {
+  padding: 0;
+}
+.container,
+.container-default {
   display: flex;
   flex-wrap: nowrap;
   margin-left: 0;

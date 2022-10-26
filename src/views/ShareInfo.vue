@@ -66,6 +66,7 @@
               </Share>
             </v-btn>
             <v-btn
+                :plain="true"
                 class="btn"
                 v-clipboard:copy="currentUser.code"
                 v-clipboard:success="clipboardSuccess"
@@ -77,7 +78,7 @@
     </div>
     <div :class="currentRank !== 0 ? 'share-table-1-wrap' : 'share-table-1-wrap only-show-table-1'">
       <div class="share-table-1">
-        <div style="font-size: 2rem;color: #888;">Inviter</div>
+        <div style="font-size: 2rem;color: #888;">Invitees</div>
         <v-data-table
           :fixed-header="true"
           :headers="invitedHeader"
@@ -87,7 +88,8 @@
           :loading="invitedLoading"
           loading-text="Loading... Please wait"
           :footer-props="invitedFotter"
-          class="invited-table"
+          :class="invitedData.length ? 'invited-table' : 'invited-table no-data'"
+          mobile-breakpoint="0"
         >
           <template v-slot:item.id="{ item }">
             <span>{{ ((invitedOptions.page - 1) * invitedOptions.itemsPerPage) + invitedData.indexOf(item) + 1 }}</span>
@@ -137,10 +139,13 @@
               <tr>
                 <th class="th">Index</th>
                 <th class="th">ChannelName</th>
-                <th class="th">Score</th>
+                <th class="th">Activity</th>
               </tr>
             </thead>
             <tbody>
+              <tr v-if="!rankData.length" class="no-data">
+                <td colspan="3">No data available</td>
+              </tr>
               <tr
                 v-for="(item) in rankData"
                 :key="item.name"
@@ -176,9 +181,9 @@ export default {
       //   text: 'Avatar', align: 'center', width: '20px', sortable: false, value: 'photoUrl',
       // },{
       },{
-        text: 'ChannelName', align: 'center', width: '150px', sortable: false, value: 'channelName',
+        text: 'ChannelName', align: 'center', width: '120px', sortable: false, value: 'channelName',
       },{
-        text: 'Score', align: 'center', width: '100px', sortable: false, value: 'activation',
+        text: 'Activity', align: 'center', width: '80px', sortable: false, value: 'activation',
       }],
       invitedData: [],
       invitedDataTotal: 0,
@@ -393,6 +398,10 @@ export default {
       .btn {
         box-shadow: 0 0 10px 0px rgb(0,0,0,.3);
       }
+      .btn:hover::before,
+      .btn:focus::before {
+        opacity: 0;
+      }
     }
   }
   .share-table-1,
@@ -444,6 +453,11 @@ export default {
         flex-grow: 1;
       }
     }
+    .no-data::v-deep {
+      .v-data-footer {
+        display: none;
+      }
+    }
   }
   .share-table-2 {
     .table-selete {
@@ -471,6 +485,10 @@ export default {
       }
       .score {
         width: 100px;
+      }
+      .no-data {
+        color: rgba(0, 0, 0, 0.38);
+        text-align: center;
       }
     }
   }
