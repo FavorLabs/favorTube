@@ -23,7 +23,8 @@
         </v-card-title>
 
         <v-card-text style="margin-top: 15px">
-          {{ 'Are you sure you want to open the secret channel?' }}
+          <div>After adjusting it to a secret channel, you'll not be able to change it to a public channel.</div>
+          <div>Are you sure you want to open the secret channel?</div>
         </v-card-text>
 
         <v-divider></v-divider>

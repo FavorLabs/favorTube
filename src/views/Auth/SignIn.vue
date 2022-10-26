@@ -338,7 +338,7 @@ export default {
       this.unReg = false;
     },
     goBack() {
-      if (window.history.length <= 3) { // default length is 3
+      if (this.isFirstLoad) { // default length is 3
         this.$router.replace('/');
       } else {
         this.$router.go(-1);
@@ -347,6 +347,13 @@ export default {
   },
   created() {
     this.getInvitationCode();
+  },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      if (from.fullPath === '/config' || from.name === null) {
+        vm.isFirstLoad = true;
+      }
+    });
   }
 }
 </script>
