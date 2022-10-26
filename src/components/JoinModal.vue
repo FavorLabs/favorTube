@@ -186,16 +186,20 @@ export default {
         let timer = setInterval(async () => {
           if (lock) return;
           lock = true;
-          const {data} = await SubscriptionService.checkSubscription({channelId: this.video.userId._id}, 2000).catch(console.log);
-          if (data.data.tx) {
-            clearInterval(timer);
-            this.payLoading = false;
-            this.subLoading = false;
-            this.$store.dispatch("showTips", {
-              type: "success",
-              text: "Subscription Success"
-            });
-            this.$emit("callback", data.data);
+          try {
+            const {data} = await SubscriptionService.checkSubscription({channelId: this.video.userId._id}, 2000);
+            if (data?.data?.tx) {
+              clearInterval(timer);
+              this.payLoading = false;
+              this.subLoading = false;
+              await this.$store.dispatch("showTips", {
+                type: "success",
+                text: "Subscription Success"
+              });
+              this.$emit("callback", data.data);
+            }
+          } catch (e) {
+            console.log(e)
           }
           lock = false;
         }, 1000)
