@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="openModal" width="600" persistent>
-    <v-card>
+    <v-card class="subscribe-card">
       <v-card-title class="text-h5 grey lighten-2">
         Subscribe {{ video.userId.channelName }}
       </v-card-title>
@@ -12,7 +12,7 @@
         <p>
           <span class="key">{{ chainInfo.tokenName }}:</span>
           <span class="value">
-            <span class="price" v-if="!amountLoading">{{ amount }}</span><span v-else class="loading"></span>
+            <span class="price" v-if="!amountLoading">{{ amount }}</span><span v-else class="loading size-20"></span>
             <a v-if="!!chainInfo.faucet" :href="chainInfo.faucet" target="_blank" style="margin: 0 10px;">Faucet</a>
             <v-icon style="vertical-align: top" v-if="!amountLoading" color="#f44336" @click="getAmount()">
               mdi-refresh
@@ -23,7 +23,7 @@
           <span class="key">{{ token.name }}:</span>
           <span class="value">
             <span class="price" v-if="this.balance">{{ balance / Math.pow(10, token.decimal) }}</span>
-            <span v-else class="loading"></span>
+            <span v-else class="loading size-20"></span>
           </span>
         </p>
         <p>
@@ -32,7 +32,7 @@
             <span class="price" v-if="this.price">{{
                 price / (Math.pow(10, token.decimal))
               }}</span>
-          <span v-else class="loading"></span>
+          <span v-else class="loading size-20"></span>
           {{ token.name }}
           </span>
         </p>
@@ -40,6 +40,21 @@
           <span class="key">Channel Account:</span>
           <span class="value">{{ video.userId.address }}</span>
         </p>
+        <!-- <div class="pay-methods">
+          <p class="pay-methods-title">Select a payment method</p>
+          <v-radio-group v-model="radios" row>
+            <v-radio value="Token">
+              <template v-slot:label>
+                <div>Token</div>
+              </template>
+            </v-radio>
+            <v-radio value="AccountBalance">
+              <template v-slot:label>
+                <div>Account balance</div>
+              </template>
+            </v-radio>
+          </v-radio-group>
+        </div> -->
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
@@ -60,7 +75,14 @@
         >
           Pay
         </v-btn>
+        <!-- :style="transactionStatus === 0 ? 'display: block' : 'display: none'" -->
       </v-card-actions>
+      <!-- <div class="subscribe-card-overlay" :style="transactionStatus !== 0 ? 'display: block' : 'display: none'">
+        <div class="content">
+          <span class="loading size-40"></span>
+          <p class="status-desc text-shadow">Transactions submitted</p>
+        </div>
+      </div> -->
     </v-card>
   </v-dialog>
 </template>
@@ -101,7 +123,9 @@ export default {
       favorTubeCAddress: config.favorTubeAddress,
       favorTubeContract: null,
       tokenContract: null,
-      chainInfo: config
+      chainInfo: config,
+      // radios: 'Token',
+      // transactionStatus: 0,
     }
   },
   computed: {
@@ -209,15 +233,95 @@ export default {
 }
 </script>
 
-<style scoped>
-.text {
-  margin-top: 20px;
-  font-size: 16px;
-}
+<style scoped lang="scss">
+.subscribe-card {
+  position: relative;
+  .text {
+    margin-top: 20px;
+    font-size: 16px;
+    .key {
+      display: inline-block;
+      width: 130px;
+      text-align: right;
+    }
 
-.price {
-  font-size: 20px;
-  color: #f44336
+    .value {
+      margin-left: 10px;
+    }
+
+    .price {
+      font-size: 20px;
+      color: #f44336
+    }
+
+    .pay-methods {
+      padding: 15px 15px 0 15px;
+      background: rgb(245,245,245);
+      border-radius: 4px;
+      .pay-methods-title {
+        // font-weight: 300;
+      }
+    }
+  }
+  .subscribe-card-overlay {
+    position: absolute;
+    top: 58px;
+    left: 0;
+    right: 0;
+    bottom: 53px;
+    background-color: #fff;
+    .content {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      .status-desc {
+        color: #ccc;
+        font-size: 2rem;
+        font-weight: bolder;
+        margin-top: 15px;
+      }
+      .text-shadow {
+        background: -webkit-gradient(
+          linear,
+          left top,
+          right bottom,
+          color-stop(0, #4d4d4d),
+          color-stop(0.4, #4d4d4d),
+          color-stop(0.5, #eee),
+          color-stop(0.6, #4d4d4d),
+          color-stop(1, #4d4d4d)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        -webkit-animation: text-shadow 3.5s linear infinite;
+        animation: text-shadow 3.5s linear infinite;
+      }
+    }
+  }
+
+  .loading {
+    display: inline-block;
+    // width: 20px;
+    // height: 20px;
+    vertical-align: middle;
+    border: 2px solid #f44336;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    animation: king 1s linear infinite;
+  }
+  .loading.size-20 {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+  }
+  .loading.size-40 {
+    width: 60px;
+    height: 60px;
+    border-width: 6px;
+    border-color: #4d4d4d #4d4d4d transparent #4d4d4d;
+  }
 }
 
 @keyframes king {
@@ -232,32 +336,33 @@ export default {
   }
 }
 
-.loading {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  vertical-align: middle;
-  border: 2px solid #f44336;
-  border-bottom-color: transparent;
-  border-radius: 50%;
-  animation: king 1s linear infinite;
-}
-
-.key {
-  display: inline-block;
-  width: 130px;
-  text-align: right;
-}
-
-.value {
-  margin-left: 10px;
+@keyframes text-shadow {
+  from {
+    background-position: -150px;
+  }
+  to {
+    background-position: 150px;
+  }
 }
 
 @media screen and (max-width: 650px) {
-  .key {
-    display: unset;
-    width: unset;
-    text-align: unset;
+  .subscribe-card {
+    .text {
+      margin-top: 20px;
+      font-size: 16px;
+      .key {
+        display: unset;
+        width: unset;
+        text-align: unset;
+      }
+    }
+    .subscribe-card-overlay {
+      .content {
+        .status-desc {
+          font-size: 1.2rem;
+        }
+      }
+    }
   }
 }
 

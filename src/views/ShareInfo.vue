@@ -1,5 +1,5 @@
 <template>
-  <div class="main">
+  <div :class="checkBg() ? 'main' : 'main main-m'">
     <div class="share-card-wrap">
       <div class="share-card">
         <v-list-item-avatar size="80" class="avatar">
@@ -238,9 +238,9 @@ export default {
     async getInfo() {
       try {
         const { data } = await ActivationService.getInfo();
-        this.total = data.data.invitations;
-        this.valid = data.data.vilad;
-        this.score = data.data.activation;
+        this.total = data.data.invitations || 0;
+        this.valid = data.data.valid || 0;
+        this.score = data.data.activation || 0;
       } catch (err) {
         this.showTips(err);
       }
@@ -295,6 +295,9 @@ export default {
         text: 'Copyed Successfully!'
       });
     },
+    checkBg() {
+      return isPC();
+    }
   },
   watch: {
     invitedOptions: {
@@ -313,7 +316,7 @@ export default {
   justify-content: space-around;
   align-items: center;
   height: 100%;
-  background: url('../assets/share-bg.png') 0px 0px/cover repeat-x;
+  background: url('../assets/share-bg-m.jpg') center/cover repeat-x;
   .share-card-wrap,
   .share-table-1-wrap,
   .share-table-2-wrap {
@@ -517,6 +520,9 @@ export default {
       }
     }
   }
+}
+.main-m {
+  background: url('../assets/share-bg-m.jpg') center/cover no-repeat;
 }
 @media screen and (max-width: 1500px) {
   .main {
