@@ -58,7 +58,7 @@ export default {
           img: TWImg,
         }
       ],
-      isNativeShare: window.location.protocol === 'https:' && /iphone|Mac OS/i.test(window.navigator.userAgent),
+      isNativeShare: window.location.protocol === 'https:' && /Chrome|Safari|Favor/i.test(window.navigator.userAgent) && /iphone|Mac OS/i.test(window.navigator.userAgent),
       isAndroid: /Android|Adr/i.test(window.navigator.userAgent) && /Favor/i.test(window.navigator.userAgent),
       inviteSlot: null,
     }
