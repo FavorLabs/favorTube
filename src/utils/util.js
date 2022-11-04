@@ -112,3 +112,38 @@ export const getQueryString = (options) => {
     return arr.length ? `?${arr.join('&')}` : '';
 }
 
+export const isPC = () => {
+  let sUserAgent = navigator.userAgent.toLowerCase();
+  let mIpad = sUserAgent.match(/ipad/i);
+  let mIphoneOs = sUserAgent.match(/iphone os/i);
+  let mMidp = sUserAgent.match(/midp/i);
+  let mUc7 = sUserAgent.match(/rv:1.2.3.4/i);
+  let mUc = sUserAgent.match(/ucweb/i);
+  let mAndroid = sUserAgent.match(/android/i);
+  let mCE = sUserAgent.match(/windows ce/i);
+  let mWM = sUserAgent.match(/windows mobile/i);
+
+  let bIsIpad = mIpad ? true : false;
+  let bIsIphoneOs = mIphoneOs ? true : false;
+  let bIsMidp = mMidp ? true : false;
+  let bIsUc7 = mUc7 ? true : false;
+  let bIsUc = mUc ? true : false;
+  let bIsAndroid = mAndroid ? true : false;
+  let bIsCE = mCE ? true : false;
+  let bIsWM = mWM ? true : false;
+  if (
+    bIsIpad ||
+    bIsIphoneOs ||
+    bIsMidp ||
+    bIsUc7 ||
+    bIsUc ||
+    bIsAndroid ||
+    bIsCE ||
+    bIsWM
+  ) {
+    return false;
+  } else {
+    return true;
+  }
+};
+
