@@ -1,5 +1,5 @@
 <template>
-  <div class="main">
+  <div :class="checkBg() ? 'main' : 'main main-m'">
     <div class="share-card-wrap">
       <div class="share-card">
         <v-list-item-avatar size="80" class="avatar">
@@ -78,7 +78,7 @@
     </div>
     <div :class="currentRank !== 0 ? 'share-table-1-wrap' : 'share-table-1-wrap only-show-table-1'">
       <div class="share-table-1">
-        <div style="font-size: 2rem;color: #888;">Invitees</div>
+        <div style="font-size: 2rem;color: #000;">Invitees</div>
         <v-data-table
           :fixed-header="true"
           :headers="invitedHeader"
@@ -110,7 +110,22 @@
             </v-list-item-avatar>
           </template> -->
           <template v-slot:item.channelName="{ item }">
-            <div class="channel-name-text">{{ item.channelName }}</div>
+            <div class="avatar-channel-name">
+              <v-list-item-avatar size="30" class="avatar" style="margin: 0;">
+                <v-img
+                    v-if="item.photoUrl !== 'no-photo.jpg'"
+                    :src="`${imgUrl}/uploads/avatars/${item.photoUrl}`"
+                ></v-img>
+                <v-avatar v-else color="red" size="30">
+                  <span class="white--text headline" style="font-size: 18px!important">
+                    {{
+                      item.channelName.trim().split('')[0].toUpperCase()
+                    }}</span
+                  >
+                </v-avatar>
+              </v-list-item-avatar>
+              <div class="channel-name-text">{{ item.channelName }}</div>
+            </div>
           </template>
           <template v-slot:item.activation="{ item }">
             <div class="activation-text">{{ item.activation }}</div>
@@ -124,7 +139,7 @@
           class="d-flex"
           style="justify-content: space-between;margin-bottom: -10px;"
         >
-          <p style="font-size: 2rem;color: #888;white-space: nowrap;">Ranking</p>
+          <p style="font-size: 2rem;color: #000;white-space: nowrap;">Ranking</p>
           <v-select
             :items="rankItems"
             @change="changeRank"
@@ -167,6 +182,7 @@ import {mapGetters} from "vuex";
 import QrcodeVue from 'qrcode.vue';
 import Share from "@/components/Share";
 import ActivationService from '@/services/ActivationService';
+import { isPC } from '@/utils/util'
 
 export default {
   name: "ShareInfo",
@@ -176,12 +192,12 @@ export default {
       valid: 0,
       score: 0,
       invitedHeader: [{
-        text: 'Index', align: 'center', width: '20px', sortable: false, value: 'id',
+        text: 'Index', align: 'left', width: isPC() ? '80px' : '50px', sortable: false, value: 'id',
       // },{
       //   text: 'Avatar', align: 'center', width: '20px', sortable: false, value: 'photoUrl',
       // },{
       },{
-        text: 'ChannelName', align: 'center', width: '120px', sortable: false, value: 'channelName',
+        text: 'ChannelName', align: 'left', width: isPC() ? '80px' : '130px', sortable: false, value: 'channelName',
       },{
         text: 'Activity', align: 'center', width: '80px', sortable: false, value: 'activation',
       }],
@@ -222,9 +238,9 @@ export default {
     async getInfo() {
       try {
         const { data } = await ActivationService.getInfo();
-        this.total = data.data.invitations;
-        this.valid = data.data.vilad;
-        this.score = data.data.activation;
+        this.total = data.data.invitations || 0;
+        this.valid = data.data.valid || 0;
+        this.score = data.data.activation || 0;
       } catch (err) {
         this.showTips(err);
       }
@@ -279,6 +295,9 @@ export default {
         text: 'Copyed Successfully!'
       });
     },
+    checkBg() {
+      return isPC();
+    }
   },
   watch: {
     invitedOptions: {
@@ -297,7 +316,7 @@ export default {
   justify-content: space-around;
   align-items: center;
   height: 100%;
-  background: url('../assets/share-bg.png') 0px 0px/cover repeat-x;
+  background: url('../assets/share-bg-m.jpg') center/cover repeat-x;
   .share-card-wrap,
   .share-table-1-wrap,
   .share-table-2-wrap {
@@ -443,6 +462,15 @@ export default {
       display: flex;
       flex-direction: column;
       height: calc(100vh - 295px);
+      .avatar-channel-name {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        // margin-left: 20px;
+      }
+      .channel-name-text {
+        margin-left: 10px;
+      }
       .channel-name-text,
       .activation-text {
         word-break: break-all;
@@ -492,6 +520,9 @@ export default {
       }
     }
   }
+}
+.main-m {
+  background: url('../assets/share-bg-m.jpg') center/cover no-repeat;
 }
 @media screen and (max-width: 1500px) {
   .main {
