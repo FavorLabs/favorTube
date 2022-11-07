@@ -72,6 +72,7 @@ export default {
   font-weight: 400;
   color: #1F1F1F;
   letter-spacing: 1px;
+  border-bottom: 3px solid;
 }
 
 .profit {

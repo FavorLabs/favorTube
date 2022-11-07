@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="price_info">Set your pricing, such as $20.And you can choose your profit distribution.</div>
+    <div class="price_info">Set channel pricing and profit distribution.</div>
     <v-form
         ref="form"
         v-model="valid"
@@ -40,34 +40,6 @@
       </v-btn>
     </footer>
   </div>
-  <!--    <v-card tile>-->
-  <!--      <v-card-text class="px-3">-->
-  <!--        <v-form-->
-  <!--            ref="form"-->
-  <!--            v-model="valid"-->
-  <!--            lazy-validation-->
-  <!--        >-->
-  <!--          <v-text-field-->
-  <!--              label="Price"-->
-  <!--              dense-->
-  <!--              :rules="rules"-->
-  <!--              hide-details="auto"-->
-  <!--              type="number"-->
-  <!--              v-model="price"-->
-  <!--              min="0"-->
-  <!--          ></v-text-field>-->
-  <!--          <v-select-->
-  <!--              v-model="mode"-->
-  <!--              label="Mode"-->
-  <!--              :items="items"-->
-  <!--          ></v-select>-->
-  <!--        </v-form>-->
-  <!--        <footer style="margin-top: 20px">-->
-  <!--          <v-btn @click="closeModal" style="margin-right: 20px">cancel</v-btn>-->
-  <!--          <v-btn @click="set" :loading="loading">set</v-btn>-->
-  <!--        </footer>-->
-  <!--      </v-card-text>-->
-  <!--    </v-card>-->
 </template>
 
 <script>
