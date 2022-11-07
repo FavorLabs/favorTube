@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="ps">
-      Whether to open your Screat Channel?
+      Set Secret Channel
     </div>
     <v-switch
         inset

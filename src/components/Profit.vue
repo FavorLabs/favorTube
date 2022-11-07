@@ -142,7 +142,6 @@ export default {
 
 .header {
   font-size: 26px;
-  line-height: 26px;
   font-family: Impact-Regular, Impact, serif;
   font-weight: 400;
   color: #1F1F1F;

@@ -38,7 +38,7 @@
                                     alt=""
                                 />
                               </div>
-                              <div class="wallet_text">MATAMASK</div>
+                              <div class="wallet_text">METAMASK</div>
                             </div>
                             <div class="wallet_btn" v-if="!connectType || connectType==='okx'" @click="connectOkx">
                               <div class="wallet_img">
