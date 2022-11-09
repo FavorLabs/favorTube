@@ -1,7 +1,8 @@
 <template>
   <div>
 
-    <v-overlay :value="uploading" z-index="9999" class="text-center" style="display:flex;justify-content: center;align-items: center;">
+    <v-overlay :value="uploading" z-index="9999" class="text-center"
+               style="display:flex;justify-content: center;align-items: center;">
       <v-progress-linear
           :value="value"
           v-if="value"
@@ -244,7 +245,7 @@ import CategoryService from "@/services/CategoryService";
 import data2blob from "vue-image-crop-upload/utils/data2blob";
 import {mapGetters} from "vuex";
 import FavorService from "@/services/FavorService";
-import {splicingBit, stringToBinary, getProgress, getVideoLimitSize} from "@/utils/util";
+import {stringToBinary, getProgress, getVideoLimitSize} from "@/utils/util";
 import {config} from '@/config/config'
 
 export default {
@@ -293,14 +294,11 @@ export default {
     },
   },
   methods: {
-    async test(hash, len) {
-      let _this = this;
+    async uploadToStorageNode(hash, len) {
       let ws = this.$store.state.auth.ws;
-      let state = "storage"; //storage,node,download
       let connected = [];
       let bad = {};
       let overlay;
-      let data;
       let storageResult;
       let downloadResult;
 
@@ -308,155 +306,123 @@ export default {
       let downloadTimer = null;
 
       return new Promise((resolve, reject) => {
-
-        function downloadFailed() {
+        const downloadFailed = () => {
           bad[overlay] = bad[overlay] ? ++bad[overlay] : 1;
           ws.emit("choiceOverlay");
         }
-
-        ws.send(
-            {
-              "id": 1,
-              "jsonrpc": "2.0",
-              "method": "group_subscribe",
-              "params": ["peers", config.storeGroup]
-            },
-            (err, res) => {
-              if (err) reject(err);
-              if (res.error) reject(res.error.message);
-              console.log("storageResult", res)
-              storageTimer = setTimeout(() => {
-                ws.send({
-                  "id": 1,
-                  "jsonrpc": "2.0",
-                  "method": "group_unsubscribe",
-                  "params": [res.result]
-                });
-                reject("Failed to connect to the P2P network");
-              }, 2000 * 10);
-              storageResult = res.result;
-              ws.on(res.result, async (res) => {
-                console.log("storageArr", res)
-                connected = res.connected ? res.connected : [];
-                if (connected.length && storageTimer) {
-                  clearTimeout(storageTimer);
-                  storageTimer = null;
-                  ws.emit("choiceOverlay");
+        const groupSubscribe = () => {
+          ws.send(
+              {
+                "id": 1,
+                "jsonrpc": "2.0",
+                "method": "group_subscribe",
+                "params": ["peers", config.storeGroup]
+              },
+              (err, res) => {
+                if (err || res.error) {
+                  reject(err || res.error.message)
+                  return;
                 }
-              });
-            })
-
-        ws.on("choiceOverlay", async () => {
-          try {
-            if (bad[overlay] === 1) {
+                storageResult = res.result;
+                console.log("storageResult", storageResult)
+                storageTimer = setTimeout(() => {
+                  reject("Failed to connect to the P2P network");
+                }, 1000 * 20);
+                ws.on(storageResult, async (res) => {
+                  console.log("storageArr", res)
+                  connected = res.connected ? res.connected : [];
+                  if (connected.length && storageTimer) {
+                    clearTimeout(storageTimer);
+                    storageTimer = null;
+                    ws.emit("choiceOverlay");
+                  }
+                });
+              })
+        }
+        const choiceOverlay = async () => {
+          if (bad[overlay] === 1) {
+            try {
               await FavorService.connect(overlay);
+            } catch (e) {
+              downloadFailed()
+              return;
             }
-          } catch (e) {
-            downloadFailed()
-            return;
-          }
-          state = "node";
-          console.log("state", state)
-          if (downloadResult) {
-            _this.statusTip = "Switching nodes for upload";
           }
           overlay = connected.filter(item => bad[item] < 2 || !bad[item])[0];
           console.log("overlay", overlay)
-
           if (!overlay) {
             reject("Failed to connect to the P2P network");
             return;
           }
+          if (downloadResult) this.statusTip = "Switching nodes for upload";
           let res = null;
           try {
-            res = await FavorService.sendMessage(_this.getApi, overlay, hash);
+            res = await FavorService.sendMessage(this.getApi, overlay, hash);
           } catch (e) {
             downloadFailed();
             return;
           }
-
-          data = JSON.parse(window.atob(res.data.data))
+          let data = JSON.parse(window.atob(res.data.data))
           console.log("message", data);
-          if (data.code) {
-            if (data.code === 1001) {
-              resolve({
-                text: data.message,
-                overlay,
-              });
-              return;
-            }
-            downloadFailed()
+          this.value = getProgress(stringToBinary(data.vector.b, data.vector.len), len);
+          console.log("progress", this.value)
+          if (this.value === 100) {
+            resolve({
+              text: "Upload successful",
+              overlay,
+            });
+            return;
           }
           if (!downloadResult) {
-            ws.send({
-              "id": 3,
-              "jsonrpc": "2.0",
-              "method": "chunkInfo_subscribe",
-              "params": ["retrievalProgress", hash]
-            }, (err, res) => {
-              console.log("downloadResult", res);
-              if (err) reject(err)
-              if (res.error) reject(res.error.message);
-              downloadResult = res.result;
-            })
+            ws.emit("chunkInfoSubscribe");
           }
-          state = "download";
-          console.log("state", state)
-          let sourceInfo;
-          try {
-            sourceInfo = await FavorService.sourceInfo(hash);
-          } catch (e) {
-            reject(e);
-          }
-
-          sourceInfo = sourceInfo?.data.find(item => item.overlay === overlay);
-          if (sourceInfo) {
-            let p = getProgress(stringToBinary(sourceInfo.bit.b, sourceInfo.bit.len), len)
-
-            _this.value = p;
-            if (p === 100) {
-              resolve({
-                text: "Video uploaded successfully",
-                overlay,
-              });
+        }
+        const chunkInfoSubscribe = () => {
+          ws.send({
+            "id": 3,
+            "jsonrpc": "2.0",
+            "method": "chunkInfo_subscribe",
+            "params": ["retrievalProgress", hash]
+          }, (err, res) => {
+            console.log("downloadResult", res);
+            if (err || res.error) {
+              reject(err || res.error.message)
+              return;
             }
-          }
-          _this.statusTip = "Uploading the file to the P2P storage node";
-          ws.emit("download");
-        })
-
-        ws.on("download", () => {
+            downloadResult = res.result;
+            ws.emit("download");
+          })
+        }
+        const download = () => {
+          console.log("start download")
           downloadTimer = setTimeout(() => {
             downloadFailed()
           }, 1000 * 20)
-          let p = 0;
-          if (downloadResult) {
-            ws.removeAllListeners(downloadResult);
-            ws.on(downloadResult, async (res) => {
-              console.log("download", res)
-              if (state !== "download") return;
-              let downloadData = res.find(item => item.Overlay === overlay);
-              if (!downloadData) return;
-              clearTimeout(downloadTimer);
-              downloadTimer = setTimeout(() => {
-                downloadFailed()
-              }, 1000 * 10)
-              if (data.vector) {
-                p = getProgress(splicingBit(data.vector.b, downloadData.Bitvector.b, downloadData.Bitvector.len), len)
-              } else {
-                p = getProgress(stringToBinary(downloadData.Bitvector.b, downloadData.Bitvector.len), len)
-              }
-              _this.value = p;
-              if (p === 100) {
-                resolve({
+          ws.on(downloadResult, async (res) => {
+            console.log("download", res)
+            let downloadData = res.find(item => item.Overlay === overlay);
+            if (!downloadData) return;
+            this.statusTip = "Uploading the file to the P2P storage node";
+            clearTimeout(downloadTimer);
+            downloadTimer = setTimeout(() => {
+              downloadFailed()
+            }, 1000 * 10)
+            this.value = getProgress(stringToBinary(downloadData.Bitvector.b, downloadData.Bitvector.len), len)
+            console.log("progress", this.value)
+            if (this.value === 100) {
+              resolve({
                 text: "Upload successful",
                 overlay,
               });
-              }
-            })
-          }
-        })
-
+            }
+          })
+        }
+        ws.on("groupSubscribe", groupSubscribe)
+        ws.on("choiceOverlay", choiceOverlay)
+        ws.on("chunkInfoSubscribe", chunkInfoSubscribe)
+        ws.on("download", download)
+        this.statusTip = "Uploading the file to the P2P storage node";
+        ws.emit("groupSubscribe");
       }).finally(() => {
         if (storageResult) {
           ws.send({
@@ -474,7 +440,9 @@ export default {
             "params": [downloadResult]
           });
         }
+        ws.removeAllListeners("groupSubscribe");
         ws.removeAllListeners("choiceOverlay");
+        ws.removeAllListeners("chunkInfoSubscribe");
         ws.removeAllListeners("download");
       })
     },
@@ -488,37 +456,24 @@ export default {
         await FavorService.observeStorage(this.getApi);
         let data = await FavorService.uploadFile(this.getApi, this.selectedFile);
         let hash = data.data.reference;
-        console.log(hash);
-        let fileInfo = await FavorService.getFileInfo(hash);
-        let len = fileInfo.data.list[0].bitVector.len;
-        let currentOverlay = '';
-
-        let latestFiles = sessionStorage.getItem('latestFiles');
-        if (latestFiles && JSON.parse(latestFiles)[hash]) {
-          this.$store.dispatch("showTips", {
-            type: "success",
-            text: 'Video uploaded successfully'
-          })
-          currentOverlay = JSON.parse(latestFiles)[hash];
-        } else {
-          let { text, overlay } = await this.test(hash, len)
+        console.log("hash", hash);
+        let uploadedList = JSON.parse(sessionStorage.getItem("uploaded_list") || '{}');
+        let uploadOverlay = uploadedList[hash];
+        if (!uploadOverlay) {
+          let fileInfo = await FavorService.getFileInfo(hash);
+          let len = fileInfo.data.list[0].bitVector.len;
+          const {text, overlay} = await this.uploadToStorageNode(hash, len)
           await this.$store.dispatch("showTips", {
             type: "success",
             text
           })
-          currentOverlay = overlay;
-          latestFiles = sessionStorage.getItem('latestFiles');
-          if (latestFiles) {
-            let tem = JSON.parse(latestFiles);
-            tem[hash] = overlay;
-            sessionStorage.setItem('latestFiles', JSON.stringify(tem));
-          } else {
-            sessionStorage.setItem('latestFiles', JSON.stringify({[hash]: overlay}));
-          }
+          uploadOverlay = overlay;
+          uploadedList[hash] = overlay;
+          sessionStorage.setItem("uploaded_list", JSON.stringify(uploadedList));
         }
         let video = await VideoService.uploadVideo({
           url: hash,
-          overlay: currentOverlay
+          overlay: uploadOverlay
         });
         this.formData.url = hash;
         video = video.data.data
@@ -661,9 +616,10 @@ export default {
 
 @media screen and (max-width: 450px) {
   #modal-header {
-    display: block!important;
+    display: block !important;
+
     .modal-header-text {
-      margin: 0!important;
+      margin: 0 !important;
     }
   }
 }

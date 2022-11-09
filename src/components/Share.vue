@@ -95,7 +95,7 @@ export default {
       nativeShare.setShareData({
         link: url,
         title: 'FavorTube',
-        desc: url,
+        desc: "",
       })
       try {
         nativeShare.call()

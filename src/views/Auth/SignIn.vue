@@ -336,6 +336,7 @@ export default {
       this.connectType = '';
       this.email = '';
       this.unReg = false;
+      this.loading = false;
     },
     goBack() {
       if (this.isFirstLoad) { // default length is 3

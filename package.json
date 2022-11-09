@@ -1,6 +1,6 @@
 {
   "name": "favortube",
-  "version": "1.2.14",
+  "version": "1.2.15",
   "author": {
     "name": "favortube",
     "email": "**"
@@ -33,6 +33,7 @@
     "nativeshare": "^2.1.5",
     "qrcode.vue": "^1.7.0",
     "qrcodejs2": "^0.0.2",
+    "vconsole": "^3.15.0",
     "vee-validate": "^3.2.5",
     "vue": "^2.6.11",
     "vue-clipboard2": "^0.3.3",

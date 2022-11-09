@@ -56,6 +56,11 @@ import {config, setConfig} from '@/config/config'
 import {getWeb3} from "@/utils/web3Utils";
 import {version as FavorTubeVersion} from '../package.json'
 import {removeAllPendingRequestsRecord} from "@/services/Api";
+import VConsole from "vconsole";
+
+if (/Mobile/i.test(navigator.userAgent) && process.env.NODE_ENV === 'development') {
+  new VConsole();
+}
 
 export default {
   name: 'App',
@@ -167,15 +172,11 @@ export default {
     },
     async setRouterParams(query) {
       let id = this.$route.params.id;
-      let invitation = query.invitation
+      let invitation = query.invitation;
       if (invitation) {
         sessionStorage.setItem("invitation", invitation);
-        console.log(invitation)
         if (id) {
           sessionStorage.setItem("invitation_videoId", id);
-          console.log(id)
-          // const user = await UserService.getById(invitation);
-          // const video = await VideoService.getById(id);
         }
       }
     },
