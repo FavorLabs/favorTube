@@ -173,7 +173,6 @@ export default {
     async setRouterParams(query) {
       let id = this.$route.params.id;
       let invitation = query.invitation;
-      console.log(id, invitation)
       if (invitation) {
         sessionStorage.setItem("invitation", invitation);
         if (id) {
