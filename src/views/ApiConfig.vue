@@ -62,7 +62,7 @@
 
 <script>
 import {websocket} from "@/utils/util";
-import FavorService from "../services/FavorService"
+import FavorService from "../services/favorX/FavorService"
 import FavorlabsService from "@/services/favorlabs/FavorlabsService";
 import {isElectron, ipc} from "@/utils/util";
 
@@ -102,44 +102,15 @@ export default {
       })
       return;
     }
-    if (process.env.VUE_APP_MOBILE) {
-      this.app = true;
-      // eslint-disable-next-line no-undef
-      cordova.plugins.node.getVersion((version) => {
-        this.version = version;
-      })
-      const startNode = () => {
-        // eslint-disable-next-line no-undef
-        cordova.plugins.node.start(
-            (apiPort) => {
-              let timer = setInterval(() => {
-                this.set("http://localhost:" + apiPort).then(() => {
-                  clearInterval(timer);
-                }).catch((e) => {
-                  console.log(e.message);
-                });
-              }, 3000)
-            },
-            (e) => {
-              this.$store.dispatch('showTips', {
-                type: "error",
-                text: e.message || e
-              });
-            }
-        );
-      }
-      startNode();
+    if (this.$route.params.api) {
+      this.loading = false;
     } else {
-      if (this.$route.params.api) {
+      const {endPoint, shareParams} = this.$route.params;
+      const {origin} = window.location;
+      const api = endPoint || origin;
+      this.set(api, shareParams).catch(() => {
         this.loading = false;
-      } else {
-        const {endPoint, shareParams} = this.$route.params;
-        const {origin} = window.location;
-        const api = endPoint || origin;
-        this.set(api, shareParams).catch(() => {
-          this.loading = false;
-        })
-      }
+      })
     }
   },
   mounted() {

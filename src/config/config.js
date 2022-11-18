@@ -397,7 +397,7 @@ export const tokenAbi = [
     }
 ];
 
-export const favorTubeAbi =  [
+export const favorTubeAbi = [
     {
         "inputs": [
             {
@@ -1204,22 +1204,22 @@ export const oracleAbi = [
 ];
 
 const configs = {
-    18:{
-        bootNode:["/ip4/107.167.2.7/tcp/1818/p2p/12D3KooWRF7JRcGV6fbHW5KonKUingJb7RiVpsXzhHz8Kj9AarPq",
+    18: {
+        bootNode: ["/ip4/107.167.2.7/tcp/1818/p2p/12D3KooWRF7JRcGV6fbHW5KonKUingJb7RiVpsXzhHz8Kj9AarPq",
             "/ip6/2610:150:c009:d:216:3cff:fe62:366b/tcp/1818/p2p/12D3KooWRF7JRcGV6fbHW5KonKUingJb7RiVpsXzhHz8Kj9AarPq"],
         chainEndpoint: "https://polygon-mainnet.public.blastapi.io",
         tokenName: "MATIC",
         chainId: 137,
         oracleContractAddr: "0xDecc6cCfe1E5369EF8e0d30033EF476b075E49bB",
-        traffic : false,
-        trafficContractAddr : "",
-        faucet:"",
+        traffic: false,
+        trafficContractAddr: "",
+        faucet: "",
         "favorTokenAddress": "0x55c948561336a98f7683dd3d79f31ef6e3e0bac8",
         "favorTubeAddress": "0xa279666a21A4b994D1124A35c0D47703E284F1aB",
-        videoLimitSize:1024*300,
-        proxyGroup : "favortube",
-        domainName : "favortube.com",
-        storeGroup : "favortube-storage",
+        videoLimitSize: 1024 * 300,
+        proxyGroup: "favortube",
+        domainName: "favortube.com",
+        storeGroup: "favortube-storage",
         proxyNodes: [
             "fafa08217c964ada4b10757176ccb708e7ab02534d54b429ab21b5021df50e0e",
             "53af829ad8bf1117b4363eab6bb3aa3cc9a376b335555c043ccd08b8206d2d93",
@@ -1231,23 +1231,22 @@ const configs = {
             "97f25f19ab516d8458f8756e17de6cc7200acb1c076a5f4b9594cc6ee5270e12"
         ]
     },
-    19:{
-        bootNode:["/ip4/107.167.2.7/tcp/1809/p2p/12D3KooWEw5bXwg4ho63XSJCtmYdgXbVGUKrf1Uhpg3RbogLswxt",
+    19: {
+        bootNode: ["/ip4/107.167.2.7/tcp/1809/p2p/12D3KooWEw5bXwg4ho63XSJCtmYdgXbVGUKrf1Uhpg3RbogLswxt",
             "/ip6/2610:150:c009:d:216:3cff:fe62:366b/tcp/1809/p2p/12D3KooWEw5bXwg4ho63XSJCtmYdgXbVGUKrf1Uhpg3RbogLswxt"],
         chainEndpoint: "https://polygon-testnet.public.blastapi.io",
         tokenName: "MATIC",
         chainId: 80001,
-
         oracleContractAddr: "0x21aC8FE412Fd058eD29a67a69c81EF08fA34f443",
-        traffic : false,
-        trafficContractAddr : "",
+        traffic: false,
+        trafficContractAddr: "",
         faucet: "https://faucet.polygon.technology/",
         favorTokenAddress: "0x784c0A0669C5823549bd2Ae9D2E393C73048828a",
         favorTubeAddress: "0xC263A2299b44023612880C112647a864dB1f1F44",
-        videoLimitSize:1024*300,
-        proxyGroup : "favortube",
-        domainName : "favortube.com",
-        storeGroup : "favortube-storage",
+        videoLimitSize: 1024 * 300,
+        proxyGroup: "favortube",
+        domainName: "favortube.com",
+        storeGroup: "favortube-storage",
         proxyNodes: [
             "cc30f0393cfaf2b6b2bea82ea4400fe8e9ff6d94b858beaf36d41fb9f040963e",
             "01ce40352b9635cbfab17f22d6d1e4436a21324cc1b1ef97eac2b20928b03244",
@@ -1259,22 +1258,22 @@ const configs = {
             "d95d0cf90e651b840ab3d888981d0653620aa042189e8d1a0f6a7cdc9bb572af",
         ]
     },
-    20:{
-        bootNode:["/ip4/107.167.2.7/tcp/1800/p2p/12D3KooWJkSsFDb4kGBtd4aN85RPswX7aJWAf391xkC8nuADcQc3",
+    20: {
+        bootNode: ["/ip4/107.167.2.7/tcp/1800/p2p/12D3KooWJkSsFDb4kGBtd4aN85RPswX7aJWAf391xkC8nuADcQc3",
             "/ip6/2610:150:c009:d:216:3cff:fe62:366b/tcp/1800/p2p/12D3KooWJkSsFDb4kGBtd4aN85RPswX7aJWAf391xkC8nuADcQc3"],
         chainEndpoint: "https://andromeda.metis.io/?owner=1088",
         tokenName: "METIS",
         chainId: 1088,
-        faucet:"",
+        faucet: "",
         oracleContractAddr: "0xE810E8B7B61496AEe5D18242Bf0CFD988DFade5C",
-        traffic : false,
-        trafficContractAddr : "",
+        traffic: false,
+        trafficContractAddr: "",
         favorTokenAddress: "0x753291B61dC6547c9B785ea2fBd7B04c83e7b6d4",
         favorTubeAddress: "0x1548d87b8Bb28F59554a6cCb018CA6ff897839a0",
-        videoLimitSize:1024*300,
-        proxyGroup : "favortube",
-        domainName : "favortube.com",
-        storeGroup : "favortube-storage",
+        videoLimitSize: 1024 * 300,
+        proxyGroup: "favortube",
+        domainName: "favortube.com",
+        storeGroup: "favortube-storage",
         proxyNodes: [
             "4a82e22ac2de786d3eeb8478ac18158941379f4021350d07263a1b4b29889434",
             "091eb9c210577efbe82f717d06f5a80c5e29d9b6fb1af5e5f26cf69a868b130e",
@@ -1286,23 +1285,23 @@ const configs = {
             "d1f2cac24d107038e23a8606505cecb632f5d7ab26156d1528b0be501520b326",
         ]
     },
-    21:{
-        bootNode:["/ip4/107.167.2.7/tcp/1890/p2p/12D3KooWC6KnXNGfFTjrcUZVv93QyWYfmsiNDW1j92An7Rjjvz6r",
+    21: {
+        bootNode: ["/ip4/107.167.2.7/tcp/1890/p2p/12D3KooWC6KnXNGfFTjrcUZVv93QyWYfmsiNDW1j92An7Rjjvz6r",
             "/ip6/2610:150:c009:d:216:3cff:fe62:366b/tcp/1890/p2p/12D3KooWC6KnXNGfFTjrcUZVv93QyWYfmsiNDW1j92An7Rjjvz6r"],
 
         chainEndpoint: "https://exchainrpc.okex.org",
         chainId: 66,
         tokenName: "OKT",
-        faucet:"",
+        faucet: "",
         oracleContractAddr: "0xDecc6cCfe1E5369EF8e0d30033EF476b075E49bB",
-        traffic : false,
-        trafficContractAddr : "",
+        traffic: false,
+        trafficContractAddr: "",
         favorTokenAddress: "0xBce5bbc384a9e703F3a22dAb55aEe2170bdB3fe4",
         favorTubeAddress: "0xCF5Cc197654Be85112A4044a86BFE2c002A266c2",
-        videoLimitSize:1024*300,
-        proxyGroup : "favortube",
-        domainName : "favortube.com",
-        storeGroup : "favortube-storage",
+        videoLimitSize: 1024 * 300,
+        proxyGroup: "favortube",
+        domainName: "favortube.com",
+        storeGroup: "favortube-storage",
         proxyNodes: [
             "53715767b512fb2685b9e7997527ade81a5a045c118e06a314da57a2bf2d80c6",
             "6cf5f1c1c6b42956008dfa692f9d71cfb061927f054d6ee88dd0040a5493c969",
