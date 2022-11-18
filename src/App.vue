@@ -49,14 +49,15 @@
 
 <script>
 import {mapGetters} from "vuex";
-import {websocket, disconnect} from "@/utils/util";
-import FavorService from "@/services/FavorService";
+import {websocket} from "@/utils/util";
+import FavorService from "@/services/favorX/FavorService";
 import FavorlabsService from "@/services/favorlabs/FavorlabsService";
 import {config, setConfig} from '@/config/config'
-import {getWeb3} from "@/utils/web3Utils";
+import {connect} from "@/utils/web3Utils";
 import {version as FavorTubeVersion} from '../package.json'
 import {removeAllPendingRequestsRecord} from "@/services/Api";
 import VConsole from "vconsole";
+import {CONNECT_TYPE, WALLET_CONNECT} from "@/config/constants";
 
 if (/Mobile/i.test(navigator.userAgent) && process.env.NODE_ENV === 'development') {
   new VConsole();
@@ -74,7 +75,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['getList', "getUrl", "ws", "web3", "isAuthenticated", "getToken"]),
+    ...mapGetters(['getList', "getUrl", "ws", "web3", "isAuthenticated"]),
     allowRefresh() {
       return this.refreshPage.includes(this.$route.path);
     }
@@ -82,56 +83,42 @@ export default {
   async created() {
     this.hidePercent();
     console.log('version', FavorTubeVersion);
-    if (process.env.VUE_APP_MOBILE) {
-      document.addEventListener('deviceready', () => {
-        setTimeout(function () {
-          navigator.splashscreen.hide();
-        }, 500);
-        this.getWs();
-      });
-      document.addEventListener('resume', async () => {
-        console.log('resume');
-        if (sessionStorage.getItem("api")) {
-          await FavorService.restore(sessionStorage.getItem("api"));
-          if (!this.ws.connected) {
-            await this.getWs();
-          }
-        }
-      });
-    } else {
-      await this.getWs();
-    }
+    await this.getWs();
   },
   methods: {
     async getWs() {
-      let wsHost = sessionStorage.getItem("ws");
-      let api = sessionStorage.getItem("api");
-      if (wsHost && api) {
+      try {
+        let api = sessionStorage.getItem("api");
+        let wsHost = sessionStorage.getItem("ws");
+        if (!api || !wsHost) throw new Error;
         let addresses = await FavorService.getAddresses();
         sessionStorage.setItem("network_id", addresses.data.network_id);
         let config;
-        try {
-          const {data} = await FavorlabsService.getConfig(addresses.data.network_id);
+        await FavorlabsService.getConfig(addresses.data.network_id).then(({data}) => {
           config = data.data;
-        } catch (err) {
-          console.error('err', err);
-        }
+        }).catch(console.error);
         setConfig(config);
-        try {
-          await FavorService.observe(api);
-          let ws = websocket(wsHost);
-          this.$store.commit("SET_WS", ws);
-        } catch (e) {
-          await this.$store.dispatch("showTips", {
-            type: "error",
-            text: "Failed to connect to the P2P network"
-          })
-        }
-      } else {
-        this.loading = false;
+        await FavorService.observe(api);
+        let ws = websocket(wsHost);
+        this.$store.commit("SET_WS", ws);
+      } catch (e) {
         this.analyzingUrl();
+      } finally {
+        this.loading = false;
+        this.dataLoading = false;
       }
-      this.dataLoading = false;
+    },
+    async getWeb3() {
+      const connectType = localStorage.getItem(CONNECT_TYPE);
+      if (this.isAuthenticated && connectType) {
+        try {
+          const {web3} = await connect(connectType, true);
+          this.$store.commit("SET_WEB3", web3);
+        } catch (e) {
+          console.log(e);
+          this.signOut();
+        }
+      }
     },
     wsCloseHandle() {
       this.$store.dispatch('showTips', {
@@ -170,7 +157,7 @@ export default {
         })
       }, 1500)
     },
-    async setRouterParams(query) {
+    setRouterParams(query) {
       let id = this.$route.params.id;
       let invitation = query.invitation;
       if (invitation) {
@@ -196,9 +183,22 @@ export default {
           percentMask.style.display = 'none';
         }, 50);
       }
-    }
+    },
   },
   watch: {
+    "$route": function (to, from) {
+      if (from.path !== "/") {
+        removeAllPendingRequestsRecord();
+      }
+      if (to.meta.keepAlive && from.meta.keepAlive) {
+        this.keepList = [to.name];
+      }
+    },
+    "$route.query": {
+      handler: function (newVal) {
+        this.setRouterParams(newVal);
+      }
+    },
     "ws": {
       handler: function (ws) {
         let _this = this;
@@ -216,44 +216,27 @@ export default {
           });
         })
         ws.on('close', this.wsCloseHandle);
+        this.getWeb3();
       }
     },
     "loading": async function (v) {
       if (v) {
         document.documentElement.style.overflow = "hidden";
-        this.timer = setInterval(() => {
-          let api = sessionStorage.getItem("api");
-          FavorService.observe(api);
-        }, 2000)
-      } else if (this.ws && this.isAuthenticated) {
-        if (this.getToken) {
-          await this.$store.dispatch('getCurrentUser', this.getToken);
+        if (config) {
+          if (this.timer) clearInterval(this.timer);
+          this.timer = setInterval(() => {
+            let api = sessionStorage.getItem("api");
+            FavorService.observe(api);
+          }, 2000)
         }
-        if (!this.web3) {
-          const {err, res} = await getWeb3(() => {
-            disconnect(this)
-          });
-          if (err) {
-            this.signOut();
-          } else {
-            const {web3} = res;
-            this.$store.commit("SET_WEB3", web3);
-          }
-        }
+      } else {
+        if (this.ws && this.isAuthenticated) await this.$store.dispatch('getCurrentUser', this.getToken);
         clearInterval(this.timer);
       }
     },
-    "$route.query": {
-      handler: function (newVal) {
-        this.setRouterParams(newVal);
-      }
-    },
-    "$route": function (to, from) {
-      if (from.path !== "/") {
-        removeAllPendingRequestsRecord();
-      }
-      if (to.meta.keepAlive && from.meta.keepAlive) {
-        this.keepList = [to.name];
+    "web3": async function () {
+      if (this.isAuthenticated && localStorage.getItem(CONNECT_TYPE) === WALLET_CONNECT) {
+        this.web3.currentProvider?.once('disconnect', this.signOut);
       }
     }
   }
@@ -263,17 +246,17 @@ export default {
 <style lang="scss">
 @font-face {
   font-family: 'Impact-Regular';
-  src: url('./assets/font/Impact-Regular.ttf'),
+  src: url('./assets/font/Impact-Regular.ttf');
 }
 
 @font-face {
   font-family: 'Roboto-Medium';
-  src: url('./assets/font/Roboto-Medium.ttf'),
+  src: url('./assets/font/Roboto-Medium.ttf');
 }
 
 @font-face {
   font-family: 'Roboto-Regular';
-  src: url('./assets/font/Roboto-Regular.ttf'),
+  src: url('./assets/font/Roboto-Regular.ttf');
 }
 
 .content-bg {

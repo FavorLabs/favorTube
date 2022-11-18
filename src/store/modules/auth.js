@@ -2,10 +2,6 @@ import AuthenticationService from '@/services/AuthenticationService'
 import {config} from '@/config/config'
 import Web3 from "web3";
 
-export const proxyGroup = "favortube";
-export const domainName = "favortube.com";
-export const storeGroup = "favortube-storage";
-
 export const group = () => {
     return `/group/http/${config.proxyGroup}/${config.domainName}`;
 };
@@ -16,8 +12,7 @@ const state = {
     web3: null,
     token: localStorage.getItem('token') || null,
     user: JSON.parse(sessionStorage.getItem('user')) || {},
-    isUserLoggedIn: localStorage.getItem('token') || false,
-    config: {},
+    isUserLoggedIn: !!localStorage.getItem('token') || false,
 }
 
 const getters = {
@@ -46,7 +41,6 @@ const getters = {
         return state.user
     },
     ws: state => state.ws,
-    config: state => state.config
 }
 
 const mutations = {

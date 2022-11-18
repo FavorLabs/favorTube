@@ -1,4 +1,5 @@
 import axios from 'axios';
+// import favorXAxios from "./Api";
 import {config} from '@/config/config'
 
 export default {
@@ -69,8 +70,7 @@ export default {
         const debugApi = sessionStorage.getItem("debugApi");
         return axios.get(debugApi + '/addresses');
     },
-    getFileInfo(hash) {
-        const api = sessionStorage.getItem("api");
+    getFileInfo(api, hash) {
         return axios.get(api + '/file', {
             params: {
                 page: {"pageNum": 1, "pageSize": 1},

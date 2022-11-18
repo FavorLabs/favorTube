@@ -15,7 +15,8 @@ export default {
             url: "/config",
             params: {
                 networkId
-            }
+            },
+            timeout: 2000
         })
     }
 }
