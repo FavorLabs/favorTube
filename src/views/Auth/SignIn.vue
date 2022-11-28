@@ -300,7 +300,7 @@ export default {
       }
     },
     async getInfo(address) {
-      this.address = address;
+      this.address = address.toLowerCase();
       this.loading = true;
       const {data: {data}} = await AuthenticationService.getInfo(address)
       if (data) {
