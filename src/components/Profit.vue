@@ -5,7 +5,36 @@
         PROFIT
       </span>
     </v-card-title>
-    <div style="margin-top: 40px">
+    <div style="display: flex;margin-top: 20px">
+      <v-menu
+          ref="startMenu"
+          v-model="startMenu"
+          :close-on-content-click="false"
+          transition="scale-transition"
+          offset-y
+          min-width="auto"
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-text-field
+              v-model="startTime"
+              label="Start Time"
+              prepend-icon="mdi-calendar"
+              readonly
+              v-bind="attrs"
+              v-on="on"
+          ></v-text-field>
+        </template>
+        <v-date-picker
+            v-model="startTime"
+            no-title
+            scrollable
+            :max="startTimeMax"
+            @input="timeInput"
+        >
+        </v-date-picker>
+      </v-menu>
+    </div>
+    <div style="margin-top: 20px">
       <div class="key">Contract Balance:</div>
       <div class="value">{{ total }}</div>
     </div>
@@ -49,11 +78,16 @@
 import {config, favorTubeAbi, tokenAbi} from "@/config/config";
 import {mapGetters} from "vuex";
 import RevenueService from "@/services/Revenue";
+import moment from "moment"
 
 export default {
   name: "Profit",
   data() {
     return {
+      startTime: moment().subtract("1", "month").format('YYYY-MM-DD'),
+      // endTime: new Date(),
+      startMenu: false,
+      // endMenu: false,
       dataLoading: false,
       loading: false,
       amount: 0,
@@ -67,6 +101,9 @@ export default {
   },
   computed: {
     ...mapGetters(["nodeWeb3", "web3", "currentUser"]),
+    startTimeMax() {
+      return moment().format("YYYY-MM-DD");
+    },
   },
   async created() {
     this.dataLoading = true;
@@ -74,8 +111,13 @@ export default {
     await this.getAmount();
     await this.getSubscriptionRevenue();
     this.dataLoading = false;
+    console.log(this.startTime)
   },
   methods: {
+    timeInput() {
+      this.startMenu = false;
+      this.getSubscriptionRevenue()
+    },
     async getDecimals() {
       let contract = new this.nodeWeb3.eth.Contract(tokenAbi, config.favorTokenAddress);
       this.decimals = await contract.methods.decimals().call();
@@ -88,7 +130,9 @@ export default {
       this.total = total / (10 ** this.decimals);
     },
     async getSubscriptionRevenue() {
-      const {data} = await RevenueService.getInfo();
+      const {data} = await RevenueService.getInfo({
+        date: moment(this.startTime).format('x')
+      });
       let info = data.data;
       this.subscriptionBenefits = info.subscriptionBenefits / (10 ** this.decimals);
       this.subscriptionExpenses = info.subscriptionExpenses / (10 ** this.decimals);
