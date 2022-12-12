@@ -1,7 +1,9 @@
 import Api from '@/services/Api'
 
 export default {
-    getInfo() {
-        return Api().get('revenue/info')
+    getInfo(params) {
+        return Api().get('revenue/info', {
+            params
+        })
     }
 }

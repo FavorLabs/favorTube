@@ -344,7 +344,7 @@
 <script>
 import {mapGetters} from 'vuex'
 import SubscriptionService from '@/services/SubscriptionService'
-import FavorService from '@/services/FavorService'
+import FavorService from '@/services/favorX/FavorService'
 import HistoryService from '@/services/HistoryService'
 
 import {version as FavorTubeVersion} from '../../package.json'

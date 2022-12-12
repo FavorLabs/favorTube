@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import FavorService from '@/services/FavorService'
+import FavorService from '@/services/favorX/FavorService'
 import {stringToBinary, getDownloadNumber, query, randomHex} from '@/utils/util'
 
 export default {
@@ -156,7 +156,7 @@ export default {
   margin-bottom: 0 !important;
   word-wrap: break-word;
   word-break: normal;
-  overflow: hidden; 
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 
@@ -177,7 +177,7 @@ export default {
     justify-content: flex-start;
     align-items: center;
   }
-  
+
   .chunk-overlay {
     display: inline-block;
     width: 70%;

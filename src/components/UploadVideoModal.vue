@@ -244,7 +244,7 @@ import VideoService from "@/services/VideoService";
 import CategoryService from "@/services/CategoryService";
 import data2blob from "vue-image-crop-upload/utils/data2blob";
 import {mapGetters} from "vuex";
-import FavorService from "@/services/FavorService";
+import FavorService from "@/services/favorX/FavorService";
 import {stringToBinary, getProgress, getVideoLimitSize} from "@/utils/util";
 import {config} from '@/config/config'
 
@@ -460,7 +460,7 @@ export default {
         let uploadedList = JSON.parse(sessionStorage.getItem("uploaded_list") || '{}');
         let uploadOverlay = uploadedList[hash];
         if (!uploadOverlay) {
-          let fileInfo = await FavorService.getFileInfo(hash);
+          let fileInfo = await FavorService.getFileInfo(this.getApi, hash);
           let len = fileInfo.data.list[0].bitVector.len;
           const {text, overlay} = await this.uploadToStorageNode(hash, len)
           await this.$store.dispatch("showTips", {

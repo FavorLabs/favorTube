@@ -29,7 +29,7 @@
                       <v-row no-gutters class="fill-height justify-center align-center">
                         <v-col cols="12" lg="8" class="align-center">
                           <template v-if="$store.state.tips.isMobile">
-                            <div class="wallet_btn" v-if="!connectType || connectType==='metamask'"
+                            <div class="wallet_btn" v-if="!connectType || connectType===METAMASK"
                                  @click="connectMetaMask">
                               <div class="wallet_img">
                                 <img
@@ -40,7 +40,7 @@
                               </div>
                               <div class="wallet_text">METAMASK</div>
                             </div>
-                            <div class="wallet_btn" v-if="!connectType || connectType==='okx'" @click="connectOkx">
+                            <div class="wallet_btn" v-if="!connectType || connectType===OKX" @click="connectOkx">
                               <div class="wallet_img">
                                 <img
                                     height="30"
@@ -51,7 +51,7 @@
                               <div class="wallet_text">OKX</div>
                             </div>
                           </template>
-                          <div class="wallet_btn" v-if="!connectType || connectType==='walletConnect'"
+                          <div class="wallet_btn" v-if="!connectType || connectType===WALLET_CONNECT"
                                @click="connectWalletConnect">
                             <div class="wallet_img">
                               <img
@@ -169,8 +169,9 @@
 
 <script>
 import moment from "moment"
+import {METAMASK, OKX, WALLET_CONNECT, CONNECT_TYPE} from "@/config/constants";
 import {connect} from "@/utils/web3Utils";
-import {disconnect} from "@/utils/util";
+// import {disconnect} from "@/utils/util";
 import AuthenticationService from "@/services/AuthenticationService";
 
 export default {
@@ -184,34 +185,33 @@ export default {
     invitationCode: '',
     codeDisable: false,
     unReg: false,
+    METAMASK, OKX, WALLET_CONNECT
   }),
   computed: {
-    networkId() {
-      return sessionStorage.getItem("network_id");
-    },
     signStatus() {
-      return this.unReg ? 'sign up' : 'sign in';
+      return this.unReg ? 'Sign up' : 'Sign in';
     }
+  },
+  created() {
+    this.getInvitationCode();
   },
   methods: {
     async signUp() {
-      if (!this.address) {
-        await this.$store.dispatch("showTips", {
-          type: "info", text: "Please connect your wallet"
-        })
-        return;
-      }
-      if (this.loading) return
+      if (!this.address || this.loading) return;
+
       this.loading = true;
+
       const timespan = moment().format('x');
 
-      let msg = this.web3.utils.sha3(this.address + timespan)
-      const signature = await this.web3.eth.personal.sign(msg, this.address).catch(err => {
-        this.loading = false;
-        this.$store.dispatch("showTips", {
-          type: "info", text: err.message
-        })
-      });
+      const message = `${this.address} login FavorTube at ${timespan}`;
+
+      const signature = await this.web3.eth.personal.sign(message, this.address)
+          .catch((err) => {
+            this.loading = false;
+            this.$store.dispatch("showTips", {
+              type: "info", text: err.message
+            })
+          });
 
       if (!signature) return;
 
@@ -224,7 +224,8 @@ export default {
                     invitation: this.invitationCode,
                     timespan,
                     signature,
-                    address: this.address
+                    address: this.address,
+                    newMsg: true
                   })
                   .catch((err) => {
                     this.loading = false;
@@ -236,7 +237,7 @@ export default {
                     })
                   }) :
               await this.$store
-                  .dispatch('signIn', {timespan, signature, address: this.address})
+                  .dispatch('signIn', {timespan, signature, address: this.address, newMsg: true})
                   .catch((err) => {
                     this.loading = false
                     this.$store.dispatch("showTips", {
@@ -244,66 +245,79 @@ export default {
                     })
                   })
 
-      if (!data) return
+      if (!data) return;
 
       const user = await this.$store
           .dispatch('getCurrentUser', data.token)
           .catch((err) => console.log(err))
 
-      if (!user) return
-      this.loading = false
+      if (!user) return;
+
+      localStorage.setItem(CONNECT_TYPE, this.connectType);
+
+      if (this.connectType === WALLET_CONNECT) {
+        this.web3.currentProvider?.removeAllListeners("disconnect");
+      }
+
+      this.$store.commit("SET_WEB3", this.web3);
+
+      this.loading = false;
 
       this.goBack();
     },
     async connectMetaMask() {
-      const {err, res} = await connect("metaMask");
-      if (err) {
-        await this.$store.dispatch("showTips", {
-          type: "info", text: err
-        })
-      } else {
-        const {address, web3} = res;
+      this.init();
+      try {
+        const {web3, address} = await connect(METAMASK);
         this.web3 = web3;
-        this.connectType = 'metamask';
-        this.$store.commit("SET_WEB3", web3);
-        await this.getInfo(address);
+        this.connectType = METAMASK;
+        await this.getInfo(address)
+      } catch (e) {
+        this.errorHandler(e);
       }
     },
     async connectWalletConnect() {
-      const {err, res} = await connect("walletConnect", () => {
-        this.init();
-        disconnect(this);
-      });
-      if (err) {
-        await this.$store.dispatch("showTips", {
-          type: "info", text: err,
-        })
-      } else {
-        const {address, web3} = res;
-        this.connectType = "walletConnect";
+      this.init();
+      try {
+        const {web3, address} = await connect(WALLET_CONNECT);
         this.web3 = web3;
-        this.$store.commit("SET_WEB3", web3);
+        this.connectType = WALLET_CONNECT;
+        web3.currentProvider?.once('disconnect', this.init);
         await this.getInfo(address);
+      } catch (e) {
+        this.errorHandler(e);
       }
     },
     async connectOkx() {
-      const {err, res} = await connect("okx");
-      if (err) {
-        await this.$store.dispatch("showTips", {
-          type: "info", text: err
-        })
-      } else {
-        const {address, web3} = res;
+      this.init();
+      try {
+        const {web3, address} = await connect(OKX);
         this.web3 = web3;
-        this.connectType = "okx"
-        this.$store.commit("SET_WEB3", web3);
+        this.connectType = OKX;
         await this.getInfo(address);
+      } catch (e) {
+        this.errorHandler(e);
       }
+    },
+    async getInfo(address) {
+      this.address = address.toLowerCase();
+      this.loading = true;
+      const {data: {data}} = await AuthenticationService.getInfo(address)
+      if (data) {
+        this.channelName = data.channelName
+        this.unReg = false;
+      } else {
+        this.unReg = true;
+      }
+      this.loading = false;
+    },
+    errorHandler(err) {
+      this.$store.dispatch("showTips", {
+        type: "error", text: err.message || err
+      });
     },
     reset() {
       this.init();
-      this.loading = false;
-      localStorage.removeItem("walletconnect");
       this.web3?.currentProvider?.disconnect?.();
     },
     getInvitationCode() {
@@ -312,19 +326,6 @@ export default {
         this.codeDisable = true;
         this.invitationCode = code;
       }
-    },
-    async getInfo(address) {
-      this.init();
-      this.address = address;
-      this.loading = true;
-      const {data: {data}} = await AuthenticationService.getInfo(address);
-      if (data) {
-        this.channelName = data.channelName
-        this.unReg = false;
-      } else {
-        this.unReg = true;
-      }
-      this.loading = false;
     },
     getError(errors, field) {
       let error = errors.find(item => item.field === field);
@@ -339,15 +340,12 @@ export default {
       this.loading = false;
     },
     goBack() {
-      if (this.isFirstLoad) { // default length is 3
+      if (this.isFirstLoad) {
         this.$router.replace('/');
       } else {
         this.$router.go(-1);
       }
     }
-  },
-  created() {
-    this.getInvitationCode();
   },
   beforeRouteEnter(to, from, next) {
     next((vm) => {
@@ -355,7 +353,7 @@ export default {
         vm.isFirstLoad = true;
       }
     });
-  }
+  },
 }
 </script>
 
