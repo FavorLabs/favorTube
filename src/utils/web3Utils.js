@@ -48,5 +48,5 @@ export const ConnectWalletConnect = async (refresh) => {
 export const connect = (connectType, refresh = false) => {
     return connectType === METAMASK ? ConnectMetaMask(refresh) :
         connectType === OKX ? ConnectOkx() :
-            connectType === WALLET_CONNECT ? ConnectWalletConnect(refresh) : {};
+            connectType === WALLET_CONNECT ? ConnectWalletConnect(refresh) : Promise.reject();
 }
