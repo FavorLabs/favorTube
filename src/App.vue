@@ -233,7 +233,7 @@ export default {
       }
     },
     "web3": async function (v) {
-      if (v.currentProvider.isWalletConnect) {
+      if (v?.currentProvider.isWalletConnect) {
         v.currentProvider.removeAllListeners?.("disconnect");
         v.currentProvider.once?.('disconnect', () => {
           this.signOut(true);
