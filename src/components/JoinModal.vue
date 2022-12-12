@@ -6,55 +6,100 @@
       </v-card-title>
       <v-card-text class="text" style="color: #000">
         <p>
-          <span class="key">Account:</span>
-          <span class="value">{{ currentUser.address }}</span>
-        </p>
-        <p>
-          <span class="key">{{ chainInfo.tokenName }}:</span>
-          <span class="value">
-            <span class="price" v-if="!amountLoading">{{ amount }}</span><span v-else class="loading size-20"></span>
-            <a v-if="!!chainInfo.faucet" :href="chainInfo.faucet" target="_blank" style="margin: 0 10px;">Faucet</a>
-            <v-icon style="vertical-align: top" v-if="!amountLoading" color="#f44336" @click="getAmount()">
-              mdi-refresh
-            </v-icon>
-          </span>
-        </p>
-        <p>
-          <span class="key">{{ token.name }}:</span>
-          <span class="value">
-            <span class="price" v-if="this.balance">{{ balance / Math.pow(10, token.decimal) }}</span>
-            <span v-else class="loading size-20"></span>
-          </span>
-        </p>
-        <p>
-          <span class="key">Pay:</span>
-          <span class="value">
-            <span class="price" v-if="this.price">{{
-                price / (Math.pow(10, token.decimal))
-              }}</span>
-          <span v-else class="loading size-20"></span>
-          {{ token.name }}
-          </span>
-        </p>
-        <p>
           <span class="key">Channel Account:</span>
           <span class="value">{{ video.userId.address }}</span>
         </p>
-        <!-- <div class="pay-methods">
-          <p class="pay-methods-title">Select a payment method</p>
-          <v-radio-group v-model="radios" row>
-            <v-radio value="Token">
-              <template v-slot:label>
-                <div>Token</div>
-              </template>
-            </v-radio>
-            <v-radio value="AccountBalance">
-              <template v-slot:label>
-                <div>Account balance</div>
-              </template>
-            </v-radio>
-          </v-radio-group>
-        </div> -->
+        <p>
+          <span class="key">Your Account:</span>
+          <span class="value">{{ currentUser.address }}</span>
+        </p>
+        <div class="flex-box">
+          <p>
+            <span class="key">Your {{ chainInfo.tokenName }}:</span>
+            <span class="value">
+              <span class="price" v-if="!amountLoading">{{ amount }}</span><span v-else class="loading size-20"></span>
+              <a v-if="!!chainInfo.faucet" :href="chainInfo.faucet" target="_blank" style="margin: 0 10px;">Faucet</a>
+              <v-icon style="vertical-align: top" v-if="!amountLoading" color="#f44336" @click="getAmount()">
+                mdi-refresh
+              </v-icon>
+            </span>
+          </p>
+          <p>
+            <span class="key">Pay:</span>
+            <span class="value">
+              <span class="price" v-if="this.price">{{
+                  price / (Math.pow(10, token.decimal))
+                }}</span>
+            <span v-else class="loading size-20"></span>
+            {{ token.name }}
+            </span>
+          </p>
+          <p>
+            <span class="key">Remain:</span>
+            <span class="value">
+              <span v-if="expirationBlockNumber">{{ expirationDate }}</span>
+              <span v-else class="loading size-20"></span>
+            </span>
+          </p>
+        </div>
+
+        <div class="pay-methods">
+          <div :class="radios !== 'uniswap' ? 'left' : 'left left-uni'">
+            <p class="pay-methods-title">Select a payment method:</p>
+            <v-radio-group v-model="radios" class="pay-methods-option">
+              <v-radio value="balance" label="Balance" v-if="accountBalance + processingBalance > 0"></v-radio>
+              <v-radio value="token" label="Token"></v-radio>
+              <v-radio value="uniswap" label="Uniswap" :disabled="tokenPayDisabled"></v-radio>
+            </v-radio-group>
+          </div>
+          <div class="right">
+            <p v-if="radios !== 'uniswap'">Your assets:</p>
+            <div v-if="radios === 'token'">
+              <p>
+                <span class="key">{{ token.name }}:</span>
+                <span class="value">
+                  <span class="price" v-if="this.balance">{{ balance / Math.pow(10, token.decimal) }}</span>
+                  <span v-else class="loading size-20"></span>
+                </span>
+              </p>
+            </div>
+            <div v-else-if="radios === 'balance'">
+              <p>
+                <span class="key">Total Balance:</span>
+                <span class="value">
+                  <span class="price" v-if="!accountBalanceLoading">{{ (Number(accountBalance) + Number(processingBalance)) / Math.pow(10, token.decimal) }}</span>
+                  <span v-else class="loading size-20"></span>
+                </span>
+              </p>
+              <p>
+                <span class="key">Available Balance:</span>
+                <span class="value">
+                  <span class="price" v-if="!accountBalanceLoading">{{ accountBalance / Math.pow(10, token.decimal) }}</span>
+                  <span v-else class="loading size-20"></span>
+                </span>
+              </p>
+              <p>
+                <span class="key">Unavailable Balance:</span>
+                <span class="value">
+                  <span class="price" v-if="!accountBalanceLoading">{{ (processingBalance / Math.pow(10, token.decimal)) }}</span>
+                  <span v-else class="loading size-20"></span>
+                </span>
+              </p>
+            </div>
+            <div v-else>
+              <div>
+                <!-- <span>uniswap</span> -->
+                <uniswap
+                  class="uniswap-wrap"
+                  :provider="web3.currentProvider"
+                  :uniConfig="uniConfig"
+                  @priceUpdate="uniPriceUpdate"
+                  @disableUpdate="uniDisableUpdate"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
@@ -67,7 +112,8 @@
           Cancel
         </v-btn>
         <v-btn
-            :disabled="payDisabled && balance>=price"
+            :disabled="checkPayDisable"
+            v-if="!subInfo.state"
             color="primary"
             text
             @click="pay"
@@ -75,24 +121,20 @@
         >
           Pay
         </v-btn>
-        <!-- :style="transactionStatus === 0 ? 'display: block' : 'display: none'" -->
       </v-card-actions>
-      <!-- <div class="subscribe-card-overlay" :style="transactionStatus !== 0 ? 'display: block' : 'display: none'">
-        <div class="content">
-          <span class="loading size-40"></span>
-          <p class="status-desc text-shadow">Transactions submitted</p>
-        </div>
-      </div> -->
     </v-card>
   </v-dialog>
 </template>
 
 <script>
+import moment from 'moment';
 import {mapGetters} from "vuex";
 // eslint-disable-next-line no-unused-vars
 import {tokenAbi, favorTubeAbi, config} from "@/config/config";
-import SubscriptionService from "@/services/SubscriptionService";
+import Uniswap from '@/components/react/Uniswap';
 import UserService from "@/services/UserService";
+import AccountService from "@/services/AccountService";
+import SubListService from "@/services/SubListService";
 
 export default {
   name: "JoinModal",
@@ -104,16 +146,25 @@ export default {
     video: {
       type: Object,
       required: true
-    }
+    },
+    subInfo: {
+      type: Object,
+      required: true
+    },
   },
   data() {
     return {
       balance: 0,
       amount: 0,
       amountLoading: false,
+      accountBalance: 0,
+      processingBalance: 0,
+      accountBalanceLoading: false,
       payLoading: false,
       subLoading: false,
-      payDisabled: true,
+      tokenPayDisabled: true,
+      balancePayDisabled: true,
+      uniPayDisabled: true,
       price: 0,
       token: {
         decimal: 2,
@@ -124,9 +175,22 @@ export default {
       favorTubeContract: null,
       tokenContract: null,
       chainInfo: config,
-      // radios: 'Token',
-      // transactionStatus: 0,
+      radios: 'token',
+      checkTimer: null,
+      expirationBlockNumber: 0,
+      uniConfig: {
+        chainId: config.chainId,
+        favorTokenAddress: config.favorTokenAddress, // '0xd9e990ceb3728c43fb28d15b44c5b8c1a136db13'
+        decimal: 3,
+        name: '',
+        symbol: '',
+        favorTubeAddress: config.favorTubeAddress
+      },
+      uniTrade: null,
     }
+  },
+  components: {
+    Uniswap,
   },
   computed: {
     ...mapGetters([
@@ -134,9 +198,27 @@ export default {
       "web3",
       "getApi",
       "nodeWeb3"
-    ])
+    ]),
+    checkPayDisable() {
+      return this.radios === 'token' ? (this.tokenPayDisabled || this.balance < this.price) :
+      this.radios === 'balance' ? (this.balancePayDisabled || this.tokenPayDisabled || this.accountBalance < this.price) :
+      this.uniPayDisabled;
+    },
+    expirationDate() {
+      let timeObj = {
+        18: 2,
+        19: 5,
+        20: 7,
+        21: 4
+      }
+      const networkId = sessionStorage.getItem('network_id');
+      let time = timeObj[networkId];
+      let d = moment.duration(this.expirationBlockNumber * time, 'seconds');
+      return Math.floor(d.asDays()) + 'days ' + d.hours() + 'h' + d.minutes() + 'm' + d.seconds() + 's';
+    }
   },
   async created() {
+    this.getAccountBlance();
     let timer = null;
     try {
       timer = setTimeout(() => {
@@ -145,17 +227,21 @@ export default {
           text: "Chain query failure"
         })
         this.closeModal();
-      }, 1000 * 10)
+      }, 1000 * 15)
       await this.getAmount();
       const favorTubeContract = new this.nodeWeb3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
       const tokenContract = new this.nodeWeb3.eth.Contract(tokenAbi, this.token.address);
       this.token.decimal = await tokenContract.methods.decimals().call();
+      this.uniConfig.decimal = Number(this.token.decimal);
+      this.uniConfig.name = await tokenContract.methods.name().call();
+      this.uniConfig.symbol = await tokenContract.methods.symbol().call();
       this.balance = await tokenContract.methods.balanceOf(this.currentUser.address).call();
-      this.price = (await favorTubeContract.methods.userConfig().call({from: this.video.userId.address})).price
+      this.price = (await favorTubeContract.methods.userConfig().call({from: this.video.userId.address})).price;
+      this.expirationBlockNumber = await favorTubeContract.methods.subscribeBlock().call();
       clearTimeout(timer);
       this.favorTubeContract = favorTubeContract;
       this.tokenContract = tokenContract;
-      this.payDisabled = false;
+      this.tokenPayDisabled = false;
     } catch (e) {
       clearTimeout(timer);
       this.$store.dispatch("showTips", {
@@ -165,8 +251,19 @@ export default {
     }
   },
   methods: {
+    dateFormatter(date) {
+      return moment(date).format('LLL');
+    },
     closeModal() {
+      // clearInterval(this.checkTimer)
       this.$emit('closeJoinModal');
+    },
+    selectDefaultPay() {
+      if (this.accountBalance > 0) {
+        this.radios = 'balance';
+      } else {
+        this.radios = 'token';
+      }
     },
     async getAmount() {
       this.amountLoading = true;
@@ -174,17 +271,75 @@ export default {
       this.amount = Number(this.nodeWeb3.utils.fromWei(amount, "ether")).toFixed(5);
       this.amountLoading = false;
     },
-    async pay() {
+    uniPriceUpdate(inputAmount, outputAmount) {
+      console.log('uniPriceUpdate', inputAmount, outputAmount);
+      this.uniTrade = {
+        inputAmount,
+        outputAmount
+      };
+    },
+    uniDisableUpdate(disable, approved) {
+      if (!disable && approved) {
+        this.uniPayDisabled = false;
+      } else {
+        this.uniPayDisabled = true;
+      }
+    },
+    async getAccountBlance() {
+      try {
+        this.accountBalanceLoading = true;
+        const { data } = await AccountService.getInfo();
+        if (data.data) {
+          this.accountBalance = data.data.amount - data.data.processing;
+          this.selectDefaultPay();
+          this.processingBalance = data.data.processing;
+        }
+        this.balancePayDisabled = false;
+        this.accountBalanceLoading = false;
+      } catch(e) {
+        this.$store.dispatch("showTips", {
+          type: "error",
+          text: e.message || e
+        });
+      }
+    },
+    async pay () {
+      if (!this.radios) {
+        this.$store.dispatch("showTips", {
+          type: "info",
+          text: 'Please select a payment method'
+        });
+        return;
+      }
+
       this.subLoading = true;
       let sharer = "0x" + "0".repeat(40);
+      let sharerId = undefined;
       let invitation_videoId = sessionStorage.getItem("invitation_videoId");
       let invitation = sessionStorage.getItem("invitation");
       if (invitation_videoId && invitation && invitation_videoId === this.video._id) {
         await UserService.getById(invitation).then((user) => {
           sharer = user.data.data.address;
+          sharerId = user.data.data._id;
         }).catch(console.log);
       }
-      console.log(sharer)
+
+      if (this.radios === 'token') {
+        this.tokenPay(sharer, sharerId);
+        return;
+      }
+
+      if (this.radios === 'balance') {
+        this.balancePay(sharerId);
+        return;
+      }
+
+      if (this.radios === 'uniswap') {
+        this.unswapPay();
+        return;
+      }
+    },
+    async tokenPay(sharer, sharerId) {
       const price = await this.web3.eth.getGasPrice();
       this.web3.eth.sendTransaction({
         from: this.currentUser.address,
@@ -195,7 +350,7 @@ export default {
             this.price,
             this.web3.eth.abi.encodeParameters(['address', 'address', 'address'], [this.video.userId.address, this.currentUser.address, sharer])
         ).encodeABI()
-      }, (err) => {
+      }, (err, tx) => {
         this.payLoading = true;
         if (err) {
           this.$store.dispatch("showTips", {
@@ -206,28 +361,65 @@ export default {
           this.payLoading = false;
           return;
         }
-        let lock = false;
-        let timer = setInterval(async () => {
-          if (lock) return;
-          lock = true;
-          try {
-            const {data} = await SubscriptionService.checkSubscription({channelId: this.video.userId._id}, 2000);
-            if (data?.data?.tx) {
-              clearInterval(timer);
-              this.payLoading = false;
-              this.subLoading = false;
-              await this.$store.dispatch("showTips", {
-                type: "success",
-                text: "Subscription Success"
-              });
-              this.$emit("callback", data.data);
-            }
-          } catch (e) {
-            console.log(e)
-          }
-          lock = false;
-        }, 1000)
+        this.addSublist(sharerId, tx);
+        // this.checkPayStatus();
+        })
+    },
+    async addSublist(sharerId, tx) {
+      try {
+        const { data } = await SubListService.addSublist({
+          channelId: this.video.userId._id,
+          sharerId,
+          tx,
+          price: this.price
+        })
+        if (data.data) {
+          this.$emit("changeTransactionInfo", data.data);
+        }
+      } catch (e) {
+        this.addSublist(sharerId, tx)
+      }
+    },
+    async balancePay(sharerId) {
+      const message = `Subscribe to Channel : ${this.currentUser.address} (Price: ${this.price})`;
+      const signature = await this.web3.eth.personal.sign(message, this.currentUser.address).catch(err => {
+        this.$store.dispatch("showTips", {
+          type: "error", text: err.message || err
+        })
+        this.subLoading = false;
+        this.payLoading = false;
       })
+      if (!signature) return;
+
+      try {
+        const { data } = await SubListService.addSublist({
+          channelId: this.video.userId._id,
+          sharerId,
+          channelAddress: this.video.userId.address,
+          signature,
+        })
+        if (data.data) {
+          this.$emit("changeTransactionInfo", data.data);
+          // this.checkPayStatus();
+        }
+      } catch (e) {
+        this.$store.dispatch("showTips", {
+          type: "error",
+          text: e.message || e
+        });
+        // this.balancePay(sharerId);
+      }
+    },
+    unswapPay() {
+      console.log('unswapPay', this.uniTrade);
+    }
+  },
+  watch: {
+    "subInfo": {
+      handler: function (subInfo) {
+        if (!subInfo.state) return;
+        this.$emit('switchModal');
+      }
     },
   }
 }
@@ -239,10 +431,24 @@ export default {
   .text {
     margin-top: 20px;
     font-size: 16px;
+    .flex-box {
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      p {
+        margin-right: 30px;
+      }
+    }
+    p {
+      margin-bottom: 5px;
+    }
     .key {
       display: inline-block;
-      width: 130px;
-      text-align: right;
+      // width: 130px;
+      font-weight: bold;
+      color: #4d4d4d;
+      // text-align: right;
     }
 
     .value {
@@ -255,56 +461,70 @@ export default {
     }
 
     .pay-methods {
-      padding: 15px 15px 0 15px;
-      background: rgb(245,245,245);
-      border-radius: 4px;
-      .pay-methods-title {
-        // font-weight: 300;
-      }
-    }
-  }
-  .subscribe-card-overlay {
-    position: absolute;
-    top: 58px;
-    left: 0;
-    right: 0;
-    bottom: 53px;
-    background-color: #fff;
-    .content {
-      height: 100%;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      .status-desc {
-        color: #ccc;
-        font-size: 2rem;
-        font-weight: bolder;
-        margin-top: 15px;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 10px;
+      background: rgb(220,220,220);
+      border-radius: 4px;
+      margin-top: 10px;
+      margin-left: -5px;
+      min-width: 290px;
+      .left,
+      .right {
+        padding: 10px 10px 0 10px;
+        min-height: 200px;
+        border-radius: 4px;
+        background: rgb(245,245,245);
       }
-      .text-shadow {
-        background: -webkit-gradient(
-          linear,
-          left top,
-          right bottom,
-          color-stop(0, #4d4d4d),
-          color-stop(0.4, #4d4d4d),
-          color-stop(0.5, #eee),
-          color-stop(0.6, #4d4d4d),
-          color-stop(1, #4d4d4d)
-        );
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        -webkit-animation: text-shadow 3.5s linear infinite;
-        animation: text-shadow 3.5s linear infinite;
+      .left {
+        width: 50%;
+        margin-right: 10px;
+        .v-messages {
+          display: none;
+        }
+      }
+      .left-uni {
+        height: auto;
+        align-self: stretch;
+      }
+      .right {
+        flex-grow: 1;
+        .uniswap-wrap {
+          color: #f44336;
+          ::v-deep .uniswap {
+            width: 100%;
+            max-width: 400px;
+            min-width: 260px;
+            margin-left: -5px;
+            background-color: transparent;
+          }
+        }
+      }
+      .pay-methods-title {
+        // margin-top: 25px;
+      }
+      p {
+        margin-bottom: 8px;
+      }
+      .pay-methods-option {
+        margin-top: 0;
+        .option-item {
+          display: flex;
+          justify-content: flex-start;
+          align-items: flex-start;
+          flex-wrap: wrap;
+          p {
+            margin-right: 20px;
+            word-break: break-all;
+          }
+        }
       }
     }
   }
 
   .loading {
     display: inline-block;
-    // width: 20px;
-    // height: 20px;
     vertical-align: middle;
     border: 2px solid #f44336;
     border-bottom-color: transparent;
@@ -350,16 +570,27 @@ export default {
     .text {
       margin-top: 20px;
       font-size: 16px;
+      max-height: 350px;
+      overflow: hidden;
+      overflow-y: scroll;
       .key {
-        display: unset;
+        // display: ;
         width: unset;
+        margin-right: 10px;
         text-align: unset;
       }
-    }
-    .subscribe-card-overlay {
-      .content {
-        .status-desc {
-          font-size: 1.2rem;
+      .value {
+        margin-left: 0;
+      }
+      .pay-methods {
+        flex-direction: column;
+        .left,
+        .right {
+          width: 100%;
+          min-height: unset;
+        }
+        .left {
+          margin: 0 0 10px 0;
         }
       }
     }

@@ -10,9 +10,9 @@
       <v-card-title class="py-3">Subscribed "{{ video.userId.channelName }}" Info:</v-card-title>
       <v-card-text>
         <div>
-          <span class="key">Current block height:</span>&nbsp;&nbsp;<span class="value">{{
-            currentBlock
-          }}</span>
+          <span class="key">Current block height:</span>&nbsp;&nbsp;
+          <span v-if="currentBlock" class="value">{{currentBlock}}</span>
+          <span v-else class="loading size-20"></span>
         </div>
         <div>
           <span class="key">Expire block height:</span>&nbsp;&nbsp;<span class="value">{{
@@ -20,7 +20,9 @@
           }}</span>
         </div>
         <div>
-          <span class="key">Remain:</span>&nbsp;&nbsp;<span class="value">{{ expireTime }} Days </span>
+          <span class="key">Remain:</span>&nbsp;&nbsp;
+          <span v-if="currentBlock" class="value">{{ expireTime }}</span>
+          <span v-else class="loading size-20"></span>
         </div>
       </v-card-text>
       <v-card-text class="px-3 text-right">
@@ -33,6 +35,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 import {mapGetters} from "vuex";
 
 export default {
@@ -60,8 +63,10 @@ export default {
       }
       const networkId = sessionStorage.getItem('network_id');
       let time = timeObj[networkId];
+      if (this.currentBlock > this.expire) return '0days 0h0m0s';
       let block = (this.expire - this.currentBlock) * time
-      return Math.ceil(block / (60 * 60 * 24))
+      let d = moment.duration(block, 'seconds');
+      return Math.floor(d.asDays()) + 'days ' + d.hours() + 'h' + d.minutes() + 'm' + d.seconds() + 's';
     }
   },
   async created() {
@@ -75,6 +80,30 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.loading {
+  display: inline-block;
+  vertical-align: middle;
+  border: 2px solid #f44336;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  animation: king 1s linear infinite;
+}
+.loading.size-20 {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
 
+@keyframes king {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 </style>

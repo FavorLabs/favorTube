@@ -210,7 +210,7 @@
                         <v-btn
                             :disabled="video.userId.id == currentUser.id"
                             :class="[
-                            isMember ? 'grey grey--text lighten-3 text--darken-3':'red white--text' ,
+                            (isMember || subInfo.state) ? 'grey grey--text lighten-3 text--darken-3':'red white--text' ,
                             'mt-6',
                             'ml-2'
                           ]"
@@ -219,7 +219,8 @@
                             depressed
                             @click="clickSubBtn"
                         >
-                          {{ isMember ? 'subscribed' : 'subscribe' }}
+                          {{ isMember ? 'subscribed' : (subInfo.state ? '' : 'subscribe') }}
+                          <span class="sub-loading" v-if="!isMember && subInfo.state"></span>
                         </v-btn
                         >
                       </div>
@@ -362,13 +363,6 @@
         :details="details"
         @closeModal="signinDialog = false"
     />
-    <JoinModal
-        v-if="joinDialog"
-        :openModal="joinDialog"
-        @closeJoinModal="joinDialog = false"
-        :video="video"
-        @callback="joinCallback"
-    ></JoinModal>
     <SourceInfoModal
         v-if="sourceInfoDialog"
         :openModal="sourceInfoDialog"
@@ -376,13 +370,33 @@
         :videoHash="videoHash"
         :oracleArrs="oracleArrs"
     ></SourceInfoModal>
-    <SubscribedTime
-        v-if="memberTime.dialog"
-        :expire="memberTime.expire"
+    <template v-if="subscribeModalInfo.dialog">
+      <JoinModal
+        v-if="subscribeModalInfo.type === 1"
+        :openModal="subscribeModalInfo.dialog"
+        @closeJoinModal="subscribeModalInfo.dialog = false"
         :video="video"
-        :dialog="memberTime.dialog"
-        @closeSTModal="memberTime.dialog = false"
-    ></SubscribedTime>
+        :subInfo="subInfo"
+        @switchModal="switchModal"
+        @changeTransactionInfo="changeTransactionInfo"
+      ></JoinModal>
+      <SubscribeMiddleware
+        v-if="subscribeModalInfo.type === 2"
+        :video="video"
+        :subInfo="subInfo"
+        :dialog="subscribeModalInfo.dialog"
+        @checkPayStatus="checkPayStatus"
+        @checkSubState="checkSubState"
+        @closeMiddlewareModal="subscribeModalInfo.dialog = false"
+      ></SubscribeMiddleware>
+      <SubscribedTime
+        v-if="subscribeModalInfo.type === 3"
+        :expire="subscribeModalInfo.expire"
+        :video="video"
+        :dialog="subscribeModalInfo.dialog"
+        @closeSTModal="subscribeModalInfo.dialog = false"
+      ></SubscribedTime>
+    </template>
     <v-dialog
         v-model="subscribeDialog"
         persistent
@@ -412,6 +426,7 @@ import VideoService from '@/services/VideoService'
 import SubscriptionService from '@/services/SubscriptionService'
 import FeelingService from '@/services/FeelingService'
 import HistoryService from '@/services/HistoryService'
+import SubListService from '@/services/SubListService'
 
 import SigninModal from '@/components/SigninModal'
 import JoinModal from '@/components/JoinModal'
@@ -421,6 +436,7 @@ import CommentList from '@/components/comments/CommentList'
 import Share from "@/components/Share";
 import moment from "moment"
 import SubscribedTime from "@/components/SubscribedTime";
+import SubscribeMiddleware from "@/components/SubscribeMiddleware";
 
 export default {
   data: () => ({
@@ -430,12 +446,13 @@ export default {
     videoLoading: true,
     subscribed: false,
     subscribeLoading: false,
+    subInfo: {},
     subscribeDialog: false,
-    joinDialog: false,
     isMember: false,
-    memberTime: {
+    subscribeModalInfo: {
+      type: 1, // 1:joinModal 2:SubscribeMiddleware 3:SubscribedTime
       dialog: false,
-      expire: 0
+      expire: 0,
     },
     playable: false,
     feeling: '',
@@ -457,6 +474,8 @@ export default {
     retryStatus: false,
     videoURL: '',
     oracleArrs: [],
+    checkTimer: null,
+    checkSubStateTimer: null,
   }),
   computed: {
     ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated', "getImgUrl", "getApi", "web3"])
@@ -464,26 +483,24 @@ export default {
   methods: {
     clickSubBtn() {
       if (!this.isAuthenticated) {
-        this.signinDialog = true
+        this.signinDialog = true;
         this.details = {
           title: 'Want to subscribe to this channel?',
           text: 'Sign in to subscribe to this channel.'
         }
         return;
       }
-      if (this.isMember) {
-        this.memberTime.dialog = true;
-      } else {
-        this.joinDialog = true;
-      }
+      this.subscribeModalInfo.dialog = true;
     },
     joinCallback(data) {
-      this.joinDialog = false;
+      this.clearTimer();
+      this.subscribeModalInfo.dialog = false;
+      this.subscribeModalInfo.type = 3;
       this.subscribed = true;
       this.isMember = true;
       this.playable = true;
       this.video.userId.subscribers++;
-      this.memberTime.expire = data.expire;
+      this.subscribeModalInfo.expire = data.expire;
     },
     subscribeBefore() {
       if (!this.isAuthenticated) {
@@ -531,6 +548,7 @@ export default {
 
         if (!video) return this.$router.push('/');
         this.video = video.data.data
+        // this.getSubState();
         this.videoHash = video.data.data.url;
         let oracleArr = _.cloneDeep(this.video.oracle);
         if (this.video.overlay && !oracleArr.includes(this.video.overlay)) oracleArr.push(this.video.overlay);
@@ -546,6 +564,7 @@ export default {
         if (this.channelAddress === this.currentUser?.address) {
           this.subscribed = true;
           this.isMember = true;
+          this.subscribeModalInfo.type = 3;
           this.playable = true;
         } else {
           await this.checkSubscription(this.video.userId._id)
@@ -624,8 +643,11 @@ export default {
       }
       if (sub.data.data.tx) {
         this.isMember = true;
+        this.subscribeModalInfo.type = 3;
         this.playable = true;
-        this.memberTime.expire = sub.data.data.expire;
+        this.subscribeModalInfo.expire = sub.data.data.expire;
+      } else {
+        this.getSubState();
       }
     },
     async checkFeeling(id) {
@@ -708,6 +730,56 @@ export default {
       if (!views) return
 
       this.video.views++
+    },
+    async getSubState() {
+      // if (!this.isAuthenticated) return
+      const { data } = await SubListService.getSub(this.video.userId._id);
+      if (data.data) {
+        this.subInfo = data.data;
+      }
+    },
+    async checkPayStatus() {
+      let lock = false;
+      this.checkTimer = setInterval(async () => {
+        if (lock) return;
+        lock = true;
+        try {
+          const {data} = await SubscriptionService.checkSubscription({channelId: this.video.userId._id}, 2000);
+          if (data?.data?.tx) {
+            clearInterval(this.checkTimer);
+            await this.$store.dispatch("showTips", {
+              type: "success",
+              text: "Subscription Success"
+            });
+            this.joinCallback(data.data);
+          }
+        } catch (e) {
+          console.log(e)
+        }
+        lock = false;
+      }, 1000)
+    },
+    async checkSubState() {
+      let lock = false;
+      this.checkSubStateTimer = setInterval(async () => {
+        if (lock) return;
+        lock = true;
+        try {
+          const { data } = await SubListService.getSubById(this.subInfo._id);
+          if (data.data) {
+            // if (data.data.state === 'Chain') {
+            //   clearInterval(this.checkSubStateTimer);
+            // }
+            this.subInfo = data.data;
+          }
+        } catch (e) {
+          console.log(e)
+        }
+        lock = false;
+      }, 1500)
+    },
+    changeTransactionInfo(info) {
+      this.subInfo = info;
     },
     actions() {
       this.getVideo(this.$route.params.id)
@@ -862,6 +934,13 @@ export default {
         }
       })
     },
+    switchModal() {
+      this.subscribeModalInfo.type = 2;
+    },
+    clearTimer() {
+      if (this.checkTimer) clearInterval(this.checkTimer);
+      if (this.checkSubStateTimer) clearInterval(this.checkSubStateTimer);
+    },
     ...mapMutations(['addContinuousPlay']),
   },
   components: {
@@ -872,7 +951,8 @@ export default {
     SourceInfoModal,
     InfiniteLoading,
     Share,
-    SubscribedTime
+    SubscribedTime,
+    SubscribeMiddleware
   },
   mounted() {
     this.getVideo(this.$route.params.id)
@@ -887,6 +967,9 @@ export default {
     },
     playable(newV) {
       if (newV) this.bindAutoPlay();
+    },
+    subInfo(newV) {
+      if (newV?.state) this.subscribeModalInfo.type = 2;
     }
   },
   beforeRouteUpdate(to, from, next) {
@@ -896,6 +979,10 @@ export default {
     this.getVideo(to.params.id)
     this.isShowInfinite = false;
     this.retryStatus = false;
+    next()
+  },
+  beforeRouteLeave(to, from, next) {
+    this.clearTimer();
     next()
   }
 }
@@ -920,6 +1007,16 @@ video {
 
 #btns {
   border-bottom: 1px solid #e0d8d8;
+}
+
+.sub-loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid grey;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  animation: subLoading 1s linear infinite;
 }
 
 button.v-btn.remove-hover-bg {
@@ -999,5 +1096,13 @@ button.v-btn.remove-hover-bg {
 .value {
   font-size: 16px;
   color: #222;
+}
+
+@keyframes subLoading {
+  from {
+    transform: rotate(0deg);
+  } to {
+    transform: rotate(360deg);
+  }
 }
 </style>

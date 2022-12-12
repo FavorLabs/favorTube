@@ -23,7 +23,7 @@
           >
         </qrcode-vue>
         <div style="font-size: 18px;text-align: center;margin-top: 3px;color: #bbb">
-            <span style="margin-right: 10px">invate code:</span><span>{{ currentUser.code }}</span>
+            <span style="margin-right: 10px">invitation code:</span><span>{{ currentUser.code }}</span>
         </div>
         <div class="dividing-line"></div>
         <div class="share-data">
