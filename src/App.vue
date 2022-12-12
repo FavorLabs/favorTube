@@ -16,9 +16,7 @@
       ></v-progress-circular>
       <div style="margin-top: 20px;font-size: 20px">Connecting to a p2p network</div>
     </v-overlay>
-    <div class="fill-height"
-         v-if="!dataLoading && (!loading ||['SignIn','SignUp','Watch'].includes(this.$route.name))"
-    >
+    <div class="fill-height" v-if="isRouterView">
       <router-view name="NavBar"></router-view>
       <router-view name="StudioNavBar"></router-view>
       <v-content class="fill-height"
@@ -57,7 +55,7 @@ import {connect} from "@/utils/web3Utils";
 import {version as FavorTubeVersion} from '../package.json'
 import {removeAllPendingRequestsRecord} from "@/services/Api";
 import VConsole from "vconsole";
-import {CONNECT_TYPE, WALLET_CONNECT} from "@/config/constants";
+import {CONNECT_TYPE} from "@/config/constants";
 
 if (/Mobile/i.test(navigator.userAgent) && process.env.NODE_ENV === 'development') {
   new VConsole();
@@ -70,7 +68,6 @@ export default {
       loading: true,
       timer: null,
       refreshPage: ['/', '/videos', '/trending', '/subscriptions'],
-      dataLoading: true,
       keepList: ['Home', 'Videos', 'Trending', 'Subscriptions']
     }
   },
@@ -78,6 +75,9 @@ export default {
     ...mapGetters(['getList', "getUrl", "ws", "web3", "isAuthenticated"]),
     allowRefresh() {
       return this.refreshPage.includes(this.$route.path);
+    },
+    isRouterView() {
+      return this.$route.fullPath === "/config" || (this.isAuthenticated ? this.web3 : this.ws && (!this.loading || ['SignIn', 'SignUp', 'Watch'].includes(this.$route.name)))
     }
   },
   async created() {
@@ -102,10 +102,8 @@ export default {
         let ws = websocket(wsHost);
         this.$store.commit("SET_WS", ws);
       } catch (e) {
-        this.analyzingUrl();
-      } finally {
         this.loading = false;
-        this.dataLoading = false;
+        this.gotoConfig();
       }
     },
     async getWeb3() {
@@ -134,7 +132,7 @@ export default {
         }
       });
     },
-    analyzingUrl() {
+    gotoConfig() {
       const shareParams = location.hash.split('#/')[1];
       let endPoint = new URLSearchParams(location.search).get("endpoint")
       if (endPoint) endPoint = new URL(endPoint).origin
@@ -167,12 +165,13 @@ export default {
         }
       }
     },
-    signOut() {
+    signOut(external) {
+      if (!this.isAuthenticated) return;
       this.$store.dispatch('signOut');
       if (this.$route.name !== "Home") {
         this.$router.push("/");
       }
-      this.web3?.currentProvider?.disconnect?.();
+      external || this.web3?.currentProvider?.disconnect?.();
     },
     hidePercent() {
       let percentMask = document.querySelector('#loading-mask');
@@ -201,7 +200,6 @@ export default {
     },
     "ws": {
       handler: function (ws) {
-        let _this = this;
         if (!ws) return;
         this.loading = true;
         ws.send({
@@ -212,7 +210,7 @@ export default {
         }, (err, {result}) => {
           ws.on(result, (res) => {
             console.log(res)
-            _this.loading = !res.connected?.length;
+            this.loading = !res.connected?.length;
           });
         })
         ws.on('close', this.wsCloseHandle);
@@ -234,9 +232,12 @@ export default {
         clearInterval(this.timer);
       }
     },
-    "web3": async function () {
-      if (this.isAuthenticated && localStorage.getItem(CONNECT_TYPE) === WALLET_CONNECT) {
-        this.web3.currentProvider?.once('disconnect', this.signOut);
+    "web3": async function (v) {
+      if (v.currentProvider.isWalletConnect) {
+        v.currentProvider.removeAllListeners?.("disconnect");
+        v.currentProvider.once?.('disconnect', () => {
+          this.signOut(true);
+        });
       }
     }
   }
