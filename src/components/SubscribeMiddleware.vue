@@ -13,7 +13,10 @@
           <div class="progress-bar"></div>
           <div :class="getCBarClass()"></div>
           <div :class="getCircleClass(index)" v-for="(item, index) in progressItems" :key="index">
-            <v-icon size="30px" :class="item.state === subInfo.state ? 'state-icon current' : 'state-icon'">{{ item.icon }}</v-icon>
+            <v-icon size="30px" :class="item.state === subInfo.state ? 'state-icon current' : 'state-icon'">{{
+                item.icon
+              }}
+            </v-icon>
             <span class="state-desc">{{ item.state }}</span>
           </div>
         </div>
@@ -21,7 +24,7 @@
           <p class="transaction-title">Transaction Info:</p>
           <p v-if="subInfo.tx"><span class="key">tx:</span> {{ subInfo.tx }}</p>
           <p><span class="key">price:</span> {{ subInfo.price / (Math.pow(10, token.decimal)) + token.name }}</p>
-          <p><span class="key">created date:</span> {{dateFormatter(subInfo.createdAt)}}</p>
+          <p><span class="key">created date:</span> {{ dateFormatter(subInfo.createdAt) }}</p>
         </div>
       </v-card-text>
       <v-divider></v-divider>
@@ -36,7 +39,10 @@
 <script>
 import {mapGetters} from 'vuex'
 import moment from 'moment';
-import {config} from "@/config/config";
+import {config, tokenAbi} from "@/config/config";
+import SubListService from "@/services/SubListService";
+import SubscriptionService from "@/services/SubscriptionService";
+
 export default {
   name: "SubscribeMiddleware",
   props: {
@@ -52,31 +58,44 @@ export default {
   data() {
     return {
       token: {
-        decimal: 2,
-        name: "FAVT",
+        decimal: 3,
+        name: '',
+        symbol: '',
         address: config.favorTokenAddress
       },
-      progressItems: [{
-        state: 'Submitted',
-        icon: 'mdi-arrow-up-circle'
-      }, {
-        state: 'Processing',
-        icon: 'mdi-arrow-right-circle'
-      }, {
-        state: 'Chain',
-        icon: 'mdi-check-circle'
-      }]
+      progressItems: [
+        {
+          state: 'Submitted',
+          icon: 'mdi-arrow-up-circle'
+        },
+        {
+          state: 'Processing',
+          icon: 'mdi-arrow-right-circle'
+        },
+        {
+          state: 'Chain',
+          icon: 'mdi-check-circle'
+        }
+      ]
     }
   },
-  created() {
-    this.$parent.clearTimer();
-    this.$emit('checkPayStatus');
-    this.$emit('checkSubState');
+  async created() {
+    await this.getTokenInfo();
+    // this.$parent.clearTimer();
+    // this.$emit('checkPayStatus');
+    // this.$emit('checkSubState');
+    this.checkSubState();
   },
   computed: {
-    ...mapGetters(['isAuthenticated'])
+    ...mapGetters(['isAuthenticated', "nodeWeb3"])
   },
   methods: {
+    async getTokenInfo() {
+      const tokenContract = new this.nodeWeb3.eth.Contract(tokenAbi, this.token.address);
+      this.token.decimal = Number(await tokenContract.methods.decimals().call());
+      this.token.name = await tokenContract.methods.name().call();
+      this.token.symbol = await tokenContract.methods.symbol().call();
+    },
     dateFormatter(date) {
       return moment(date).format('LLL');
     },
@@ -116,6 +135,34 @@ export default {
       }
       return className;
     },
+    async checkSubState() {
+      const {data} = await SubListService.getSubById(this.subInfo._id);
+      const subInfo = data.data;
+      if (subInfo) {
+        this.$emit("changeTransactionInfo", subInfo);
+        if (subInfo.state === 'Chain') {
+          this.checkPayStatus();
+          return;
+        }
+      }
+      setTimeout(() => {
+        this.checkSubState();
+      }, 1000)
+    },
+    async checkPayStatus() {
+      const {data} = await SubscriptionService.checkSubscription({channelId: this.video.userId._id}, 2000);
+      if (data?.data?.tx) {
+        await this.$store.dispatch("showTips", {
+          type: "success",
+          text: "Subscription Success"
+        });
+        this.$emit('joinCallback', data.data);
+        return;
+      }
+      setTimeout(() => {
+        this.checkPayStatus();
+      }, 1000)
+    },
   }
 }
 </script>
@@ -128,6 +175,7 @@ export default {
   align-items: center;
   padding: 20px 0;
   font-size: 12px;
+
   .progress-bar,
   .progress-bar-current {
     position: absolute;
@@ -137,17 +185,21 @@ export default {
     background-color: #999;
     z-index: 1;
   }
+
   .progress-bar-current {
     right: 100%;
     background-color: #90fda8;
     z-index: 2;
   }
+
   .progress-bar-current.percent-50 {
     right: 50%;
   }
+
   .progress-bar-current.percent-100 {
     right: 0%;
   }
+
   .progress-item {
     position: relative;
     width: 60px;
@@ -158,6 +210,7 @@ export default {
     border: 7px solid #999;
     background: #fff;
     z-index: 3;
+
     .state-desc {
       position: absolute;
       line-height: 1rem;
@@ -167,36 +220,45 @@ export default {
       transform: translateX(-50%);
     }
   }
+
   .progress-item.achieved {
     border-color: #90fda8;
+
     .state-icon {
       color: #90fda8;
     }
+
     .state-icon.current {
       animation: stateIcon 2s linear infinite;
     }
+
     .state-desc {
       color: #90fda8;
     }
   }
 }
+
 .transaction-desc {
   color: #4d4d4d;
   height: 100%;
   padding: 20px 10px;
   box-sizing: border-box;
+
   p {
     text-align: left;
     margin-bottom: 0;
   }
+
   .transaction-title {
     font-size: 18px;
     font-weight: bolder;
     margin-bottom: 6px;
   }
+
   .key {
     font-weight: bolder;
   }
+
   .status-desc {
     color: #ccc;
     font-size: 2rem;
@@ -204,6 +266,7 @@ export default {
     margin-top: 15px;
   }
 }
+
 @keyframes stateIcon {
   0% {
     transform: scale(1);

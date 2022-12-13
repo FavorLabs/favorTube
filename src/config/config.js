@@ -1,16 +1,5 @@
 export const tokenAbi = [
     {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
-    {
         "anonymous": false,
         "inputs": [
             {
@@ -132,6 +121,26 @@ export const tokenAbi = [
         "inputs": [
             {
                 "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "balanceOf",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
                 "name": "spender",
                 "type": "address"
             },
@@ -151,20 +160,6 @@ export const tokenAbi = [
         ],
         "stateMutability": "nonpayable",
         "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "defaultAmount",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function",
-        "constant": true
     },
     {
         "inputs": [
@@ -298,12 +293,17 @@ export const tokenAbi = [
     {
         "inputs": [
             {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            },
+            {
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
             }
         ],
-        "name": "setDefaultAmount",
+        "name": "mint",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -319,26 +319,6 @@ export const tokenAbi = [
             }
         ],
         "stateMutability": "pure",
-        "type": "function",
-        "constant": true
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
-        ],
-        "name": "balanceOf",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
         "type": "function",
         "constant": true
     },
@@ -401,14 +381,43 @@ export const favorTubeAbi = [
     {
         "inputs": [
             {
-                "internalType": "uint8[5]",
-                "name": "taxRate",
-                "type": "uint8[5]"
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "price",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "modeType",
+                        "type": "uint8"
+                    }
+                ],
+                "internalType": "struct UsersConfig.UserConfig",
+                "name": "userConfig",
+                "type": "tuple"
             },
             {
-                "internalType": "uint256",
-                "name": "price",
-                "type": "uint256"
+                "components": [
+                    {
+                        "internalType": "uint8[5]",
+                        "name": "taxRate",
+                        "type": "uint8[5]"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "minPrice",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "maxPrice",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct UsersConfig.Mode",
+                "name": "mode",
+                "type": "tuple"
             },
             {
                 "internalType": "uint32",
@@ -424,6 +433,11 @@ export const favorTubeAbi = [
                 "internalType": "uint256",
                 "name": "interval",
                 "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "router",
+                "type": "address"
             }
         ],
         "stateMutability": "nonpayable",
@@ -525,31 +539,6 @@ export const favorTubeAbi = [
         "anonymous": false,
         "inputs": [
             {
-                "indexed": false,
-                "internalType": "address",
-                "name": "channel",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "address",
-                "name": "licensee",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint32",
-                "name": "expire",
-                "type": "uint32"
-            }
-        ],
-        "name": "$subscribe",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
                 "indexed": true,
                 "internalType": "address",
                 "name": "previousOwner",
@@ -567,17 +556,12 @@ export const favorTubeAbi = [
     },
     {
         "inputs": [],
-        "name": "_defaultUserConfig",
+        "name": "_token",
         "outputs": [
             {
-                "internalType": "uint256",
-                "name": "price",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "mode",
-                "type": "uint256"
+                "internalType": "address",
+                "name": "",
+                "type": "address"
             }
         ],
         "stateMutability": "view",
@@ -586,12 +570,17 @@ export const favorTubeAbi = [
     },
     {
         "inputs": [],
-        "name": "_token",
+        "name": "defaultUserConfig",
         "outputs": [
             {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
+                "internalType": "uint256",
+                "name": "price",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint8",
+                "name": "modeType",
+                "type": "uint8"
             }
         ],
         "stateMutability": "view",
@@ -629,17 +618,34 @@ export const favorTubeAbi = [
     {
         "inputs": [
             {
-                "internalType": "uint256",
-                "name": "mode",
-                "type": "uint256"
+                "internalType": "uint8",
+                "name": "modeType",
+                "type": "uint8"
             }
         ],
-        "name": "getTaxRate",
+        "name": "getMode",
         "outputs": [
             {
-                "internalType": "uint8[5]",
+                "components": [
+                    {
+                        "internalType": "uint8[5]",
+                        "name": "taxRate",
+                        "type": "uint8[5]"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "minPrice",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "maxPrice",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct UsersConfig.Mode",
                 "name": "",
-                "type": "uint8[5]"
+                "type": "tuple"
             }
         ],
         "stateMutability": "view",
@@ -648,12 +654,64 @@ export const favorTubeAbi = [
     },
     {
         "inputs": [],
-        "name": "getTaxRateKey",
+        "name": "getModesKey",
         "outputs": [
             {
-                "internalType": "uint256[]",
+                "internalType": "uint8[]",
                 "name": "",
-                "type": "uint256[]"
+                "type": "uint8[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "addr",
+                "type": "address"
+            }
+        ],
+        "name": "getUserConfig",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "price",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "modeType",
+                        "type": "uint8"
+                    }
+                ],
+                "internalType": "struct UsersConfig.UserConfig",
+                "name": "",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "isSetConfig",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
             }
         ],
         "stateMutability": "view",
@@ -674,6 +732,26 @@ export const favorTubeAbi = [
                 "internalType": "uint256",
                 "name": "",
                 "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "name": "modeSet",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
             }
         ],
         "stateMutability": "view",
@@ -753,6 +831,50 @@ export const favorTubeAbi = [
         "type": "function"
     },
     {
+        "inputs": [],
+        "name": "uniswapRouter",
+        "outputs": [
+            {
+                "internalType": "contract IUniswapRouter",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "usersConfig",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "price",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint8",
+                "name": "modeType",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true
+    },
+    {
+        "stateMutability": "payable",
+        "type": "receive",
+        "payable": true
+    },
+    {
         "inputs": [
             {
                 "internalType": "uint256",
@@ -768,6 +890,109 @@ export const favorTubeAbi = [
     {
         "inputs": [],
         "name": "exchange",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "modeType",
+                "type": "uint8"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "uint8[5]",
+                        "name": "taxRate",
+                        "type": "uint8[5]"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "minPrice",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "maxPrice",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct UsersConfig.Mode",
+                "name": "mode",
+                "type": "tuple"
+            }
+        ],
+        "name": "setMode",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "modeType",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint256",
+                "name": "index",
+                "type": "uint256"
+            }
+        ],
+        "name": "removeMode",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "price",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "modeType",
+                        "type": "uint8"
+                    }
+                ],
+                "internalType": "struct UsersConfig.UserConfig",
+                "name": "userConfig",
+                "type": "tuple"
+            }
+        ],
+        "name": "setDefaultUserConfig",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "price",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "modeType",
+                        "type": "uint8"
+                    }
+                ],
+                "internalType": "struct UsersConfig.UserConfig",
+                "name": "userConfig",
+                "type": "tuple"
+            }
+        ],
+        "name": "setUserConfig",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -805,92 +1030,6 @@ export const favorTubeAbi = [
         ],
         "name": "setSubscribeBlock",
         "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "price",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "mode",
-                "type": "uint256"
-            }
-        ],
-        "name": "setDefaultUserConfig",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "price",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "mode",
-                "type": "uint256"
-            }
-        ],
-        "name": "setUserConfig",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "userConfig",
-        "outputs": [
-            {
-                "components": [
-                    {
-                        "internalType": "uint256",
-                        "name": "price",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "mode",
-                        "type": "uint256"
-                    }
-                ],
-                "internalType": "struct FavorTube.UserConfig",
-                "name": "",
-                "type": "tuple"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function",
-        "constant": true
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "mode",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint8[5]",
-                "name": "taxRate_",
-                "type": "uint8[5]"
-            }
-        ],
-        "name": "setTaxRate",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "success",
-                "type": "bool"
-            }
-        ],
         "stateMutability": "nonpayable",
         "type": "function"
     },
@@ -951,11 +1090,31 @@ export const favorTubeAbi = [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "account",
+                "name": "tokenIn",
                 "type": "address"
+            },
+            {
+                "internalType": "uint24",
+                "name": "fee",
+                "type": "uint24"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amountInMaximum",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amountOut",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
             }
         ],
-        "name": "transferChain",
+        "name": "swapToken",
         "outputs": [],
         "stateMutability": "payable",
         "type": "function",

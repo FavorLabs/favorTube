@@ -37,64 +37,72 @@
           <p>
             <span class="key">Remain:</span>
             <span class="value">
-              <span v-if="expirationBlockNumber">{{ expirationDate }}</span>
+              <span v-if="subBlockNumber">{{ subBlockNumber }}</span>
               <span v-else class="loading size-20"></span>
             </span>
           </p>
         </div>
 
         <div class="pay-methods">
-          <div :class="radios !== 'uniswap' ? 'left' : 'left left-uni'">
+          <div :class="radio !== 2 ? 'left' : 'left left-uni'">
             <p class="pay-methods-title">Select a payment method:</p>
-            <v-radio-group v-model="radios" class="pay-methods-option">
-              <v-radio value="balance" label="Balance" v-if="accountBalance + processingBalance > 0"></v-radio>
-              <v-radio value="token" label="Token"></v-radio>
-              <v-radio value="uniswap" label="Uniswap" :disabled="tokenPayDisabled"></v-radio>
+            <v-radio-group v-model="radio" class="pay-methods-option">
+              <v-radio :value=0 :label="radioList[0]" v-if="accountBalance + processingBalance > 0"></v-radio>
+              <v-radio :value=1 :label="radioList[1]"></v-radio>
+              <v-radio :value=2 :label="radioList[2]"></v-radio>
             </v-radio-group>
           </div>
           <div class="right">
-            <p v-if="radios !== 'uniswap'">Your assets:</p>
-            <div v-if="radios === 'token'">
-              <p>
-                <span class="key">{{ token.name }}:</span>
-                <span class="value">
-                  <span class="price" v-if="this.balance">{{ balance / Math.pow(10, token.decimal) }}</span>
-                  <span v-else class="loading size-20"></span>
-                </span>
-              </p>
-            </div>
-            <div v-else-if="radios === 'balance'">
+            <div v-if="radio === 0">
+              <p>Your assets:</p>
               <p>
                 <span class="key">Total Balance:</span>
                 <span class="value">
-                  <span class="price" v-if="!accountBalanceLoading">{{ (Number(accountBalance) + Number(processingBalance)) / Math.pow(10, token.decimal) }}</span>
+                  <span class="price" v-if="!accountBalanceLoading">{{
+                      (Number(accountBalance) + Number(processingBalance)) / Math.pow(10, token.decimal)
+                    }}</span>
                   <span v-else class="loading size-20"></span>
                 </span>
               </p>
               <p>
                 <span class="key">Available Balance:</span>
                 <span class="value">
-                  <span class="price" v-if="!accountBalanceLoading">{{ accountBalance / Math.pow(10, token.decimal) }}</span>
+                  <span class="price" v-if="!accountBalanceLoading">{{
+                      accountBalance / Math.pow(10, token.decimal)
+                    }}</span>
                   <span v-else class="loading size-20"></span>
                 </span>
               </p>
               <p>
                 <span class="key">Unavailable Balance:</span>
                 <span class="value">
-                  <span class="price" v-if="!accountBalanceLoading">{{ (processingBalance / Math.pow(10, token.decimal)) }}</span>
+                  <span class="price" v-if="!accountBalanceLoading">{{
+                      (processingBalance / Math.pow(10, token.decimal))
+                    }}</span>
                   <span v-else class="loading size-20"></span>
                 </span>
               </p>
             </div>
+            <div v-else-if="radio === 1">
+              <p>Your assets:</p>
+              <p>
+                <template v-if="this.balance">
+                  <span class="key">{{ token.symbol }}:</span>
+                  <span class="value">
+                  <span class="price">{{ balance / Math.pow(10, token.decimal) }}</span>
+                </span>
+                </template>
+                <span v-else class="loading size-20"></span>
+              </p>
+            </div>
             <div v-else>
               <div>
-                <!-- <span>uniswap</span> -->
                 <uniswap
-                  class="uniswap-wrap"
-                  :provider="web3.currentProvider"
-                  :uniConfig="uniConfig"
-                  @priceUpdate="uniPriceUpdate"
-                  @disableUpdate="uniDisableUpdate"
+                    class="uniswap-wrap"
+                    :provider="web3.currentProvider"
+                    :uniConfig="uniConfig"
+                    @priceUpdate="uniPriceUpdate"
+                    @disableUpdate="uniDisableUpdate"
                 />
               </div>
             </div>
@@ -131,7 +139,7 @@ import moment from 'moment';
 import {mapGetters} from "vuex";
 // eslint-disable-next-line no-unused-vars
 import {tokenAbi, favorTubeAbi, config} from "@/config/config";
-import Uniswap from '@/components/react/Uniswap';
+import Uniswap from '@/components/react/Uniswap.vue';
 import UserService from "@/services/UserService";
 import AccountService from "@/services/AccountService";
 import SubListService from "@/services/SubListService";
@@ -154,39 +162,38 @@ export default {
   },
   data() {
     return {
+      dataLoading: false,
       balance: 0,
-      amount: 0,
       amountLoading: false,
+      amount: 0,
+      accountBalanceLoading: false,
       accountBalance: 0,
       processingBalance: 0,
-      accountBalanceLoading: false,
       payLoading: false,
       subLoading: false,
-      tokenPayDisabled: true,
-      balancePayDisabled: true,
-      uniPayDisabled: true,
       price: 0,
       token: {
-        decimal: 2,
-        name: "FAVT",
+        decimal: 3,
+        name: '',
+        symbol: '',
         address: config.favorTokenAddress
       },
       favorTubeCAddress: config.favorTubeAddress,
       favorTubeContract: null,
       tokenContract: null,
       chainInfo: config,
-      radios: 'token',
+      radioList: ['balance', 'token', 'uniswap'],
+      radio: 1,
       checkTimer: null,
-      expirationBlockNumber: 0,
-      uniConfig: {
-        chainId: config.chainId,
-        favorTokenAddress: config.favorTokenAddress, // '0xd9e990ceb3728c43fb28d15b44c5b8c1a136db13'
-        decimal: 3,
-        name: '',
-        symbol: '',
-        favorTubeAddress: config.favorTubeAddress
+      subBlockNumber: 0,
+      uniswapData: {
+        disable: true,
+        approved: false,
+        inputAmount: 0,
+        inputAddress: '',
+        outputAmount: 0,
+        isNative: false,
       },
-      uniTrade: null,
     }
   },
   components: {
@@ -199,51 +206,48 @@ export default {
       "getApi",
       "nodeWeb3"
     ]),
-    checkPayDisable() {
-      return this.radios === 'token' ? (this.tokenPayDisabled || this.balance < this.price) :
-      this.radios === 'balance' ? (this.balancePayDisabled || this.tokenPayDisabled || this.accountBalance < this.price) :
-      this.uniPayDisabled;
-    },
-    expirationDate() {
-      let timeObj = {
-        18: 2,
-        19: 5,
-        20: 7,
-        21: 4
+    uniConfig() {
+      return {
+        chainId: config.chainId,
+        favorTubeAddress: config.favorTubeAddress,
+        favorTokenAddress: this.token.address,
+        decimal: this.token.decimal,
+        name: this.token.name,
+        symbol: this.token.symbol
       }
-      const networkId = sessionStorage.getItem('network_id');
-      let time = timeObj[networkId];
-      let d = moment.duration(this.expirationBlockNumber * time, 'seconds');
-      return Math.floor(d.asDays()) + 'days ' + d.hours() + 'h' + d.minutes() + 'm' + d.seconds() + 's';
-    }
+    },
+    checkPayDisable() {
+      return this.dataLoading || (this.radio === 1 ?
+          this.balance < this.price : this.radio === 0 ?
+              this.accountBalance < this.price : this.uniswapData.disable || !this.uniswapData.approved)
+    },
   },
   async created() {
-    this.getAccountBlance();
-    let timer = null;
     try {
-      timer = setTimeout(() => {
+      this.dataLoading = true;
+      this.checkTimer = setTimeout(() => {
         this.$store.dispatch("showTips", {
           type: "info",
           text: "Chain query failure"
         })
         this.closeModal();
       }, 1000 * 15)
+      await this.getAccountBalance();
       await this.getAmount();
       const favorTubeContract = new this.nodeWeb3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
       const tokenContract = new this.nodeWeb3.eth.Contract(tokenAbi, this.token.address);
-      this.token.decimal = await tokenContract.methods.decimals().call();
-      this.uniConfig.decimal = Number(this.token.decimal);
-      this.uniConfig.name = await tokenContract.methods.name().call();
-      this.uniConfig.symbol = await tokenContract.methods.symbol().call();
+      this.token.decimal = Number(await tokenContract.methods.decimals().call());
+      this.token.name = await tokenContract.methods.name().call();
+      this.token.symbol = await tokenContract.methods.symbol().call();
       this.balance = await tokenContract.methods.balanceOf(this.currentUser.address).call();
-      this.price = (await favorTubeContract.methods.userConfig().call({from: this.video.userId.address})).price;
-      this.expirationBlockNumber = await favorTubeContract.methods.subscribeBlock().call();
-      clearTimeout(timer);
+      this.price = (await favorTubeContract.methods.getUserConfig(this.video.userId.address).call()).price;
+      this.subBlockNumber = await favorTubeContract.methods.subscribeBlock().call();
+      clearTimeout(this.checkTimer);
       this.favorTubeContract = favorTubeContract;
       this.tokenContract = tokenContract;
-      this.tokenPayDisabled = false;
+      this.dataLoading = false;
     } catch (e) {
-      clearTimeout(timer);
+      clearTimeout(this.checkTimer);
       this.$store.dispatch("showTips", {
         type: "info",
         text: e.message || e
@@ -255,15 +259,11 @@ export default {
       return moment(date).format('LLL');
     },
     closeModal() {
-      // clearInterval(this.checkTimer)
+      clearInterval(this.checkTimer)
       this.$emit('closeJoinModal');
     },
-    selectDefaultPay() {
-      if (this.accountBalance > 0) {
-        this.radios = 'balance';
-      } else {
-        this.radios = 'token';
-      }
+    selectDefaultPay(radio) {
+      this.radio = radio;
     },
     async getAmount() {
       this.amountLoading = true;
@@ -271,47 +271,27 @@ export default {
       this.amount = Number(this.nodeWeb3.utils.fromWei(amount, "ether")).toFixed(5);
       this.amountLoading = false;
     },
-    uniPriceUpdate(inputAmount, outputAmount) {
-      console.log('uniPriceUpdate', inputAmount, outputAmount);
-      this.uniTrade = {
-        inputAmount,
-        outputAmount
-      };
+    uniPriceUpdate(trade) {
+      this.uniswapData.inputAmount = trade.inputAmount.numerator.toString();
+      this.uniswapData.outputAmount = trade.outputAmount.numerator.toString();
+      this.uniswapData.isNative = trade.inputAmount.currency.isNative;
+      this.uniswapData.inputAddress = trade.inputAmount.currency.address || trade.inputAmount.currency.wrapped.address;
     },
     uniDisableUpdate(disable, approved) {
-      if (!disable && approved) {
-        this.uniPayDisabled = false;
-      } else {
-        this.uniPayDisabled = true;
-      }
+      this.uniswapData.disable = disable;
+      this.uniswapData.approved = approved;
     },
-    async getAccountBlance() {
-      try {
-        this.accountBalanceLoading = true;
-        const { data } = await AccountService.getInfo();
-        if (data.data) {
-          this.accountBalance = data.data.amount - data.data.processing;
-          this.selectDefaultPay();
-          this.processingBalance = data.data.processing;
-        }
-        this.balancePayDisabled = false;
-        this.accountBalanceLoading = false;
-      } catch(e) {
-        this.$store.dispatch("showTips", {
-          type: "error",
-          text: e.message || e
-        });
+    async getAccountBalance() {
+      this.accountBalanceLoading = true;
+      const {data} = await AccountService.getInfo();
+      if (data.data) {
+        this.accountBalance = data.data.amount - data.data.processing;
+        this.processingBalance = data.data.processing;
+        this.accountBalance > 0 && this.selectDefaultPay(0);
       }
+      this.accountBalanceLoading = false;
     },
-    async pay () {
-      if (!this.radios) {
-        this.$store.dispatch("showTips", {
-          type: "info",
-          text: 'Please select a payment method'
-        });
-        return;
-      }
-
+    async pay() {
       this.subLoading = true;
       let sharer = "0x" + "0".repeat(40);
       let sharerId = undefined;
@@ -324,19 +304,16 @@ export default {
         }).catch(console.log);
       }
 
-      if (this.radios === 'token') {
-        this.tokenPay(sharer, sharerId);
-        return;
-      }
-
-      if (this.radios === 'balance') {
-        this.balancePay(sharerId);
-        return;
-      }
-
-      if (this.radios === 'uniswap') {
-        this.unswapPay();
-        return;
+      switch (this.radio) {
+        case 0:
+          await this.balancePay(sharerId);
+          break;
+        case 1:
+          await this.tokenPay(sharer, sharerId);
+          break;
+        case 2:
+          await this.uniswapPay(sharer, sharerId);
+          break;
       }
     },
     async tokenPay(sharer, sharerId) {
@@ -361,64 +338,81 @@ export default {
           this.payLoading = false;
           return;
         }
-        this.addSublist(sharerId, tx);
-        // this.checkPayStatus();
-        })
-    },
-    async addSublist(sharerId, tx) {
-      try {
-        const { data } = await SubListService.addSublist({
-          channelId: this.video.userId._id,
-          sharerId,
-          tx,
-          price: this.price
-        })
-        if (data.data) {
-          this.$emit("changeTransactionInfo", data.data);
-        }
-      } catch (e) {
-        this.addSublist(sharerId, tx)
-      }
+        this.addSublist({sharerId, tx, price: this.price}, true);
+      })
     },
     async balancePay(sharerId) {
       const message = `Subscribe to Channel : ${this.currentUser.address} (Price: ${this.price})`;
-      const signature = await this.web3.eth.personal.sign(message, this.currentUser.address).catch(err => {
-        this.$store.dispatch("showTips", {
-          type: "error", text: err.message || err
-        })
-        this.subLoading = false;
-        this.payLoading = false;
-      })
+      const signature = await this.web3.eth.personal.sign(message, this.currentUser.address)
+          .catch(err => {
+            this.$store.dispatch("showTips", {
+              type: "error", text: err.message || err
+            })
+            this.subLoading = false;
+            this.payLoading = false;
+          })
       if (!signature) return;
 
+      await this.addSublist({
+        sharerId,
+        channelAddress: this.video.userId.address,
+        signature,
+      })
+    },
+    async uniswapPay(sharer, sharerId) {
+      const {inputAddress, inputAmount, outputAmount, isNative} = this.uniswapData;
+      const tokenIn = inputAddress;
+      const fee = 500;
+      const amountInMaximum = inputAmount;
+      const value = isNative ? amountInMaximum : 0;
+      const amountOut = outputAmount;
+      const data = this.web3.eth.abi.encodeParameters(['address', 'address', 'address'], [this.video.userId.address, this.currentUser.address, sharer])
+      const price = await this.web3.eth.getGasPrice();
+      this.web3.eth.sendTransaction({
+        from: this.currentUser.address,
+        to: this.favorTubeCAddress,
+        value,
+        gasPrice: this.web3.utils.toHex(price),
+        data: this.favorTubeContract.methods.swapToken(
+            tokenIn,
+            fee,
+            amountInMaximum,
+            amountOut,
+            data
+        ).encodeABI()
+      }, (err, tx) => {
+        this.payLoading = true;
+        if (err) {
+          this.$store.dispatch("showTips", {
+            type: "error",
+            text: err.message || err
+          })
+          this.subLoading = false;
+          this.payLoading = false;
+          return;
+        }
+        this.addSublist({sharerId, tx, price: this.price}, true);
+      })
+    },
+    async addSublist(info, next = false) {
       try {
-        const { data } = await SubListService.addSublist({
+        const {data} = await SubListService.addSublist({
           channelId: this.video.userId._id,
-          sharerId,
-          channelAddress: this.video.userId.address,
-          signature,
+          ...info,
         })
         if (data.data) {
           this.$emit("changeTransactionInfo", data.data);
-          // this.checkPayStatus();
         }
       } catch (e) {
-        this.$store.dispatch("showTips", {
-          type: "error",
-          text: e.message || e
-        });
-        // this.balancePay(sharerId);
-      }
-    },
-    unswapPay() {
-      console.log('unswapPay', this.uniTrade);
-    }
-  },
-  watch: {
-    "subInfo": {
-      handler: function (subInfo) {
-        if (!subInfo.state) return;
-        this.$emit('switchModal');
+        if (!next) {
+          return await this.$store.dispatch("showTips", {
+            type: "error",
+            text: e.message || e
+          });
+        }
+        setTimeout(() => {
+          this.addSublist(info);
+        }, 500)
       }
     },
   }
@@ -428,21 +422,26 @@ export default {
 <style scoped lang="scss">
 .subscribe-card {
   position: relative;
+
   .text {
     margin-top: 20px;
     font-size: 16px;
+
     .flex-box {
       display: flex;
       justify-content: flex-start;
       align-items: flex-start;
       flex-wrap: wrap;
+
       p {
         margin-right: 30px;
       }
     }
+
     p {
       margin-bottom: 5px;
     }
+
     .key {
       display: inline-block;
       // width: 130px;
@@ -465,33 +464,40 @@ export default {
       justify-content: space-between;
       align-items: flex-start;
       padding: 10px;
-      background: rgb(220,220,220);
+      background: rgb(220, 220, 220);
       border-radius: 4px;
       margin-top: 10px;
       margin-left: -5px;
       min-width: 290px;
+
       .left,
       .right {
         padding: 10px 10px 0 10px;
         min-height: 200px;
         border-radius: 4px;
-        background: rgb(245,245,245);
+        background: rgb(245, 245, 245);
       }
+
       .left {
         width: 50%;
         margin-right: 10px;
+
         .v-messages {
           display: none;
         }
       }
+
       .left-uni {
         height: auto;
         align-self: stretch;
       }
+
       .right {
         flex-grow: 1;
+
         .uniswap-wrap {
           color: #f44336;
+
           ::v-deep .uniswap {
             width: 100%;
             max-width: 400px;
@@ -501,19 +507,24 @@ export default {
           }
         }
       }
+
       .pay-methods-title {
         // margin-top: 25px;
       }
+
       p {
         margin-bottom: 8px;
       }
+
       .pay-methods-option {
         margin-top: 0;
+
         .option-item {
           display: flex;
           justify-content: flex-start;
           align-items: flex-start;
           flex-wrap: wrap;
+
           p {
             margin-right: 20px;
             word-break: break-all;
@@ -531,11 +542,13 @@ export default {
     border-radius: 50%;
     animation: king 1s linear infinite;
   }
+
   .loading.size-20 {
     width: 20px;
     height: 20px;
     border-width: 2px;
   }
+
   .loading.size-40 {
     width: 60px;
     height: 60px;
@@ -573,22 +586,27 @@ export default {
       max-height: 350px;
       overflow: hidden;
       overflow-y: scroll;
+
       .key {
         // display: ;
         width: unset;
         margin-right: 10px;
         text-align: unset;
       }
+
       .value {
         margin-left: 0;
       }
+
       .pay-methods {
         flex-direction: column;
+
         .left,
         .right {
           width: 100%;
           min-height: unset;
         }
+
         .left {
           margin: 0 0 10px 0;
         }

@@ -1,28 +1,29 @@
 <template>
-  <div v-uniswap></div>
+  <div v-uniswap="update"></div>
 </template>
 
 <script>
-import {mount, unmount} from "@/components/react/uniswap.jsx";
+import {mount, update, unmount} from "@/components/react/uniswap.jsx";
 
-const mounts = (el, binding, vnode) => {
-  mount(el, {vue: vnode.context})
-}
 
 export default {
   name: "Uniswap",
   props: ["provider", "uniConfig"],
+  computed: {
+    update() {
+      return this.$props.uniConfig;
+    }
+  },
   directives: {
     uniswap: {
       inserted: (el, binding, vnode) => {
-        mounts(el, binding, vnode);
+        mount(el, {vue: vnode.context})
       },
       update: (el, binding, vnode) => {
-        mounts(el, binding, vnode);
+        update(el, {vue: vnode.context})
       },
-      unbind: (el, binding, vnode) => {
-        unmount(el, binding, vnode);
-        console.log('unbind');
+      unbind: (el) => {
+        unmount(el);
       }
     }
   }
