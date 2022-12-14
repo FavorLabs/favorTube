@@ -1,34 +1,30 @@
 <template>
   <div>
     <div class="price_info">Set channel pricing and profit distribution.</div>
-    <v-form
-        ref="form"
-        v-model="valid"
-        lazy-validation
-        class="d-flex align-center"
-    >
-      <v-row no-gutters>
-        <v-col cols="4">
-          <v-text-field
-              label="Price"
-              :rules="rules"
-              v-model="price"
-              type="number"
-              :min="1"
-          ></v-text-field>
-        </v-col>
-        <v-col cols="8">
-          <v-select
-              style="margin-left: 20px"
-              v-model="mode"
-              label="Mode"
-              :items="items"
-          ></v-select>
-        </v-col>
-      </v-row>
-    </v-form>
+    <v-row no-gutters>
+      <v-col cols="4">
+        <v-text-field
+            :error="!!error"
+            :hide-details="true"
+            label="Price"
+            v-model="price"
+            type="number"
+        ></v-text-field>
+      </v-col>
+      <v-col cols="8">
+        <v-select
+            :hide-details="true"
+            style="margin-left: 20px"
+            v-model="modeType"
+            label="Mode"
+            :items="items"
+        ></v-select>
+      </v-col>
+    </v-row>
+    <div class="price_error">{{ error }}</div>
     <footer style="margin-top: 5px">
       <v-btn
+          :disabled="!!error"
           @click="set"
           :loading="loading"
           depressed
@@ -53,24 +49,36 @@ export default {
     return {
       loading: false,
       valid: true,
-      price: 1,
-      mode: 0,
-      rules: [
-        value => !!value || 'Required',
-        value => Number.isInteger(value * 100) || 'Maximum two decimal places',
-        value => value >= 1 || 'Price cannot be less than 1'
-      ],
+      price: 0,
+      minPrice: 0,
+      maxPrice: 1,
+      modeType: "",
       items: [],
-      decimals: 2
+      decimals: 3,
     }
   },
   computed: {
     ...mapGetters(["web3", "currentUser", "nodeWeb3"]),
+    error() {
+      if (this.price === "") {
+        return "require"
+      }
+      const decimals = this.decimals - 2;
+      if (!Number.isInteger(this.price * (10 ** decimals))) {
+        return `Maximum ${decimals} decimal places`
+      }
+      const minPrice = this.items[this.modeType]?.minPrice || 0;
+      const maxPrice = this.items[this.modeType]?.maxPrice || 1;
+      if (this.price < minPrice || this.price > maxPrice) {
+        return `Current model price range is between ${minPrice} and ${maxPrice}`
+      }
+      return "";
+    }
   },
   async created() {
     await this.getDecimals();
-    this.getUserConfig()
-    this.getMode();
+    await this.getMode();
+    await this.getUserConfig()
   },
   methods: {
     async getDecimals() {
@@ -79,26 +87,28 @@ export default {
     },
     async getUserConfig() {
       const favorTubeContract = new this.nodeWeb3.eth.Contract(favorTubeAbi, config.favorTubeAddress);
-      let userConfig = await favorTubeContract.methods.userConfig().call({from: this.currentUser.address});
+      let userConfig = await favorTubeContract.methods.getUserConfig(this.currentUser.address).call();
       this.price = userConfig.price / (10 ** this.decimals);
-      this.mode = userConfig.mode;
+      this.modeType = userConfig.modeType;
     },
     async getMode() {
       const favorTubeContract = new this.nodeWeb3.eth.Contract(favorTubeAbi, config.favorTubeAddress);
-      let modeArr = await favorTubeContract.methods.getTaxRateKey().call();
+      let modeArr = await favorTubeContract.methods.getModesKey().call();
       let items = [];
       for (let i = 0; i < modeArr.length; i++) {
         let item = modeArr[i];
-        const rate = await favorTubeContract.methods.getTaxRate(item).call();
+        const mode = await favorTubeContract.methods.getMode(item).call();
         items.push({
-          text: `Type: ${item} | Percentage: (${rate.slice(2).join("-")})`,
-          value: item
+          text: `Type: ${item} | Percentage: (${mode.taxRate.slice(2).join("-")})`,
+          value: item,
+          maxPrice: mode.maxPrice / (10 ** this.decimals),
+          minPrice: mode.minPrice / (10 ** this.decimals),
         })
       }
       this.items = items;
     },
     async set() {
-      if (this.$refs.form.validate()) {
+      if (!this.error) {
         this.loading = true;
         const price = await this.web3.eth.getGasPrice();
         let {favorTubeAddress} = config;
@@ -107,7 +117,10 @@ export default {
           from: this.currentUser.address,
           to: favorTubeAddress,
           gasPrice: this.web3.utils.toHex(price),
-          data: favorTubeContract.methods.setUserConfig(this.price * (10 ** this.decimals), this.mode).encodeABI()
+          data: favorTubeContract.methods.setUserConfig({
+            price: this.price * (10 ** this.decimals),
+            modeType: this.modeType,
+          }).encodeABI()
         }, (error, hash) => {
           if (error) {
             this.$store.dispatch('showTips', {
@@ -143,6 +156,12 @@ export default {
         }, 1000)
       }
     }
+  },
+  watch: {
+    modeType(v) {
+      this.minPrice = this.items[v].minPrice;
+      this.maxPrice = this.items[v].maxPrice;
+    }
   }
 }
 </script>
@@ -153,6 +172,14 @@ export default {
   font-size: 12px;
   color: #3B99FD;
   margin-bottom: 5px;
+}
+
+.price_error {
+  font-size: 12px;
+  color: #ff5252;
+  line-height: 14px;
+  margin-top: 2px;
+  margin-bottom: 20px;
 }
 
 </style>
