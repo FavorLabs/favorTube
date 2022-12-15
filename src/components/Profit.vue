@@ -1,39 +1,19 @@
 <template>
   <v-card :loading="dataLoading" style="padding: 0 30px 20px;height: 100%">
-    <v-card-title style="padding: 20px 0 0;">
+    <v-card-title style="padding: 20px 0 0;align-items: flex-end">
       <span class="header">
         PROFIT
       </span>
+      <div style="margin-left: 20px;width: 100px">
+        <v-select
+            style="margin: 0"
+            :hide-details="true"
+            v-model="time"
+            :items="items"
+            @change="timeChange"
+        ></v-select>
+      </div>
     </v-card-title>
-    <div style="display: flex;margin-top: 20px">
-      <v-menu
-          ref="startMenu"
-          v-model="startMenu"
-          :close-on-content-click="false"
-          transition="scale-transition"
-          offset-y
-          min-width="auto"
-      >
-        <template v-slot:activator="{ on, attrs }">
-          <v-text-field
-              v-model="startTime"
-              label="Start Time"
-              prepend-icon="mdi-calendar"
-              readonly
-              v-bind="attrs"
-              v-on="on"
-          ></v-text-field>
-        </template>
-        <v-date-picker
-            v-model="startTime"
-            no-title
-            scrollable
-            :max="startTimeMax"
-            @input="timeInput"
-        >
-        </v-date-picker>
-      </v-menu>
-    </div>
     <div style="margin-top: 20px">
       <div class="key">Contract Balance:</div>
       <div class="value">{{ total }}</div>
@@ -84,10 +64,17 @@ export default {
   name: "Profit",
   data() {
     return {
-      startTime: moment().subtract("1", "month").format('YYYY-MM-DD'),
-      // endTime: new Date(),
-      startMenu: false,
-      // endMenu: false,
+      time: 1,
+      items: [
+        {
+          value: 0,
+          text: "1 week",
+        },
+        {
+          value: 1,
+          text: "1 month"
+        }
+      ],
       dataLoading: false,
       loading: false,
       amount: 0,
@@ -101,9 +88,10 @@ export default {
   },
   computed: {
     ...mapGetters(["nodeWeb3", "web3", "currentUser"]),
-    startTimeMax() {
-      return moment().format("YYYY-MM-DD");
-    },
+    unix() {
+      return this.time === 0 ? moment().subtract("1", "weeks").format('x') :
+          moment().subtract("1", "months").format('x')
+    }
   },
   async created() {
     this.dataLoading = true;
@@ -111,11 +99,9 @@ export default {
     await this.getAmount();
     await this.getSubscriptionRevenue();
     this.dataLoading = false;
-    console.log(this.startTime)
   },
   methods: {
-    timeInput() {
-      this.startMenu = false;
+    timeChange() {
       this.getSubscriptionRevenue()
     },
     async getDecimals() {
@@ -131,7 +117,7 @@ export default {
     },
     async getSubscriptionRevenue() {
       const {data} = await RevenueService.getInfo({
-        date: moment(this.startTime).format('x')
+        date: this.unix
       });
       let info = data.data;
       this.subscriptionBenefits = info.subscriptionBenefits / (10 ** this.decimals);

@@ -371,31 +371,30 @@
         :oracleArrs="oracleArrs"
     ></SourceInfoModal>
     <template v-if="subscribeModalInfo.dialog">
+      <SubscribedTime
+          v-if="subInfo.state === 'Confirmed' || isMember"
+          :expire="subscribeModalInfo.expire"
+          :video="video"
+          :dialog="subscribeModalInfo.dialog"
+          @closeSTModal="subscribeModalInfo.dialog = false"
+      ></SubscribedTime>
       <JoinModal
-        v-if="subscribeModalInfo.type === 1"
-        :openModal="subscribeModalInfo.dialog"
-        @closeJoinModal="subscribeModalInfo.dialog = false"
-        :video="video"
-        :subInfo="subInfo"
-        @switchModal="switchModal"
-        @changeTransactionInfo="changeTransactionInfo"
+          v-else-if="!subInfo.state"
+          :openModal="subscribeModalInfo.dialog"
+          :video="video"
+          :subInfo="subInfo"
+          @closeJoinModal="subscribeModalInfo.dialog = false"
+          @changeTransactionInfo="changeTransactionInfo"
       ></JoinModal>
       <SubscribeMiddleware
-        v-if="subscribeModalInfo.type === 2"
-        :video="video"
-        :subInfo="subInfo"
-        :dialog="subscribeModalInfo.dialog"
-        @checkPayStatus="checkPayStatus"
-        @checkSubState="checkSubState"
-        @closeMiddlewareModal="subscribeModalInfo.dialog = false"
+          v-else
+          :video="video"
+          :subInfo="subInfo"
+          :dialog="subscribeModalInfo.dialog"
+          @joinCallback="joinCallback"
+          @changeTransactionInfo="changeTransactionInfo"
+          @closeMiddlewareModal="subscribeModalInfo.dialog = false"
       ></SubscribeMiddleware>
-      <SubscribedTime
-        v-if="subscribeModalInfo.type === 3"
-        :expire="subscribeModalInfo.expire"
-        :video="video"
-        :dialog="subscribeModalInfo.dialog"
-        @closeSTModal="subscribeModalInfo.dialog = false"
-      ></SubscribedTime>
     </template>
     <v-dialog
         v-model="subscribeDialog"
@@ -450,7 +449,6 @@ export default {
     subscribeDialog: false,
     isMember: false,
     subscribeModalInfo: {
-      type: 1, // 1:joinModal 2:SubscribeMiddleware 3:SubscribedTime
       dialog: false,
       expire: 0,
     },
@@ -474,8 +472,6 @@ export default {
     retryStatus: false,
     videoURL: '',
     oracleArrs: [],
-    checkTimer: null,
-    checkSubStateTimer: null,
   }),
   computed: {
     ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated', "getImgUrl", "getApi", "web3"])
@@ -493,14 +489,12 @@ export default {
       this.subscribeModalInfo.dialog = true;
     },
     joinCallback(data) {
-      this.clearTimer();
       this.subscribeModalInfo.dialog = false;
-      this.subscribeModalInfo.type = 3;
+      this.subscribeModalInfo.expire = data.expire;
       this.subscribed = true;
       this.isMember = true;
       this.playable = true;
       this.video.userId.subscribers++;
-      this.subscribeModalInfo.expire = data.expire;
     },
     subscribeBefore() {
       if (!this.isAuthenticated) {
@@ -564,7 +558,6 @@ export default {
         if (this.channelAddress === this.currentUser?.address) {
           this.subscribed = true;
           this.isMember = true;
-          this.subscribeModalInfo.type = 3;
           this.playable = true;
         } else {
           await this.checkSubscription(this.video.userId._id)
@@ -643,7 +636,6 @@ export default {
       }
       if (sub.data.data.tx) {
         this.isMember = true;
-        this.subscribeModalInfo.type = 3;
         this.playable = true;
         this.subscribeModalInfo.expire = sub.data.data.expire;
       } else {
@@ -733,50 +725,10 @@ export default {
     },
     async getSubState() {
       // if (!this.isAuthenticated) return
-      const { data } = await SubListService.getSub(this.video.userId._id);
+      const {data} = await SubListService.getSub(this.video.userId._id);
       if (data.data) {
         this.subInfo = data.data;
       }
-    },
-    async checkPayStatus() {
-      let lock = false;
-      this.checkTimer = setInterval(async () => {
-        if (lock) return;
-        lock = true;
-        try {
-          const {data} = await SubscriptionService.checkSubscription({channelId: this.video.userId._id}, 2000);
-          if (data?.data?.tx) {
-            clearInterval(this.checkTimer);
-            await this.$store.dispatch("showTips", {
-              type: "success",
-              text: "Subscription Success"
-            });
-            this.joinCallback(data.data);
-          }
-        } catch (e) {
-          console.log(e)
-        }
-        lock = false;
-      }, 1000)
-    },
-    async checkSubState() {
-      let lock = false;
-      this.checkSubStateTimer = setInterval(async () => {
-        if (lock) return;
-        lock = true;
-        try {
-          const { data } = await SubListService.getSubById(this.subInfo._id);
-          if (data.data) {
-            // if (data.data.state === 'Chain') {
-            //   clearInterval(this.checkSubStateTimer);
-            // }
-            this.subInfo = data.data;
-          }
-        } catch (e) {
-          console.log(e)
-        }
-        lock = false;
-      }, 1500)
     },
     changeTransactionInfo(info) {
       this.subInfo = info;
@@ -934,13 +886,6 @@ export default {
         }
       })
     },
-    switchModal() {
-      this.subscribeModalInfo.type = 2;
-    },
-    clearTimer() {
-      if (this.checkTimer) clearInterval(this.checkTimer);
-      if (this.checkSubStateTimer) clearInterval(this.checkSubStateTimer);
-    },
     ...mapMutations(['addContinuousPlay']),
   },
   components: {
@@ -968,9 +913,6 @@ export default {
     playable(newV) {
       if (newV) this.bindAutoPlay();
     },
-    subInfo(newV) {
-      if (newV?.state) this.subscribeModalInfo.type = 2;
-    }
   },
   beforeRouteUpdate(to, from, next) {
     this.page = 1;
@@ -981,10 +923,6 @@ export default {
     this.retryStatus = false;
     next()
   },
-  beforeRouteLeave(to, from, next) {
-    this.clearTimer();
-    next()
-  }
 }
 </script>
 
@@ -1101,7 +1039,8 @@ button.v-btn.remove-hover-bg {
 @keyframes subLoading {
   from {
     transform: rotate(0deg);
-  } to {
+  }
+  to {
     transform: rotate(360deg);
   }
 }
