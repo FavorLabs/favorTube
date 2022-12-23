@@ -47,8 +47,8 @@
           <div :class="radio !== 2 ? 'left' : 'left left-uni'">
             <p class="pay-methods-title">Select a payment method:</p>
             <v-radio-group v-model="radio" class="pay-methods-option">
-              <v-radio :value=0 :label="radioList[0]" v-if="accountBalance + processingBalance > 0"></v-radio>
-              <v-radio :value=1 :label="radioList[1]"></v-radio>
+              <v-radio :value=0 :label="radioList[0]" v-if="accountBalance !== 0 && accountBalance >= price"></v-radio>
+              <v-radio :value=1 :label="radioList[1]" v-if="balance !== 0 && balance >= price"></v-radio>
               <v-radio :value=2 :label="radioList[2]"></v-radio>
             </v-radio-group>
           </div>
@@ -183,7 +183,7 @@ export default {
       tokenContract: null,
       chainInfo: config,
       radioList: ['balance', 'token', 'uniswap'],
-      radio: 1,
+      radio: 2,
       checkTimer: null,
       subBlockNumber: 0,
       uniswapData: {
@@ -232,15 +232,16 @@ export default {
         })
         this.closeModal();
       }, 1000 * 15)
-      await this.getAccountBalance();
       await this.getAmount();
       const favorTubeContract = new this.nodeWeb3.eth.Contract(favorTubeAbi, this.favorTubeCAddress);
       const tokenContract = new this.nodeWeb3.eth.Contract(tokenAbi, this.token.address);
+      this.price = (await favorTubeContract.methods.getUserConfig(this.video.userId.address).call()).price;
+      await this.getAccountBalance();
       this.token.decimal = Number(await tokenContract.methods.decimals().call());
       this.token.name = await tokenContract.methods.name().call();
       this.token.symbol = await tokenContract.methods.symbol().call();
       this.balance = await tokenContract.methods.balanceOf(this.currentUser.address).call();
-      this.price = (await favorTubeContract.methods.getUserConfig(this.video.userId.address).call()).price;
+      (this.balance >= this.price && this.accountBalance < this.price) ? this.selectDefaultPay(1) : '';
       this.subBlockNumber = await favorTubeContract.methods.subscribeBlock().call();
       clearTimeout(this.checkTimer);
       this.favorTubeContract = favorTubeContract;
@@ -287,7 +288,7 @@ export default {
       if (data.data) {
         this.accountBalance = data.data.amount - data.data.processing;
         this.processingBalance = data.data.processing;
-        this.accountBalance > 0 && this.selectDefaultPay(0);
+        this.accountBalance >= this.price && this.selectDefaultPay(0);
       }
       this.accountBalanceLoading = false;
     },
@@ -496,7 +497,6 @@ export default {
         flex-grow: 1;
 
         .uniswap-wrap {
-          color: #f44336;
 
           ::v-deep .uniswap {
             width: 100%;
@@ -504,6 +504,22 @@ export default {
             min-width: 260px;
             margin-left: -5px;
             background-color: transparent;
+
+            .Row-sc-1nzvhrh-0.ActionButton__Overlay-sc-xgl46p-2.cHGfZQ.jHTrMM {
+              justify-content: center;
+              flex-direction: column-reverse;
+              padding: 10px;
+
+              >button {
+                flex-grow: 1;
+                margin-top: 5px;
+                padding: 5px 0;
+              }
+
+              >div {
+                justify-content: center;
+              }
+            }
           }
         }
       }
@@ -566,15 +582,6 @@ export default {
   }
   100% {
     transform: rotate(360deg);
-  }
-}
-
-@keyframes text-shadow {
-  from {
-    background-position: -150px;
-  }
-  to {
-    background-position: 150px;
   }
 }
 

@@ -16,7 +16,7 @@ import { getSize } from './utils/util'
 import '@mdi/font/css/materialdesignicons.min.css';
 
 import VueClipboard from 'vue-clipboard2'
-
+VueClipboard.config.autoSetContainer = true;
 Vue.use(VueClipboard)
 
 import VueLoadmore from 'vuejs-loadmore';
