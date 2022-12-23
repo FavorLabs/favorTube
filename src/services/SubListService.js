@@ -13,5 +13,8 @@ export default {
   },
   addSublist(data) {
     return Api().post('sublist', data);
+  },
+  getSublist() {
+    return Api().get('sublist');
   }
 }

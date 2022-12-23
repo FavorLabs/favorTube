@@ -24,6 +24,15 @@
             >
               Subscriber list→
             </v-btn>
+            <v-btn
+                depressed
+                block
+                color="#fff"
+                style="color: #3B99FD;margin-top: 30px;border: 1px solid #DDEDFD;padding: 19px"
+                @click="subscriptionHistoryDialog=true"
+            >
+              Subscription history list→
+            </v-btn>
           </v-card>
         </v-col>
         <v-col cols="12" md="4" class="profit">
@@ -37,11 +46,17 @@
         :open-dialog="subscribersDialog"
         @closeDialog="subscribersDialog = false"
     />
+    <subscription-history-modal
+        v-if="subscriptionHistoryDialog"
+        :open-dialog="subscriptionHistoryDialog"
+        @closeDialog="subscriptionHistoryDialog = false"
+    />
   </div>
 </template>
 
 <script>
 import SubscribersModal from '@/components/SubscribersModal'
+import SubscriptionHistoryModal from '@/components/SubscriptionHistoryModal'
 import SetPriceModal from '@/components/SetPriceModal'
 import SecretModal from '@/components/SecretModal'
 import Profit from "@/components/Profit";
@@ -49,9 +64,11 @@ import Profit from "@/components/Profit";
 export default {
   data: () => ({
     subscribersDialog: false,
+    subscriptionHistoryDialog: false,
   }),
   components: {
     SubscribersModal,
+    SubscriptionHistoryModal,
     SetPriceModal,
     SecretModal,
     Profit,
