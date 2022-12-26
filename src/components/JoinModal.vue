@@ -190,9 +190,9 @@ export default {
         disable: true,
         approved: false,
         inputAmount: 0,
-        inputAddress: '',
         outputAmount: 0,
         isNative: false,
+        path: ""
       },
     }
   },
@@ -256,6 +256,22 @@ export default {
     }
   },
   methods: {
+    encodePath(path, fees) {
+      if (path.length !== fees.length + 1) {
+        throw new Error('path/fee lengths do not match')
+      }
+      const FEE_SIZE = 3;
+      let encoded = '0x'
+      for (let i = 0; i < fees.length; i++) {
+        // 20 byte encoding of the address
+        encoded += path[i].slice(2)
+        // 3 byte encoding of the fee
+        encoded += fees[i].toString(16).padStart(2 * FEE_SIZE, '0')
+      }
+      // encode the final token
+      encoded += path[path.length - 1].slice(2)
+      return encoded.toLowerCase()
+    },
     dateFormatter(date) {
       return moment(date).format('LLL');
     },
@@ -273,10 +289,10 @@ export default {
       this.amountLoading = false;
     },
     uniPriceUpdate(trade) {
+      this.uniswapData.path = this.encodePath(trade.routes[0].tokenPath.map(item => item.address).reverse(), trade.routes[0].pools.map(item => item.fee).reverse())
       this.uniswapData.inputAmount = trade.inputAmount.numerator.toString();
       this.uniswapData.outputAmount = trade.outputAmount.numerator.toString();
       this.uniswapData.isNative = trade.inputAmount.currency.isNative;
-      this.uniswapData.inputAddress = trade.inputAmount.currency.address || trade.inputAmount.currency.wrapped.address;
     },
     uniDisableUpdate(disable, approved) {
       this.uniswapData.disable = disable;
@@ -361,9 +377,7 @@ export default {
       })
     },
     async uniswapPay(sharer, sharerId) {
-      const {inputAddress, inputAmount, outputAmount, isNative} = this.uniswapData;
-      const tokenIn = inputAddress;
-      const fee = 500;
+      const {path, inputAmount, outputAmount, isNative} = this.uniswapData;
       const amountInMaximum = inputAmount;
       const value = isNative ? amountInMaximum : 0;
       const amountOut = outputAmount;
@@ -375,8 +389,7 @@ export default {
         value,
         gasPrice: this.web3.utils.toHex(price),
         data: this.favorTubeContract.methods.swapToken(
-            tokenIn,
-            fee,
+            path,
             amountInMaximum,
             amountOut,
             data
@@ -402,10 +415,11 @@ export default {
           ...info,
         })
         if (data.data) {
-          this.$emit("changeTransactionInfo", data.data);
+          this.$emit("send", data.data);
         }
       } catch (e) {
         if (!next) {
+          this.payLoading = false;
           return await this.$store.dispatch("showTips", {
             type: "error",
             text: e.message || e

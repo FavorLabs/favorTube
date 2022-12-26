@@ -40,8 +40,6 @@
 import {mapGetters} from 'vuex'
 import moment from 'moment';
 import {config, tokenAbi} from "@/config/config";
-import SubListService from "@/services/SubListService";
-import SubscriptionService from "@/services/SubscriptionService";
 
 export default {
   name: "SubscribeMiddleware",
@@ -81,10 +79,6 @@ export default {
   },
   async created() {
     await this.getTokenInfo();
-    // this.$parent.clearTimer();
-    // this.$emit('checkPayStatus');
-    // this.$emit('checkSubState');
-    this.checkSubState();
   },
   computed: {
     ...mapGetters(['isAuthenticated', "nodeWeb3"])
@@ -134,34 +128,6 @@ export default {
           break;
       }
       return className;
-    },
-    async checkSubState() {
-      const {data} = await SubListService.getSubById(this.subInfo._id);
-      const subInfo = data.data;
-      if (subInfo) {
-        this.$emit("changeTransactionInfo", subInfo);
-        if (subInfo.state === 'Chain') {
-          this.checkPayStatus();
-          return;
-        }
-      }
-      setTimeout(() => {
-        this.checkSubState();
-      }, 1000)
-    },
-    async checkPayStatus() {
-      const {data} = await SubscriptionService.checkSubscription({channelId: this.video.userId._id}, 2000);
-      if (data?.data?.tx) {
-        await this.$store.dispatch("showTips", {
-          type: "success",
-          text: "Subscription Success"
-        });
-        this.$emit('joinCallback', data.data);
-        return;
-      }
-      setTimeout(() => {
-        this.checkPayStatus();
-      }, 1000)
     },
   }
 }

@@ -210,7 +210,7 @@
                         <v-btn
                             :disabled="video.userId.id == currentUser.id"
                             :class="[
-                            (isMember || subInfo.state) ? 'grey grey--text lighten-3 text--darken-3':'red white--text' ,
+                            (subState === 1 || subState === 2) ? 'grey grey--text lighten-3 text--darken-3':'red white--text' ,
                             'mt-6',
                             'ml-2'
                           ]"
@@ -219,8 +219,9 @@
                             depressed
                             @click="clickSubBtn"
                         >
-                          {{ isMember ? 'subscribed' : (subInfo.state ? '' : 'subscribe') }}
-                          <span class="sub-loading" v-if="!isMember && subInfo.state"></span>
+                          <span v-if="subState===2">subscribed</span>
+                          <span v-else-if="subState===0">subscribe</span>
+                          <span v-else class="sub-loading"></span>
                         </v-btn
                         >
                       </div>
@@ -372,29 +373,27 @@
     ></SourceInfoModal>
     <template v-if="subscribeModalInfo.dialog">
       <SubscribedTime
-          v-if="subInfo.state === 'Confirmed' || isMember"
-          :expire="subscribeModalInfo.expire"
+          v-if="subState === 2"
+          :expire="expire"
           :video="video"
           :dialog="subscribeModalInfo.dialog"
           @closeSTModal="subscribeModalInfo.dialog = false"
       ></SubscribedTime>
+      <SubscribeMiddleware
+          v-else-if="subState ===1"
+          :video="video"
+          :subInfo="subInfo"
+          :dialog="subscribeModalInfo.dialog"
+          @closeMiddlewareModal="subscribeModalInfo.dialog = false"
+      ></SubscribeMiddleware>
       <JoinModal
-          v-else-if="!subInfo.state"
+          v-else-if="subState===0"
           :openModal="subscribeModalInfo.dialog"
           :video="video"
           :subInfo="subInfo"
           @closeJoinModal="subscribeModalInfo.dialog = false"
-          @changeTransactionInfo="changeTransactionInfo"
+          @send="send"
       ></JoinModal>
-      <SubscribeMiddleware
-          v-else
-          :video="video"
-          :subInfo="subInfo"
-          :dialog="subscribeModalInfo.dialog"
-          @joinCallback="joinCallback"
-          @changeTransactionInfo="changeTransactionInfo"
-          @closeMiddlewareModal="subscribeModalInfo.dialog = false"
-      ></SubscribeMiddleware>
     </template>
     <v-dialog
         v-model="subscribeDialog"
@@ -450,8 +449,8 @@ export default {
     isMember: false,
     subscribeModalInfo: {
       dialog: false,
-      expire: 0,
     },
+    expire: 0,
     playable: false,
     feeling: '',
     video: {},
@@ -474,7 +473,11 @@ export default {
     oracleArrs: [],
   }),
   computed: {
-    ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated', "getImgUrl", "getApi", "web3"])
+    ...mapGetters(['currentUser', 'getUrl', 'isAuthenticated', "getImgUrl", "getApi", "web3"]),
+    subState() {
+      return this.expire ? 2 :
+          this.subInfo.state ? 1 : 0
+    }
   },
   methods: {
     clickSubBtn() {
@@ -487,14 +490,6 @@ export default {
         return;
       }
       this.subscribeModalInfo.dialog = true;
-    },
-    joinCallback(data) {
-      this.subscribeModalInfo.dialog = false;
-      this.subscribeModalInfo.expire = data.expire;
-      this.subscribed = true;
-      this.isMember = true;
-      this.playable = true;
-      this.video.userId.subscribers++;
     },
     subscribeBefore() {
       if (!this.isAuthenticated) {
@@ -510,6 +505,10 @@ export default {
       } else {
         this.subscribe()
       }
+    },
+    send(subInfo) {
+      this.subInfo = subInfo;
+      this.checkPayStatus();
     },
     async subscribe() {
       if (this.subscribed) {
@@ -637,7 +636,7 @@ export default {
       if (sub.data.data.tx) {
         this.isMember = true;
         this.playable = true;
-        this.subscribeModalInfo.expire = sub.data.data.expire;
+        this.expire = sub.data.data.expire;
       } else {
         this.getSubState();
       }
@@ -724,14 +723,38 @@ export default {
       this.video.views++
     },
     async getSubState() {
-      // if (!this.isAuthenticated) return
       const {data} = await SubListService.getSub(this.video.userId._id);
       if (data.data) {
         this.subInfo = data.data;
+        await this.checkPayStatus();
       }
     },
-    changeTransactionInfo(info) {
-      this.subInfo = info;
+    async checkPayStatus() {
+      if (!this.subInfo) return;
+      let subInfo = await SubListService.getSubById(this.subInfo._id);
+      subInfo = subInfo.data?.data;
+      this.subInfo = subInfo;
+      if (subInfo.state === "Confirmed" && subInfo.expire) {
+        this.subscribeModalInfo.dialog = false;
+        this.expire = subInfo.expire
+        this.subscribed = true;
+        this.isMember = true;
+        this.playable = true;
+        this.video.userId.subscribers++;
+        await this.$store.dispatch("showTips", {
+          type: "success",
+          text: "Subscription Success"
+        });
+        return;
+      } else if (subInfo.state === "Error") {
+        this.subInfo = {};
+        await this.$store.dispatch("showTips", {
+          type: "error",
+          text: "Subscription Failure"
+        });
+        return;
+      }
+      setTimeout(this.checkPayStatus, 2000)
     },
     actions() {
       this.getVideo(this.$route.params.id)
