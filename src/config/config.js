@@ -252,12 +252,12 @@ export const tokenAbi = [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "from",
+                "name": "sender",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "to",
+                "name": "recipient",
                 "type": "address"
             },
             {
@@ -326,7 +326,7 @@ export const tokenAbi = [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "to",
+                "name": "recipient",
                 "type": "address"
             },
             {
@@ -660,6 +660,26 @@ export const favorTubeAbi = [
                 "internalType": "uint8[]",
                 "name": "",
                 "type": "uint8[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes",
+                "name": "path",
+                "type": "bytes"
+            }
+        ],
+        "name": "getTokenIn",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
             }
         ],
         "stateMutability": "view",
@@ -1089,14 +1109,9 @@ export const favorTubeAbi = [
     {
         "inputs": [
             {
-                "internalType": "address",
-                "name": "tokenIn",
-                "type": "address"
-            },
-            {
-                "internalType": "uint24",
-                "name": "fee",
-                "type": "uint24"
+                "internalType": "bytes",
+                "name": "path",
+                "type": "bytes"
             },
             {
                 "internalType": "uint256",
