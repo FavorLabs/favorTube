@@ -30,6 +30,7 @@
     "@uniswap/widgets": "2.20.1",
     "@walletconnect/web3-provider": "^1.8.0",
     "axios": "^0.19.2",
+    "bignumber.js": "^9.1.1",
     "core-js": "^3.6.4",
     "eventemitter3": "^4.0.7",
     "jotai-immer": "^0.1.0",

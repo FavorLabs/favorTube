@@ -213,7 +213,8 @@ export default {
         favorTokenAddress: this.token.address,
         decimal: this.token.decimal,
         name: this.token.name,
-        symbol: this.token.symbol
+        symbol: this.token.symbol,
+        price: this.price,
       }
     },
     checkPayDisable() {
@@ -524,13 +525,13 @@ export default {
               flex-direction: column-reverse;
               padding: 10px;
 
-              >button {
+              > button {
                 flex-grow: 1;
                 margin-top: 5px;
                 padding: 5px 0;
               }
 
-              >div {
+              > div {
                 justify-content: center;
               }
             }

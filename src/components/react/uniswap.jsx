@@ -6,12 +6,14 @@ import {SwapWidget, Field, TradeType} from '@uniswap/widgets'
 import {tokens} from '@uniswap/default-token-list'
 import {Token} from '@uniswap/sdk-core'
 import '@uniswap/widgets/dist/fonts.css'
+import BigNumber from "bignumber.js";
 
 const Uniswap = (props) => {
     const {provider, uniConfig} = props.vue;
     // eslint-disable-next-line no-unused-vars
-    const {chainId,favorTokenAddress,favorTubeAddress,decimal,name,symbol} = uniConfig;
+    const {chainId, favorTokenAddress, favorTubeAddress, decimal, name, symbol, price} = uniConfig;
     console.log(props)
+    const value = BigNumber(price).div(BigNumber(10).pow(decimal))
     // eslint-disable-next-line no-unused-vars
     const [input, setInput] = useState()
     // eslint-disable-next-line no-unused-vars
@@ -21,7 +23,7 @@ const Uniswap = (props) => {
             contractAddress={favorTubeAddress}
             value={{
                 type: TradeType.EXACT_OUTPUT,
-                amount: '1',
+                amount: value.toString(),
                 [Field.OUTPUT]: token,
                 [Field.INPUT]: input,
             }}
