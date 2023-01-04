@@ -748,6 +748,7 @@ export default {
         return;
       } else if (subInfo.state === "Error") {
         this.subInfo = {};
+        this.subscribeModalInfo.dialog = false;
         await this.$store.dispatch("showTips", {
           type: "error",
           text: "Subscription Failure"
