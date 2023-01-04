@@ -192,7 +192,8 @@ export default {
         inputAmount: 0,
         outputAmount: 0,
         isNative: false,
-        path: ""
+        path: "",
+        state: false
       },
     }
   },
@@ -220,7 +221,7 @@ export default {
     checkPayDisable() {
       return this.dataLoading || (this.radio === 1 ?
           this.balance < this.price : this.radio === 0 ?
-              this.accountBalance < this.price : this.uniswapData.disable || !this.uniswapData.approved)
+              this.accountBalance < this.price : !this.uniswapData.state || this.uniswapData.disable || !this.uniswapData.approved)
     },
   },
   async created() {
@@ -289,11 +290,12 @@ export default {
       this.amount = Number(this.nodeWeb3.utils.fromWei(amount, "ether")).toFixed(5);
       this.amountLoading = false;
     },
-    uniPriceUpdate(trade) {
+    uniPriceUpdate(trade, state) {
       this.uniswapData.path = this.encodePath(trade.routes[0].tokenPath.map(item => item.address).reverse(), trade.routes[0].pools.map(item => item.fee).reverse())
       this.uniswapData.inputAmount = trade.inputAmount.numerator.toString();
       this.uniswapData.outputAmount = trade.outputAmount.numerator.toString();
       this.uniswapData.isNative = trade.inputAmount.currency.isNative;
+      this.uniswapData.state = state;
     },
     uniDisableUpdate(disable, approved) {
       this.uniswapData.disable = disable;

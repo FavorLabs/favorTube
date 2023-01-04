@@ -12,7 +12,6 @@ const Uniswap = (props) => {
     const {provider, uniConfig} = props.vue;
     // eslint-disable-next-line no-unused-vars
     const {chainId, favorTokenAddress, favorTubeAddress, decimal, name, symbol, price} = uniConfig;
-    console.log(props)
     const value = BigNumber(price).div(BigNumber(10).pow(decimal))
     // eslint-disable-next-line no-unused-vars
     const [input, setInput] = useState()
@@ -33,9 +32,9 @@ const Uniswap = (props) => {
             tokenList={tokens}
             provider={provider}
             brandedFooter={false}
-            onSwapPriceUpdate={(trade) => {
+            onSwapPriceUpdate={(trade, state) => {
                 console.log('onSwapPriceUpdate', trade);
-                props.vue.$emit("priceUpdate", trade);
+                props.vue.$emit("priceUpdate", trade, state);
             }}
             onDisableUpdate={(disable, approved) => {
                 // console.log('onDisableUpdate', disable, approved);
